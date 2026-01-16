@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Award, Home, Library, MessageSquare, ShoppingBag, Users } from "lucide-react";
+import { Award, Home, Dumbbell, MessageSquare, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/subscriptions", label: "Plans", icon: Award },
-  { href: "/workouts", label: "Workouts", icon: Library },
-  { href: "/trainers", label: "Trainers", icon: Users },
-  { href: "/shop", label: "Shop", icon: ShoppingBag },
+  { href: "/", label: "Acasă", icon: Home },
+  { href: "/workouts", label: "Antrenament", icon: Dumbbell },
+  { href: "/subscriptions", label: "Planuri", icon: Award },
+  { href: "/shop", label: "Magazin", icon: ShoppingBag },
   { href: "/feedback", label: "Feedback", icon: MessageSquare },
 ];
 
@@ -18,8 +17,8 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background/80 backdrop-blur-sm border-t border-border/50 z-50">
-      <div className="grid grid-cols-6 h-full">
+    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-card/80 backdrop-blur-sm border-t border-border/50 z-50">
+      <div className="grid grid-cols-5 h-full">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (

@@ -1,7 +1,6 @@
 "use client";
 
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from 'recharts';
-import { useTheme } from 'next-themes';
 
 interface DaysRemainingChartProps {
     daysLeft: number;
@@ -11,12 +10,10 @@ interface DaysRemainingChartProps {
 export default function DaysRemainingChart({ daysLeft, totalDays }: DaysRemainingChartProps) {
     const data = [{ name: 'Days Remaining', value: daysLeft }];
 
-    // Recharts doesn't read CSS variables, so we need to get the color manually.
-    // For simplicity, we'll hardcode the HSL value of primary.
     const primaryColor = 'hsl(180 100% 50%)'; 
 
     return (
-        <div className="relative w-48 h-48">
+        <div className="relative w-20 h-20">
             <ResponsiveContainer width="100%" height="100%">
                 <RadialBarChart
                     innerRadius="80%"
@@ -24,7 +21,7 @@ export default function DaysRemainingChart({ daysLeft, totalDays }: DaysRemainin
                     data={data}
                     startAngle={90}
                     endAngle={-270}
-                    barSize={10}
+                    barSize={8}
                 >
                     <PolarAngleAxis
                         type="number"
@@ -35,14 +32,14 @@ export default function DaysRemainingChart({ daysLeft, totalDays }: DaysRemainin
                     <RadialBar
                         background={{ fill: 'hsl(var(--muted))' }}
                         dataKey="value"
-                        cornerRadius={5}
+                        cornerRadius={4}
                         fill={primaryColor}
                     />
                 </RadialBarChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl font-bold text-primary">{daysLeft}</span>
-                <span className="text-sm text-muted-foreground">Days Left</span>
+                <span className="text-2xl font-bold">{daysLeft}</span>
+                <span className="text-xs text-muted-foreground">ZILE</span>
             </div>
         </div>
     );
