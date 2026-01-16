@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "workout-strength",
+      "description": "A person lifting heavy weights in a gym",
+      "imageUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3ZWlnaHQlMjBsaWZ0aW5nfGVufDB8fHx8MTc2ODU1OTcyMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "weight lifting"
+    },
+    {
+      "id": "workout-hiit",
+      "description": "A person doing high-intensity interval training",
+      "imageUrl": "https://images.unsplash.com/photo-1739430547883-dc519d7f7e56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxpbnRlbnNlJTIwd29ya291dHxlbnwwfHx8fDE3Njg1NTk3MjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "intense workout"
+    },
+    {
+      "id": "workout-cardio",
+      "description": "A person running on a treadmill",
+      "imageUrl": "https://images.unsplash.com/photo-1638183395699-2c0db5b6afbb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxydW5uaW5nJTIwbWFjaGluZXxlbnwwfHx8fDE3Njg1NTk3MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "running machine"
+    },
+    {
+      "id": "workout-recovery",
+      "description": "A person stretching on a yoga mat",
+      "imageUrl": "https://images.unsplash.com/photo-1607914660217-754fdd90041d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzdHJldGNoaW5nJTIweW9nYXxlbnwwfHx8fDE3Njg1NTk3MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "stretching yoga"
+    },
+    {
+      "id": "trainer-1",
+      "description": "Portrait of a male gym trainer",
+      "imageUrl": "https://images.unsplash.com/flagged/photo-1595514191830-3e96a518989b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxtYWxlJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzY4NTE4MzM4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "male portrait"
+    },
+    {
+      "id": "trainer-2",
+      "description": "Portrait of a female gym trainer",
+      "imageUrl": "https://images.unsplash.com/photo-1524255684952-d7185b509571?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmZW1hbGUlMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njg0ODY3NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "female portrait"
+    },
+    {
+      "id": "trainer-3",
+      "description": "Portrait of a gym trainer",
+      "imageUrl": "https://images.unsplash.com/photo-1590086782792-42dd2350140d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njg0NTYzODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    }
+  ]
 }
