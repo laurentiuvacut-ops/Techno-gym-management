@@ -90,7 +90,7 @@ export const workouts = [
 export const trainers = [
   {
     id: "1",
-    name: "Alex Ray",
+    name: "Laurentiu Vacut",
     specialty: "Bodybuilding Expert",
     image: getImage('trainer-1'),
   },

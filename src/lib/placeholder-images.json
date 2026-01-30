@@ -26,8 +26,8 @@
     },
     {
       "id": "trainer-1",
-      "description": "Portrait of a male gym trainer",
-      "imageUrl": "https://images.unsplash.com/flagged/photo-1595514191830-3e96a518989b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxtYWxlJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzY4NTE4MzM4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "Portrait of Laurentiu Vacut",
+      "imageUrl": "https://i.imgur.com/PVPoLOC.jpg",
       "imageHint": "male portrait"
     },
     {
@@ -69,7 +69,7 @@
     {
       "id": "transformation-before-2",
       "description": "A woman standing before her fitness transformation",
-      "imageUrl": "https://images.unsplash.com/photo-1618308178796-f4dc0a03bab6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b21hbiUyMHN0YW5kaW5nfGVufDB8fHx8MTc2OTczNTI2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1618308178796-f4dc0a03bab6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b21hbiUyMHN0YW5kaW5nfGVufDB8fHx8fDE3Njk3MzUyNjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woman standing"
     },
     {
