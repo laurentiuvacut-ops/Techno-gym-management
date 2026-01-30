@@ -13,8 +13,6 @@ import { cn } from "@/lib/utils";
 const getImage = (id: string) => PlaceHolderImages.find(p => p.id === id);
 
 export default function LandingPage() {
-    const gymPhoto1 = getImage('gym-interior-1');
-    const gymPhoto2 = getImage('gym-interior-2');
     const transformationBefore1 = getImage('transformation-before-1');
     const transformationAfter1 = getImage('transformation-after-1');
 
@@ -66,22 +64,6 @@ export default function LandingPage() {
           </div>
         </section>
         
-        {/* Gallery Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-card/50">
-            <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6 lg:gap-10">
-                <div className="space-y-3">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Echipamente de Vârf</h2>
-                    <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                        Investim constant în cele mai noi și performante echipamente pentru tine.
-                    </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {gymPhoto1 && <Image src={gymPhoto1.imageUrl} alt={gymPhoto1.description} width={600} height={400} data-ai-hint={gymPhoto1.imageHint} className="rounded-lg object-cover" />}
-                    {gymPhoto2 && <Image src={gymPhoto2.imageUrl} alt={gymPhoto2.description} width={600} height={400} data-ai-hint={gymPhoto2.imageHint} className="rounded-lg object-cover" />}
-                </div>
-            </div>
-        </section>
-
         {/* Transformations Section */}
         <section className="w-full py-12 md:py-24 lg:py-32">
             <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6 lg:gap-10">
@@ -119,7 +101,7 @@ export default function LandingPage() {
                         Flexibilitate maximă pentru a se potrivi stilului tău de viață.
                     </p>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     {subscriptions.map((plan) => (
                     <Card
                         key={plan.id}

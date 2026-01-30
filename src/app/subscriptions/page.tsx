@@ -31,14 +31,14 @@ export default function SubscriptionsPage() {
     <div className="space-y-8">
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-          Membership Plans
+          Abonamente
         </h1>
         <p className="max-w-[700px] mx-auto text-muted-foreground md:text-xl/relaxed">
-          Choose the plan that fits your lifestyle. Upgrade, downgrade, or cancel anytime.
+          Alege planul care ți se potrivește. Poți anula sau schimba oricând.
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {subscriptions.map((plan) => (
           <Card
             key={plan.id}
@@ -48,7 +48,7 @@ export default function SubscriptionsPage() {
             )}
           >
             {plan.popular && (
-              <Badge className="absolute -top-3 right-4">Most Popular</Badge>
+              <Badge className="absolute -top-3 right-4">Popular</Badge>
             )}
             <CardHeader>
               <CardTitle>{plan.title}</CardTitle>
