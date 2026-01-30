@@ -57,7 +57,9 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/operation-not-allowed') {
-                if (err.message.includes('SMS')) {
+                if (err.message.includes('region')) {
+                    setError('Configurare necesară. Politica de regiuni SMS trebuie activată în consola Google Cloud (Identity Platform -> Setări).');
+                } else if (err.message.includes('SMS')) {
                     setError('Configurare necesară. Vă rugăm să activați API-ul Identity Platform în Google Cloud Console pentru a permite trimiterea de SMS-uri.');
                 } else {
                     setError('Eroare de configurare: Autentificarea prin telefon trebuie activată în consola Firebase.');
