@@ -17,6 +17,7 @@ import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { doc } from "firebase/firestore";
+import Image from "next/image";
 
 export default function DashboardPage() {
   const { user, loading: userLoading } = useUser();
@@ -72,8 +73,16 @@ export default function DashboardPage() {
                     <DialogTitle className="text-center text-2xl">Scanează la intrare</DialogTitle>
                   </DialogHeader>
                   <div className="flex items-center justify-center p-8">
-                      {/* This should be a real QR code component later, using memberData.qrCode */}
-                      <Icons.qrCode className="w-48 h-48 text-white" />
+                      {memberData.qrCode ? (
+                          <Image
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(memberData.qrCode)}`}
+                              width={200}
+                              height={200}
+                              alt="Member QR Code"
+                          />
+                      ) : (
+                          <p>QR Code indisponibil</p>
+                      )}
                   </div>
                   <p className="text-center text-muted-foreground text-sm">
                       Prezintă acest cod la recepție pentru a intra în sală.

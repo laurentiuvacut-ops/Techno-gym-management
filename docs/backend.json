@@ -16,7 +16,11 @@
         },
         "email": {
           "type": "string",
-          "description": "Email of the member."
+          "description": "Email of the member, used for authentication."
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the member. Used as the QR code value."
         },
         "photoURL": {
           "type": "string",
@@ -24,7 +28,7 @@
         },
         "qrCode": {
           "type": "string",
-          "description": "The QR code associated with the member."
+          "description": "The QR code value for the member, which is their phone number."
         },
         "status": {
           "type": "string",
@@ -43,6 +47,7 @@
         "id",
         "name",
         "email",
+        "phone",
         "qrCode",
         "status",
         "daysRemaining"

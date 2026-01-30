@@ -16,6 +16,7 @@ import Link from 'next/link';
 const registerSchema = z.object({
     displayName: z.string().min(3, { message: "Numele trebuie să aibă cel puțin 3 caractere." }),
     email: z.string().email({ message: "Adresa de email este invalidă." }),
+    phone: z.string().min(10, { message: "Numărul de telefon trebuie să aibă cel puțin 10 cifre." }),
     password: z.string().min(6, { message: "Parola trebuie să aibă cel puțin 6 caractere." }),
 });
 
@@ -31,6 +32,7 @@ export default function RegisterPage() {
         defaultValues: {
             displayName: "",
             email: "",
+            phone: "",
             password: "",
         },
     });
@@ -63,8 +65,9 @@ export default function RegisterPage() {
                 id: authUser.uid,
                 name: values.displayName,
                 email: values.email,
+                phone: values.phone,
                 photoURL: null,
-                qrCode: `technogym-member-${authUser.uid}`, // Placeholder QR code
+                qrCode: values.phone, // Use phone number for QR code
                 status: 'Expired',
                 daysRemaining: 0,
                 subscriptionId: null,
@@ -122,6 +125,19 @@ export default function RegisterPage() {
                                         <FormLabel>Email</FormLabel>
                                         <FormControl>
                                             <Input placeholder="exemplu@email.com" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Număr de Telefon</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="0712345678" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
