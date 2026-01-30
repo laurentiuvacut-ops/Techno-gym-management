@@ -1,55 +1,85 @@
 'use client';
 import { useUser, useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState, useRef } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import Link from 'next/link';
-
-const loginSchema = z.object({
-    email: z.string().email({ message: "Adresa de email este invalidă." }),
-    password: z.string().min(6, { message: "Parola trebuie să aibă cel puțin 6 caractere." }),
-});
+import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 
 export default function LoginPage() {
     const { user, loading } = useUser();
     const router = useRouter();
     const auth = useAuth();
-    const [firebaseError, setFirebaseError] = useState<string | null>(null);
 
-    const form = useForm<z.infer<typeof loginSchema>>({
-        resolver: zodResolver(loginSchema),
-        defaultValues: {
-            email: "",
-            password: "",
-        },
-    });
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [otp, setOtp] = useState('');
+    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [step, setStep] = useState<'phone' | 'otp'>('phone');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+    const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (!loading && user) {
             router.push('/dashboard');
         }
     }, [user, loading, router]);
+    
+    useEffect(() => {
+        if (auth && !recaptchaVerifierRef.current) {
+            // The recaptcha container is invisible, but needs to be in the DOM.
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+            });
+        }
+    }, [auth]);
 
-    const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-        setFirebaseError(null);
+    const handleSendCode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        if (!auth || !recaptchaVerifierRef.current) {
+            setError("Autentificarea nu este gata. Reîmprospătează pagina.");
+            return;
+        }
+        setIsSubmitting(true);
+        
+        const formattedPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber : `+40${phoneNumber.replace(/^0/, '')}`;
+        
         try {
-            await signInWithEmailAndPassword(auth, values.email, values.password);
+            const result = await signInWithPhoneNumber(auth, formattedPhoneNumber, recaptchaVerifierRef.current);
+            setConfirmationResult(result);
+            setStep('otp');
+            setError(null);
+        } catch (err: any) {
+            console.error(err);
+            setError("Eroare la trimiterea codului. Verifică numărul de telefon. Asigură-te că incluzi prefixul țării (ex. +40).");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        if (!confirmationResult) {
+            setError("Ceva nu a funcționat. Te rugăm să reîncerci de la pasul 1.");
+            return;
+        }
+        setIsSubmitting(true);
+
+        try {
+            await confirmationResult.confirm(otp);
+            // Auth state change is handled by the useUser hook, which will trigger redirect.
             router.push('/dashboard');
-        } catch (error: any) {
-            console.error("Error signing in:", error);
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                setFirebaseError("Emailul sau parola sunt incorecte.");
-            } else {
-                setFirebaseError("A apărut o eroare. Vă rugăm să încercați din nou.");
-            }
+        } catch (err: any) {
+            console.error(err);
+            setError("Codul introdus este incorect.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
     
@@ -65,49 +95,60 @@ export default function LoginPage() {
         <div className="flex items-center justify-center min-h-[80vh]">
             <Card className="w-full max-w-sm">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-2xl">Bun Venit!</CardTitle>
-                    <CardDescription>Autentifică-te pentru a continua.</CardDescription>
+                    <CardTitle className="text-2xl">
+                        {step === 'phone' ? 'Intră în Cont' : 'Verifică Codul'}
+                    </CardTitle>
+                    <CardDescription>
+                        {step === 'phone' 
+                            ? 'Folosește numărul de telefon pentru a te autentifica sau înregistra.' 
+                            : `Am trimis un cod de verificare la ${phoneNumber}`}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Email</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="exemplu@email.com" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="password"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Parolă</FormLabel>
-                                        <FormControl>
-                                            <Input type="password" placeholder="••••••••" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            {firebaseError && <p className="text-sm font-medium text-destructive">{firebaseError}</p>}
-                            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                                {form.formState.isSubmitting ? 'Se autentifică...' : 'Autentificare'}
+                    {step === 'phone' ? (
+                        <form onSubmit={handleSendCode} className="space-y-4">
+                            <div>
+                                <Label htmlFor="phone">Număr de Telefon</Label>
+                                <Input 
+                                    id="phone" 
+                                    type="tel" 
+                                    placeholder="0712 345 678" 
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting ? 'Se trimite...' : 'Trimite Cod SMS'}
                             </Button>
                         </form>
-                    </Form>
+                    ) : (
+                        <form onSubmit={handleVerifyOtp} className="space-y-4">
+                            <div>
+                                <Label htmlFor="otp">Cod SMS</Label>
+                                <Input 
+                                    id="otp" 
+                                    type="text" 
+                                    placeholder="123456"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting ? 'Se verifică...' : 'Verifică și Intră'}
+                            </Button>
+                            <Button variant="link" size="sm" onClick={() => { setStep('phone'); setError(null); }}>
+                                Folosește alt număr
+                            </Button>
+                        </form>
+                    )}
+                    {error && <p className="text-sm font-medium text-destructive mt-4 text-center">{error}</p>}
                 </CardContent>
-                <CardFooter className="text-center text-sm">
-                    <p>Nu ai cont? <Link href="/register" className="text-primary hover:underline">Înregistrează-te</Link></p>
-                </CardFooter>
             </Card>
+            {/* This div is used by RecaptchaVerifier and must be in the DOM */}
+            <div id="recaptcha-container" ref={recaptchaContainerRef}></div>
         </div>
     );
 }
+    

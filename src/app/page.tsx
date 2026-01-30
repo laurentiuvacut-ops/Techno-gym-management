@@ -30,7 +30,7 @@ export default function LandingPage() {
                 Eliberează-ți potențialul la Techno Gym. Antrenori de top, vibe-ul potrivit și o comunitate care te susține.
               </p>
               <Button asChild size="lg">
-                <Link href="/register">Alătură-te Acum</Link>
+                <Link href="/login">Alătură-te Acum</Link>
               </Button>
             </div>
           </div>
@@ -153,3 +153,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    

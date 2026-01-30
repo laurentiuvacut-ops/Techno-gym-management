@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, ChevronRight } from "lucide-react";
 import { Icons } from "@/components/icons";
 import DaysRemainingChart from "@/components/days-remaining-chart";
@@ -15,9 +15,72 @@ import {
 } from "@/components/ui/dialog";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { doc } from "firebase/firestore";
+import { useEffect, useState } from 'react';
+import { doc, setDoc } from "firebase/firestore";
 import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
+  const [name, setName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCreateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      alert("Te rugăm să introduci numele tău.");
+      return;
+    }
+    setIsSubmitting(true);
+    const memberDocRef = doc(firestore, 'members', user.uid);
+    try {
+      await setDoc(memberDocRef, {
+        id: user.uid,
+        name: name,
+        email: user.email, // Can be null with phone auth
+        phone: user.phoneNumber,
+        photoURL: user.photoURL,
+        qrCode: user.phoneNumber,
+        status: 'Expired',
+        daysRemaining: 0,
+        subscriptionId: null,
+      });
+      // The useDoc hook in the parent will automatically pick up the new data and re-render.
+    } catch (error) {
+      console.error("Error creating profile:", error);
+      alert("A apărut o eroare la crearea profilului. Te rugăm să încerci din nou.");
+      setIsSubmitting(false);
+    }
+  };
+  
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-sm">
+            <CardHeader>
+                <CardTitle className="text-2xl text-center">Finalizează Profilul</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <form onSubmit={handleCreateProfile} className="space-y-4">
+                    <div>
+                        <Label htmlFor="name">Nume Complet</Label>
+                        <Input
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Nume și Prenume"
+                            required
+                        />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        {isSubmitting ? 'Se salvează...' : 'Salvează Profilul'}
+                    </Button>
+                </form>
+            </CardContent>
+        </Card>
+    </div>
+  );
+}
+
 
 export default function DashboardPage() {
   const { user, loading: userLoading } = useUser();
@@ -39,12 +102,17 @@ export default function DashboardPage() {
 
   const loading = userLoading || memberLoading;
 
-  if (loading || !user || !memberData) {
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
+  }
+  
+  // If user is logged in but has no member document, show onboarding
+  if (!memberData) {
+      return <OnboardingForm user={user} firestore={firestore} />;
   }
 
   const daysLeft = memberData.daysRemaining;
@@ -118,3 +186,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

@@ -197,7 +197,7 @@
   },
   "auth": {
     "providers": [
-      "password",
+      "phone",
       "anonymous"
     ]
   },
@@ -303,3 +303,4 @@
     "reasoning": "The Firestore data structure is designed to address the error encountered during user registration ('auth/configuration-not-found') and support the Techno Gym app's core features. The structure emphasizes Authorization Independence (CRITICAL) by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data with a direct relationship to subscriptions.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Stores customer feedback.\n\nThe structure facilitates secure `list` operations (QAPs) by ensuring that each collection contains data with similar access control requirements.  For example, member-specific data and general workout data are stored in separate collections."
   }
 }
+    
