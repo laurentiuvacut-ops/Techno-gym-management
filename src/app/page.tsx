@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, Dumbbell } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
