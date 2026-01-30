@@ -13,8 +13,8 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-sm z-50 flex items-center border-b">
       <div className="container mx-auto px-4 w-full flex justify-between items-center">
-        <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-3">
-           <Image src="https://i.imgur.com/QdArxUJ.png" alt="Techno Gym Logo" width={24} height={24} className="object-contain" />
+        <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2">
+           <Image src="https://i.imgur.com/QdArxUJ.png" alt="Techno Gym Logo" width={32} height={32} className="object-contain" />
            <span className="text-xl font-bold tracking-tight"><span className="text-primary">TECHNO</span><span className="text-foreground">GYM</span></span>
         </Link>
         
