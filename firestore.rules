@@ -1,15 +1,13 @@
 /**
- * Core Philosophy: This ruleset establishes a clear boundary between public, read-only application data and private, user-owned data. Public content like workouts, products, and trainer info is globally readable to support the app's features for all users. Private data, such as a member's personal information and their feedback, is strictly protected, ensuring a user can only access and manage their own documents.
+ * Core Philosophy: This ruleset establishes a clear boundary between public, read-only application data and private, user-owned data. Public content like workouts, products, and trainer info is globally readable to support the app's features for all users. Private data, such as a member's personal information, is strictly protected, ensuring a user can only access and manage their own documents.
  *
  * Data Structure: The data is organized into a flat hierarchy of top-level collections. This structural segregation simplifies security rules, as each collection has a uniform access control pattern. For example, the `/members/{memberId}` collection follows a strict ownership model, while the `/workouts` collection is public. There are no nested subcollections, which avoids complex hierarchical rule logic.
  *
  * Key Security Decisions:
  * - Member Data Isolation: A user's personal data in `/members/{memberId}` is accessible only to them. The document ID (`memberId`) must match the authenticated user's UID. Listing of all members is explicitly disallowed to protect user privacy.
  * - Public App Content: Collections like `/subscriptions`, `/workouts`, `/trainers`, and `/products` are treated as public, read-only data. This allows any client (authenticated or not) to fetch this information, but prevents any client-side modification, ensuring data integrity. Changes to this data must be made through a trusted admin environment (e.g., the Firebase Console or a backend server).
- * - User-Generated Content (`feedback`): Users can create feedback, but their submissions are locked to them. They can read, update, or delete their own feedback, but cannot see feedback submitted by others. Listing the entire feedback collection is disabled to prevent data leakage.
  *
  * Denormalization for Authorization:
- * - The `feedback` documents contain a `memberId` field. This denormalization is critical, as it allows security rules to verify ownership directly from the document itself without needing to perform additional reads, resulting in simpler and more performant rules.
  * - The `members` documents contain an `id` field that is validated to match the document's ID and the user's UID, ensuring relational integrity between the user's identity and their data record.
  */
 rules_version = '2';
@@ -103,21 +101,6 @@ service cloud.firestore {
       allow create: if false;
       allow update: if false;
       allow delete: if false;
-    }
-
-    /**
-     * @description Allows a member to create feedback and manage only their own entries.
-     * @path /feedback/{feedbackId}
-     * @allow A signed-in user (UID: 'user123') can (create) a feedback document with `{ memberId: 'user123' }`.
-     * @deny A signed-in user (UID: 'user123') cannot (get) a feedback document where `resource.data.memberId` is 'user456'.
-     * @principle Enforces document ownership for user-generated content based on an internal field.
-     */
-    match /feedback/{feedbackId} {
-      allow get: if isSignedIn() && resource.data.memberId == request.auth.uid;
-      allow list: if false; // Disallow listing all feedback for privacy.
-      allow create: if isSignedIn() && request.resource.data.memberId == request.auth.uid;
-      allow update: if isSignedIn() && resource != null && resource.data.memberId == request.auth.uid && request.resource.data.memberId == resource.data.memberId;
-      allow delete: if isSignedIn() && resource != null && resource.data.memberId == request.auth.uid;
     }
   }
 }
