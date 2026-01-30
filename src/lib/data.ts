@@ -35,8 +35,6 @@ export const subscriptions = [
     benefits: [
       "Acces în intervalul 08:00 - 22:00",
       "Toate beneficiile Classic",
-      "Acces la toate clasele de grup",
-      "Saună inclusă",
     ],
     cta: "Alege Pro",
     popular: true,
@@ -61,7 +59,6 @@ export const subscriptions = [
     benefits: [
       "Acces 24/7 nelimitat",
       "Toate beneficiile Pro",
-      "Parcare gratuită",
     ],
     cta: "Alege Non-Stop",
   },
