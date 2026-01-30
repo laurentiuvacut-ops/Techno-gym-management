@@ -6,6 +6,7 @@
  * Key Security Decisions:
  * - Member Data Isolation: A user's personal data in `/members/{memberId}` is accessible only to them. The document ID (`memberId`) must match the authenticated user's UID. Listing of all members is explicitly disallowed to protect user privacy.
  * - Public App Content: Collections like `/subscriptions`, `/workouts`, `/trainers`, and `/products` are treated as public, read-only data. This allows any client (authenticated or not) to fetch this information, but prevents any client-side modification, ensuring data integrity. Changes to this data must be made through a trusted admin environment (e.g., the Firebase Console or a backend server).
+ * - Write-Only Feedback: The `/feedback` collection is designed for users to submit content without being able to read, update, or delete it, preventing misuse.
  *
  * Denormalization for Authorization:
  * - The `members` documents contain an `id` field that is validated to match the document's ID and the user's UID, ensuring relational integrity between the user's identity and their data record.
@@ -99,6 +100,21 @@ service cloud.firestore {
       allow get: if true;
       allow list: if true;
       allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Enforces that only an authenticated user can submit feedback.
+     * @path /feedback/{feedbackId}
+     * @allow A signed-in user can (create) their own feedback.
+     * @deny A user cannot read, update, or delete any feedback.
+     * @principle Collect user-generated content in a write-only manner for clients.
+     */
+    match /feedback/{feedbackId} {
+      allow list: if false;
+      allow get: if false;
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
       allow update: if false;
       allow delete: if false;
     }

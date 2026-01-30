@@ -5,8 +5,13 @@ import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 
-export default function StarRating({ totalStars = 5 }) {
-  const [rating, setRating] = useState(0);
+interface StarRatingProps {
+  totalStars?: number;
+  rating?: number;
+  onRatingChange?: (rating: number) => void;
+}
+
+export default function StarRating({ totalStars = 5, rating = 0, onRatingChange = () => {} }: StarRatingProps) {
   const [hover, setHover] = useState(0);
 
   return (
@@ -22,7 +27,7 @@ export default function StarRating({ totalStars = 5 }) {
                     "transition-colors",
                     starValue <= (hover || rating) ? "text-primary" : "text-muted-foreground/50"
                 )}
-                onClick={() => setRating(starValue)}
+                onClick={() => onRatingChange(starValue)}
                 onMouseEnter={() => setHover(starValue)}
                 onMouseLeave={() => setHover(0)}
             >
@@ -32,7 +37,7 @@ export default function StarRating({ totalStars = 5 }) {
             );
         })}
         </div>
-        {rating > 0 && <Button variant="outline" onClick={() => {setRating(0); setHover(0);}}>Reset Rating</Button>}
+        {rating > 0 && <Button variant="outline" onClick={() => onRatingChange(0)}>Resetează Rating</Button>}
     </div>
   );
 }
