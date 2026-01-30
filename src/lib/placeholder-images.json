@@ -41,6 +41,42 @@
       "description": "Portrait of a gym trainer",
       "imageUrl": "https://images.unsplash.com/photo-1590086782792-42dd2350140d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njg0NTYzODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person portrait"
+    },
+    {
+      "id": "gym-interior-1",
+      "description": "A modern gym with various workout equipment",
+      "imageUrl": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxneW0lMjBlcXVpcG1lbnR8ZW58MHx8fHwxNzY4NTYxMzMxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gym equipment"
+    },
+    {
+      "id": "gym-interior-2",
+      "description": "Dumbbells and weights stacked in a gym",
+      "imageUrl": "https://images.unsplash.com/photo-1599058917212-d750089bc07e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxneW0lMjB3ZWlnaHRzfGVufDB8fHx8MTc2ODU2MTMzMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gym weights"
+    },
+    {
+      "id": "transformation-before-1",
+      "description": "A man standing before his fitness transformation",
+      "imageUrl": "https://images.unsplash.com/photo-1693845610623-bd624b8eb2c2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWFuJTIwc3RhbmRpbmd8ZW58MHx8fHwxNzY5ODA5NDA5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man standing"
+    },
+    {
+      "id": "transformation-after-1",
+      "description": "A fit man after his fitness transformation",
+      "imageUrl": "https://images.unsplash.com/photo-1641971215245-b4ac37f97bb0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmaXQlMjBtYW58ZW58MHx8fHwxNzY5Njk2NTk4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fit man"
+    },
+    {
+      "id": "transformation-before-2",
+      "description": "A woman standing before her fitness transformation",
+      "imageUrl": "https://images.unsplash.com/photo-1618308178796-f4dc0a03bab6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b21hbiUyMHN0YW5kaW5nfGVufDB8fHx8MTc2OTczNTI2MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman standing"
+    },
+    {
+      "id": "transformation-after-2",
+      "description": "A fit woman after her fitness transformation",
+      "imageUrl": "https://images.unsplash.com/photo-1587395865650-1f4ad12573e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmaXQlMjB3b21hbnxlbnwwfHx8fDE3Njk4MDk0MDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fit woman"
     }
   ]
 }

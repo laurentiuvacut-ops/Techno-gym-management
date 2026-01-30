@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useUser } from "@/firebase";
 
 const navItems = [
-  { href: "/", label: "Acasă", icon: Home },
+  { href: "/dashboard", label: "Acasă", icon: Home },
   { href: "/workouts", label: "Antrenament", icon: Dumbbell },
   { href: "/subscriptions", label: "Planuri", icon: Award },
   { href: "/shop", label: "Magazin", icon: ShoppingBag },
@@ -16,6 +16,12 @@ const navItems = [
 export default function BottomNav() {
   const pathname = usePathname();
   const { user, loading } = useUser();
+
+  // Hide bottom nav on public pages
+  const noNavRoutes = ['/', '/login', '/register'];
+  if (noNavRoutes.includes(pathname)) {
+    return null;
+  }
 
   const profileItem = loading 
     ? { href: "/login", label: "Profil", icon: User, disabled: true }

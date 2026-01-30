@@ -1,10 +1,32 @@
+'use client';
+
 import { trainers } from "@/lib/data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function TrainersPage() {
+  const { user, loading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
        <div className="text-center">

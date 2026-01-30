@@ -1,9 +1,31 @@
+'use client';
+
 import { workouts } from "@/lib/data";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function WorkoutsPage() {
+  const { user, loading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-8">
       <div className="text-center">

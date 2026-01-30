@@ -1,7 +1,12 @@
+'use client';
+
 import { shopItems } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const getStockVariant = (stock: string) => {
     if (stock === "In Stock") return "success";
@@ -10,6 +15,23 @@ const getStockVariant = (stock: string) => {
 };
 
 export default function ShopPage() {
+  const { user, loading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div className="text-center">

@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Header from '@/components/layout/header';
 import BottomNav from '@/components/layout/bottom-nav';
 import { FirebaseClientProvider } from '@/firebase';
+import MainContainer from '@/components/layout/main-container';
 
 export const metadata: Metadata = {
   title: 'Techno Gym',
@@ -25,9 +26,9 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <FirebaseClientProvider>
           <Header />
-          <main className="min-h-screen pt-20 pb-24 px-4">
+          <MainContainer>
             {children}
-          </main>
+          </MainContainer>
           <BottomNav />
           <Toaster />
         </FirebaseClientProvider>

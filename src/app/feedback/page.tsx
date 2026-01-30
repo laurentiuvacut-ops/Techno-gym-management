@@ -6,8 +6,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import StarRating from "@/components/star-rating";
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function FeedbackPage() {
+  const { user, loading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div className="text-center">
