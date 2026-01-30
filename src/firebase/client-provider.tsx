@@ -1,47 +1,24 @@
 'use client';
 
-import React, {useState, useEffect} from 'react';
-import type {FirebaseApp} from 'firebase/app';
-import type {Auth} from 'firebase/auth';
-import type {Firestore} from 'firebase/firestore';
-import {initializeFirebase} from '@/firebase';
-import {FirebaseProvider} from './provider';
-import { Skeleton } from '@/components/ui/skeleton';
+import React, { useMemo, type ReactNode } from 'react';
+import { FirebaseProvider } from '@/firebase/provider';
+import { initializeFirebase } from '@/firebase';
 
 interface FirebaseClientProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export function FirebaseClientProvider({children}: FirebaseClientProviderProps) {
-  const [firebaseInstances, setFirebaseInstances] = useState<{
-    firebaseApp: FirebaseApp;
-    auth: Auth;
-    firestore: Firestore;
-  } | null>(null);
-
-  useEffect(() => {
-    const instances = initializeFirebase();
-    setFirebaseInstances(instances);
-  }, []);
-
-  if (!firebaseInstances) {
-    // Render a loading state while firebase is initializing
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <Skeleton className="h-10 w-48 mb-4" />
-            <div className="space-y-6 w-full max-w-md px-4">
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-24 w-full" />
-            </div>
-        </div>
-    )
-  }
+export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
+  const firebaseServices = useMemo(() => {
+    // Initialize Firebase on the client side, once per component mount.
+    return initializeFirebase();
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   return (
     <FirebaseProvider
-      firebaseApp={firebaseInstances.firebaseApp}
-      auth={firebaseInstances.auth}
-      firestore={firebaseInstances.firestore}
+      firebaseApp={firebaseServices.firebaseApp}
+      auth={firebaseServices.auth}
+      firestore={firebaseServices.firestore}
     >
       {children}
     </FirebaseProvider>

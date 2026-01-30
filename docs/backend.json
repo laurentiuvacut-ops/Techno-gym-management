@@ -1,37 +1,293 @@
 {
   "entities": {
-    "UserProfile": {
-      "title": "User Profile",
-      "description": "Represents a user's public profile.",
+    "Member": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Member",
       "type": "object",
+      "description": "Represents a gym member.",
       "properties": {
-        "displayName": {
+        "id": {
           "type": "string",
-          "description": "The user's display name."
+          "description": "Unique identifier for the member."
         },
-        "email": {
+        "qrCode": {
           "type": "string",
-          "format": "email",
-          "description": "The user's email address."
+          "description": "The QR code associated with the member."
         },
-        "photoURL": {
+        "status": {
           "type": "string",
-          "format": "uri",
-          "description": "URL of the user's profile picture."
+          "description": "The membership status (Active/Expired)."
+        },
+        "daysRemaining": {
+          "type": "number",
+          "description": "Number of days remaining in the membership."
+        },
+        "subscriptionId": {
+          "type": "string",
+          "description": "Reference to Subscription. (Relationship: Member 1:1 Subscription)"
         }
       },
-      "required": ["displayName", "email"]
+      "required": [
+        "id",
+        "qrCode",
+        "status",
+        "daysRemaining",
+        "subscriptionId"
+      ]
+    },
+    "Subscription": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Subscription",
+      "type": "object",
+      "description": "Represents a membership subscription tier.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the subscription tier."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the subscription tier (Day Pass, Monthly, Yearly)."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the subscription tier."
+        },
+        "benefits": {
+          "type": "array",
+          "description": "List of benefits for the subscription tier.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "price",
+        "benefits"
+      ]
+    },
+    "Workout": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Workout",
+      "type": "object",
+      "description": "Represents a workout in the workout library.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the workout."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the workout (Strength, HIIT, Cardio, Recovery)."
+        },
+        "videoUrl": {
+          "type": "string",
+          "description": "URL of the instructional video.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "videoUrl"
+      ]
+    },
+    "Trainer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Trainer",
+      "type": "object",
+      "description": "Represents a gym trainer.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the trainer."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the trainer."
+        },
+        "specialties": {
+          "type": "array",
+          "description": "List of trainer's specialties.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "specialties"
+      ]
+    },
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a product in the gym shop.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the product."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the product."
+        },
+        "stockStatus": {
+          "type": "string",
+          "description": "Stock status of the product (In Stock, Low Stock)."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the product."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "stockStatus",
+        "price"
+      ]
+    },
+    "Feedback": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Feedback",
+      "type": "object",
+      "description": "Represents user feedback and workout ratings.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the feedback entry."
+        },
+        "suggestion": {
+          "type": "string",
+          "description": "User's suggestion or comment."
+        },
+        "workoutRating": {
+          "type": "number",
+          "description": "User's rating of their last workout (star system)."
+        },
+        "memberId": {
+          "type": "string",
+          "description": "Reference to Member. (Relationship: Member 1:N Feedback)"
+        }
+      },
+      "required": [
+        "id",
+        "suggestion",
+        "workoutRating",
+        "memberId"
+      ]
     }
   },
   "auth": {
-    "providers": ["password"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": {
-        "$ref": "#/backend/entities/UserProfile"
+    "structure": [
+      {
+        "path": "/members/{memberId}",
+        "definition": {
+          "entityName": "Member",
+          "schema": {
+            "$ref": "#/backend/entities/Member"
+          },
+          "description": "Stores gym member data. Includes fields for QR code, membership status, days remaining, and subscription ID.",
+          "params": [
+            {
+              "name": "memberId",
+              "description": "Unique identifier for the member."
+            }
+          ]
+        }
       },
-      "description": "Stores user profile information. The document ID is the user's UID."
-    }
+      {
+        "path": "/subscriptions/{subscriptionId}",
+        "definition": {
+          "entityName": "Subscription",
+          "schema": {
+            "$ref": "#/backend/entities/Subscription"
+          },
+          "description": "Stores subscription tier information (Day Pass, Monthly, Yearly).",
+          "params": [
+            {
+              "name": "subscriptionId",
+              "description": "Unique identifier for the subscription tier."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/workouts/{workoutId}",
+        "definition": {
+          "entityName": "Workout",
+          "schema": {
+            "$ref": "#/backend/entities/Workout"
+          },
+          "description": "Stores workout details for the workout library, categorized by type (Strength, HIIT, Cardio, Recovery).",
+          "params": [
+            {
+              "name": "workoutId",
+              "description": "Unique identifier for the workout."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/trainers/{trainerId}",
+        "definition": {
+          "entityName": "Trainer",
+          "schema": {
+            "$ref": "#/backend/entities/Trainer"
+          },
+          "description": "Stores trainer profiles, including their specialties.",
+          "params": [
+            {
+              "name": "trainerId",
+              "description": "Unique identifier for the trainer."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores product information for the gym shop, including stock status and price.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "Unique identifier for the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/feedback/{feedbackId}",
+        "definition": {
+          "entityName": "Feedback",
+          "schema": {
+            "$ref": "#/backend/entities/Feedback"
+          },
+          "description": "Stores user feedback and workout ratings.  Links feedback to a specific member.",
+          "params": [
+            {
+              "name": "feedbackId",
+              "description": "Unique identifier for the feedback entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to address the error encountered during user registration ('auth/configuration-not-found') and support the Techno Gym app's core features. The structure emphasizes Authorization Independence (CRITICAL) by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data with a direct relationship to subscriptions.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Collects user feedback and workout ratings.\n\nThe structure facilitates secure `list` operations (QAPs) by ensuring that each collection contains data with similar access control requirements.  For example, member-specific data and general workout data are stored in separate collections."
   }
 }

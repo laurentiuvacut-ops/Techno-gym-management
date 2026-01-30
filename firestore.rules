@@ -1,14 +1,123 @@
+/**
+ * Core Philosophy: This ruleset establishes a clear boundary between public, read-only application data and private, user-owned data. Public content like workouts, products, and trainer info is globally readable to support the app's features for all users. Private data, such as a member's personal information and their feedback, is strictly protected, ensuring a user can only access and manage their own documents.
+ *
+ * Data Structure: The data is organized into a flat hierarchy of top-level collections. This structural segregation simplifies security rules, as each collection has a uniform access control pattern. For example, the `/members/{memberId}` collection follows a strict ownership model, while the `/workouts` collection is public. There are no nested subcollections, which avoids complex hierarchical rule logic.
+ *
+ * Key Security Decisions:
+ * - Member Data Isolation: A user's personal data in `/members/{memberId}` is accessible only to them. The document ID (`memberId`) must match the authenticated user's UID. Listing of all members is explicitly disallowed to protect user privacy.
+ * - Public App Content: Collections like `/subscriptions`, `/workouts`, `/trainers`, and `/products` are treated as public, read-only data. This allows any client (authenticated or not) to fetch this information, but prevents any client-side modification, ensuring data integrity. Changes to this data must be made through a trusted admin environment (e.g., the Firebase Console or a backend server).
+ * - User-Generated Content (`feedback`): Users can create feedback, but their submissions are locked to them. They can read, update, or delete their own feedback, but cannot see feedback submitted by others. Listing the entire feedback collection is disabled to prevent data leakage.
+ *
+ * Denormalization for Authorization:
+ * - The `feedback` documents contain a `memberId` field. This denormalization is critical, as it allows security rules to verify ownership directly from the document itself without needing to perform additional reads, resulting in simpler and more performant rules.
+ * - The `members` documents contain an `id` field that is validated to match the document's ID and the user's UID, ensuring relational integrity between the user's identity and their data record.
+ */
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Logged-in users can read their own profile.
-    // They can create their profile and update their displayName and photoURL.
-    // Email is set on creation and cannot be changed.
-    match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL', 'updatedAt']);
+
+    // Helper functions for concise and readable rules
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Checks for ownership on an existing document. Used for update/delete.
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Enforces that only the authenticated member can access their own data.
+     * @path /members/{memberId}
+     * @allow A signed-in user (UID: 'user123') can (get) their own document at `/members/user123`.
+     * @deny A signed-in user (UID: 'user123') cannot (get) another user's document at `/members/user456`.
+     * @principle Restricts access to a user's own data tree.
+     */
+    match /members/{memberId} {
+      allow get: if isOwner(memberId);
+      allow list: if false; // Disallow listing all members for privacy.
+      allow create: if isOwner(memberId) && request.resource.data.id == memberId;
+      allow update: if isExistingOwner(memberId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(memberId);
+    }
+
+    /**
+     * @description Allows any user, including unauthenticated ones, to read subscription info. Writes are disabled.
+     * @path /subscriptions/{subscriptionId}
+     * @allow Any anonymous user can (list) all documents in the `/subscriptions` collection.
+     * @deny Any signed-in user cannot (create) a new document at `/subscriptions/new-tier`.
+     * @principle Provides public read access for application content while preventing client-side modification.
+     */
+    match /subscriptions/{subscriptionId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows any user, including unauthenticated ones, to read workout info. Writes are disabled.
+     * @path /workouts/{workoutId}
+     * @allow Any anonymous user can (get) a document at `/workouts/strength-day-1`.
+     * @deny Any signed-in user cannot (update) a document at `/workouts/strength-day-1`.
+     * @principle Provides public read access for application content while preventing client-side modification.
+     */
+    match /workouts/{workoutId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows any user, including unauthenticated ones, to read trainer profiles. Writes are disabled.
+     * @path /trainers/{trainerId}
+     * @allow Any anonymous user can (list) all documents in the `/trainers` collection.
+     * @deny Any signed-in user cannot (delete) a document at `/trainers/trainer-jane`.
+     * @principle Provides public read access for application content while preventing client-side modification.
+     */
+    match /trainers/{trainerId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows any user, including unauthenticated ones, to read product info. Writes are disabled.
+     * @path /products/{productId}
+     * @allow Any anonymous user can (get) a document at `/products/protein-powder`.
+     * @deny Any signed-in user cannot (create) a new document at `/products/new-item`.
+     * @principle Provides public read access for application content while preventing client-side modification.
+     */
+    match /products/{productId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Allows a member to create feedback and manage only their own entries.
+     * @path /feedback/{feedbackId}
+     * @allow A signed-in user (UID: 'user123') can (create) a feedback document with `{ memberId: 'user123' }`.
+     * @deny A signed-in user (UID: 'user123') cannot (get) a feedback document where `resource.data.memberId` is 'user456'.
+     * @principle Enforces document ownership for user-generated content based on an internal field.
+     */
+    match /feedback/{feedbackId} {
+      allow get: if isSignedIn() && resource.data.memberId == request.auth.uid;
+      allow list: if false; // Disallow listing all feedback for privacy.
+      allow create: if isSignedIn() && request.resource.data.memberId == request.auth.uid;
+      allow update: if isSignedIn() && resource != null && resource.data.memberId == request.auth.uid && request.resource.data.memberId == resource.data.memberId;
+      allow delete: if isSignedIn() && resource != null && resource.data.memberId == request.auth.uid;
     }
   }
 }
