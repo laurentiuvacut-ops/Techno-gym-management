@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { Icons } from "@/components/icons";
 
 const getImage = (id: string) => PlaceHolderImages.find(p => p.id === id);
 
@@ -141,7 +140,9 @@ export default function LandingPage() {
       <footer className="bg-background border-t">
         <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
           <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-            <Icons.logo className="text-primary w-8 h-8" />
+            <h1 className="text-xl font-bold text-white tracking-tighter">
+                <span className="text-primary">TECHNO</span><span className="font-light">GYM</span>
+            </h1>
             <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
               © {new Date().getFullYear()} Techno Gym. Toate drepturile rezervate.
             </p>
