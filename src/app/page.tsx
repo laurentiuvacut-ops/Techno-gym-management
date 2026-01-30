@@ -6,9 +6,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Check, Dumbbell } from "lucide-react";
+import { Check } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { Icons } from "@/components/icons";
 
 const getImage = (id: string) => PlaceHolderImages.find(p => p.id === id);
 
@@ -27,7 +28,7 @@ export default function LandingPage() {
                 TRANSFORMĂ-ȚI CORPUL
               </h1>
               <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                Eliberează-ți potențialul la Techno Gym. Antrenori de top, echipamente de ultimă generație și o comunitate care te susține.
+                Eliberează-ți potențialul la Techno Gym. Antrenori de top, vibe-ul potrivit și o comunitate care te susține.
               </p>
               <Button asChild size="lg">
                 <Link href="/register">Alătură-te Acum</Link>
@@ -70,7 +71,7 @@ export default function LandingPage() {
                 <div className="space-y-3">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Transformări Reale</h2>
                     <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                        Inspira-te din poveștile de succes ale membrilor noștri.
+                        Inspiră-te din poveștile de succes ale membrilor noștri.
                     </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -140,7 +141,7 @@ export default function LandingPage() {
       <footer className="bg-background border-t">
         <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
           <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-            <Dumbbell className="text-primary w-8 h-8" />
+            <Icons.logo className="text-primary w-8 h-8" />
             <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
               © {new Date().getFullYear()} Techno Gym. Toate drepturile rezervate.
             </p>
