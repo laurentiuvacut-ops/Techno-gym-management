@@ -13,7 +13,7 @@ export default function DaysRemainingChart({ daysLeft, totalDays }: DaysRemainin
     const primaryColor = 'hsl(180 100% 50%)'; 
 
     return (
-        <div className="relative w-20 h-20">
+        <div className="relative w-40 h-40">
             <ResponsiveContainer width="100%" height="100%">
                 <RadialBarChart
                     innerRadius="80%"
@@ -21,7 +21,7 @@ export default function DaysRemainingChart({ daysLeft, totalDays }: DaysRemainin
                     data={data}
                     startAngle={90}
                     endAngle={-270}
-                    barSize={8}
+                    barSize={12}
                 >
                     <PolarAngleAxis
                         type="number"
@@ -32,14 +32,14 @@ export default function DaysRemainingChart({ daysLeft, totalDays }: DaysRemainin
                     <RadialBar
                         background={{ fill: 'hsl(var(--muted))' }}
                         dataKey="value"
-                        cornerRadius={4}
+                        cornerRadius={6}
                         fill={primaryColor}
                     />
                 </RadialBarChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold">{daysLeft}</span>
-                <span className="text-xs text-muted-foreground">ZILE</span>
+                <span className="text-6xl font-bold tracking-tighter">{daysLeft}</span>
+                <span className="text-base text-muted-foreground -mt-2">ZILE</span>
             </div>
         </div>
     );
