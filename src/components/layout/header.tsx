@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '../ui/button';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import Image from 'next/image';
 
 export default function Header() {
   const { user, loading } = useUser();
@@ -13,9 +14,7 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-sm z-50 flex items-center border-b">
       <div className="container mx-auto px-4 w-full flex justify-between items-center">
         <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2">
-          <h1 className="text-xl font-bold text-white tracking-tighter">
-            <span className="text-primary">TECHNO</span><span className="font-light">GYM</span>
-          </h1>
+           <Image src="https://i.imgur.com/qg9bZGr.png" alt="Techno Gym Logo" width={120} height={30} className="object-contain" />
         </Link>
         
         {loading ? (
