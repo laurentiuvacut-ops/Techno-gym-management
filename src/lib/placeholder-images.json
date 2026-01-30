@@ -38,9 +38,9 @@
     },
     {
       "id": "trainer-3",
-      "description": "Portrait of a gym trainer",
-      "imageUrl": "https://images.unsplash.com/photo-1590086782792-42dd2350140d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njg0NTYzODZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "person portrait"
+      "description": "Portrait of Maria Cirnu",
+      "imageUrl": "https://i.imgur.com/I19tA0M.jpg",
+      "imageHint": "female portrait"
     },
     {
       "id": "gym-interior-1",

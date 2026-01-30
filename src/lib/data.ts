@@ -102,8 +102,8 @@ export const trainers = [
   },
   {
     id: "3",
-    name: "Sam Sulek",
-    specialty: "Strength & Conditioning",
+    name: "Maria Cirnu",
+    specialty: "Fitness Instructor",
     image: getImage('trainer-3'),
   },
 ];
