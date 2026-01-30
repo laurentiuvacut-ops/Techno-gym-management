@@ -57,7 +57,11 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/operation-not-allowed') {
-              setError('Eroare de configurare: Autentificarea prin telefon trebuie activată în consola Firebase.');
+                if (err.message.includes('SMS')) {
+                    setError('Configurare necesară. Vă rugăm să activați API-ul Identity Platform în Google Cloud Console pentru a permite trimiterea de SMS-uri.');
+                } else {
+                    setError('Eroare de configurare: Autentificarea prin telefon trebuie activată în consola Firebase.');
+                }
             } else if (err.code === 'auth/invalid-phone-number') {
               setError('Numărul de telefon nu este valid. Verifică formatul (ex: 0712345678).');
             } else {
