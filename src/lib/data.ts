@@ -96,8 +96,8 @@ export const trainers = [
   },
   {
     id: "2",
-    name: "Jane Fonda",
-    specialty: "HIIT & Cardio Queen",
+    name: "Luca Mihai",
+    specialty: "Personal Trainer",
     image: getImage('trainer-2'),
   },
   {
