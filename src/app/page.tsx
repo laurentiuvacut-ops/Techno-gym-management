@@ -47,7 +47,7 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-3 lg:gap-12">
+            <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-4 lg:gap-8">
               {trainers.map((trainer) => (
                 <Card key={trainer.id} className="overflow-hidden text-center">
                     <CardHeader className="items-center p-6">

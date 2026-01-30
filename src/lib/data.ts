@@ -91,20 +91,26 @@ export const trainers = [
   {
     id: "1",
     name: "Laurentiu Vacut",
-    specialty: "Bodybuilding Expert",
+    specialty: "Personal Trainer & Nutritionist",
     image: getImage('trainer-1'),
   },
   {
     id: "2",
     name: "Luca Mihai",
-    specialty: "Personal Trainer",
+    specialty: "Personal Trainer & Nutritionist",
     image: getImage('trainer-2'),
   },
   {
     id: "3",
     name: "Maria Cirnu",
-    specialty: "Fitness Instructor",
+    specialty: "Personal Trainer",
     image: getImage('trainer-3'),
+  },
+  {
+    id: "4",
+    name: "Ana Oprescu",
+    specialty: "Personal Trainer",
+    image: getImage('trainer-4'),
   },
 ];
 
