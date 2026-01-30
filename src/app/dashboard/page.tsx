@@ -13,21 +13,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { doc } from "firebase/firestore";
 
 export default function DashboardPage() {
-  const { user, loading } = useUser();
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
+  const firestore = useFirestore();
+
+  const memberDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'members', user.uid);
+  }, [firestore, user]);
+
+  const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!userLoading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, userLoading, router]);
 
-  if (loading || !user) {
+  const loading = userLoading || memberLoading;
+
+  if (loading || !user || !memberData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -35,8 +46,8 @@ export default function DashboardPage() {
     );
   }
 
-  const daysLeft = 22;
-  const totalDays = 30;
+  const daysLeft = memberData.daysRemaining;
+  const totalDays = 30; // This might need to come from subscription data later
 
   return (
     <div className="space-y-6">
@@ -46,7 +57,8 @@ export default function DashboardPage() {
               <div className="text-left">
                 <p className="text-sm text-muted-foreground">STATUS ABONAMENT</p>
                 <p className="font-bold text-xl flex items-center gap-2">
-                  Activ <Check className="w-5 h-5 text-green-500" />
+                  {memberData.status === 'Active' ? 'Activ' : 'Expirat'} 
+                  {memberData.status === 'Active' && <Check className="w-5 h-5 text-green-500" />}
                 </p>
               </div>
               <Dialog>
@@ -60,6 +72,7 @@ export default function DashboardPage() {
                     <DialogTitle className="text-center text-2xl">Scanează la intrare</DialogTitle>
                   </DialogHeader>
                   <div className="flex items-center justify-center p-8">
+                      {/* This should be a real QR code component later, using memberData.qrCode */}
                       <Icons.qrCode className="w-48 h-48 text-white" />
                   </div>
                   <p className="text-center text-muted-foreground text-sm">
@@ -72,7 +85,7 @@ export default function DashboardPage() {
           <div className="flex flex-col items-center text-center gap-2">
             <DaysRemainingChart daysLeft={daysLeft} totalDays={totalDays} />
             <p className="text-2xl font-bold mt-4">Abonamentul expiră în</p>
-            <p className="text-lg text-muted-foreground">3 săptămâni</p>
+            <p className="text-lg text-muted-foreground">{Math.ceil(daysLeft / 7)} săptămâni</p>
           </div>
 
         </CardContent>

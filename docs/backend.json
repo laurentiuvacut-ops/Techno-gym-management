@@ -10,6 +10,18 @@
           "type": "string",
           "description": "Unique identifier for the member."
         },
+        "name": {
+          "type": "string",
+          "description": "Name of the member."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email of the member."
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "Photo URL of the member."
+        },
         "qrCode": {
           "type": "string",
           "description": "The QR code associated with the member."
@@ -29,10 +41,11 @@
       },
       "required": [
         "id",
+        "name",
+        "email",
         "qrCode",
         "status",
-        "daysRemaining",
-        "subscriptionId"
+        "daysRemaining"
       ]
     },
     "Subscription": {

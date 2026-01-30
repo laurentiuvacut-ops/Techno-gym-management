@@ -1,28 +1,39 @@
 'use client';
 
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getAuth, signOut } from 'firebase/auth';
+import { doc } from 'firebase/firestore';
 
 export default function ProfilePage() {
-    const { user, loading } = useUser();
+    const { user, loading: userLoading } = useUser();
     const router = useRouter();
+    const firestore = useFirestore();
+
+    const memberDocRef = useMemoFirebase(() => {
+        if (!firestore || !user) return null;
+        return doc(firestore, 'members', user.uid);
+    }, [firestore, user]);
+
+    const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
     useEffect(() => {
-        if (!loading && !user) {
+        if (!userLoading && !user) {
             router.push('/login');
         }
-    }, [user, loading, router]);
+    }, [user, userLoading, router]);
     
     const handleSignOut = async () => {
         const auth = getAuth();
         await signOut(auth);
         router.push('/');
     };
+
+    const loading = userLoading || memberLoading;
 
     if (loading || !user) {
         return (
@@ -32,19 +43,23 @@ export default function ProfilePage() {
         );
     }
 
+    const displayName = memberData?.name || user.displayName;
+    const displayEmail = memberData?.email || user.email;
+    const displayPhotoUrl = memberData?.photoURL || user.photoURL;
+
     return (
         <div className="space-y-8">
             <Card className="max-w-md mx-auto">
                 <CardHeader>
                     <div className="flex flex-col items-center gap-4">
                         <Avatar className="w-24 h-24">
-                            <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
+                            <AvatarImage src={displayPhotoUrl || ''} alt={displayName || ''} />
                             <AvatarFallback className="text-3xl">
-                                {user.displayName?.charAt(0) || user.email?.charAt(0)}
+                                {displayName?.charAt(0) || displayEmail?.charAt(0)}
                             </AvatarFallback>
                         </Avatar>
-                        <CardTitle className="text-center">{user.displayName}</CardTitle>
-                        <p className="text-muted-foreground">{user.email}</p>
+                        <CardTitle className="text-center">{displayName}</CardTitle>
+                        <p className="text-muted-foreground">{displayEmail}</p>
                     </div>
                 </CardHeader>
                 <CardContent>

@@ -43,6 +43,10 @@ export default function RegisterPage() {
 
     const onSubmit = async (values: z.infer<typeof registerSchema>) => {
         setFirebaseError(null);
+        if (!auth || !firestore) {
+            setFirebaseError("Serviciile Firebase nu sunt disponibile. Vă rugăm să reîncărcați pagina.");
+            return;
+        }
         try {
             // Create user in Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
@@ -53,12 +57,17 @@ export default function RegisterPage() {
                 displayName: values.displayName,
             });
 
-            // Create user profile in Firestore
-            const userDocRef = doc(firestore, 'users', authUser.uid);
-            await setDoc(userDocRef, {
-                displayName: values.displayName,
+            // Create member document in Firestore
+            const memberDocRef = doc(firestore, 'members', authUser.uid);
+            await setDoc(memberDocRef, {
+                id: authUser.uid,
+                name: values.displayName,
                 email: values.email,
-                photoURL: null, // or a default image URL
+                photoURL: null,
+                qrCode: `technogym-member-${authUser.uid}`, // Placeholder QR code
+                status: 'Expired',
+                daysRemaining: 0,
+                subscriptionId: null,
             });
             
             router.push('/dashboard');
@@ -66,6 +75,8 @@ export default function RegisterPage() {
             console.error("Error signing up:", error);
             if (error.code === 'auth/email-already-in-use') {
                 setFirebaseError("Acest email este deja folosit.");
+            } else if (error.code === 'auth/configuration-not-found') {
+                setFirebaseError("Configurarea de autentificare nu a fost găsită. Contactați suportul.");
             } else {
                 setFirebaseError("A apărut o eroare la înregistrare. Vă rugăm să încercați din nou.");
             }
