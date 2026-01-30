@@ -30,9 +30,9 @@ export default function LoginPage() {
     }, [user, loading, router]);
     
     useEffect(() => {
-        if (auth && !recaptchaVerifierRef.current) {
+        if (auth && !recaptchaVerifierRef.current && recaptchaContainerRef.current) {
             // The recaptcha container is invisible, but needs to be in the DOM.
-            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
                 'size': 'invisible',
             });
         }
@@ -56,7 +56,13 @@ export default function LoginPage() {
             setError(null);
         } catch (err: any) {
             console.error(err);
-            setError("Eroare la trimiterea codului. Verifică numărul de telefon. Asigură-te că incluzi prefixul țării (ex. +40).");
+            if (err.code === 'auth/operation-not-allowed') {
+              setError('Eroare de configurare: Autentificarea prin telefon trebuie activată în consola Firebase.');
+            } else if (err.code === 'auth/invalid-phone-number') {
+              setError('Numărul de telefon nu este valid. Verifică formatul (ex: 0712345678).');
+            } else {
+              setError("A apărut o eroare la trimiterea codului. Verifică numărul și încearcă din nou.");
+            }
         } finally {
             setIsSubmitting(false);
         }
