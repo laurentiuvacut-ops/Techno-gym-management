@@ -52,8 +52,6 @@ export default function FeedbackPage() {
     const feedbackCollection = collection(firestore, 'feedback');
     
     addDoc(feedbackCollection, {
-      userId: user.uid,
-      userName: user.displayName || 'Anonim',
       rating,
       comment,
       createdAt: serverTimestamp(),
@@ -68,8 +66,6 @@ export default function FeedbackPage() {
     }).catch(error => {
       console.error("Error submitting feedback:", error);
       const requestData = {
-          userId: user.uid,
-          userName: user.displayName || 'Anonim',
           rating,
           comment,
       };
@@ -102,10 +98,10 @@ export default function FeedbackPage() {
     <div className="space-y-8 max-w-2xl mx-auto">
        <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-          Feedback
+          Feedback Anonim
         </h1>
         <p className="max-w-[700px] mx-auto text-muted-foreground md:text-xl/relaxed">
-          Spune-ne cum ne descurcăm! Părerea ta contează.
+          Spune-ne cum ne descurcăm! Părerea ta este valoroasă și complet anonimă. Folosim acest feedback strict pentru a îmbunătăți serviciile noastre.
         </p>
       </div>
       

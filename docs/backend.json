@@ -169,20 +169,8 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Feedback",
       "type": "object",
-      "description": "Represents customer feedback.",
+      "description": "Represents customer feedback. Submitted anonymously.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the feedback."
-        },
-        "userId": {
-          "type": "string",
-          "description": "The ID of the user who submitted the feedback."
-        },
-        "userName": {
-          "type": "string",
-          "description": "The name of the user who submitted the feedback."
-        },
         "rating": {
           "type": "number",
           "description": "Star rating from 1 to 5."
@@ -197,9 +185,6 @@
         }
       },
       "required": [
-        "id",
-        "userId",
-        "userName",
         "rating",
         "createdAt"
       ]

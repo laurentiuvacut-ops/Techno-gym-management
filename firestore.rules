@@ -105,7 +105,7 @@ service cloud.firestore {
     }
 
     /**
-     * @description Enforces that only an authenticated user can submit feedback.
+     * @description Enforces that only an authenticated user can submit feedback. The feedback is anonymous.
      * @path /feedback/{feedbackId}
      * @allow A signed-in user can (create) their own feedback.
      * @deny A user cannot read, update, or delete any feedback.
@@ -114,7 +114,7 @@ service cloud.firestore {
     match /feedback/{feedbackId} {
       allow list: if false;
       allow get: if false;
-      allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+      allow create: if isSignedIn();
       allow update: if false;
       allow delete: if false;
     }
