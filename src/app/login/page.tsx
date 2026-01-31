@@ -16,8 +16,8 @@ export default function LoginPage() {
     const router = useRouter();
     const auth = getAuth();
     
+    // We still need a ref to hold the verifier instance across renders.
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-    const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
@@ -33,28 +33,43 @@ export default function LoginPage() {
         }
     }, [user, loading, router]);
     
+    // This effect initializes the reCAPTCHA verifier.
     useEffect(() => {
-        if (!auth || !recaptchaContainerRef.current) {
+        // It should only run once when the auth service is ready.
+        if (!auth) {
             return;
         }
 
-        const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        // We pass the ID of the container element directly.
+        // This is slightly more robust than using a ref.
+        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
             'size': 'invisible',
-            'callback': () => { },
+            'callback': () => { 
+                // This callback is for the visible reCAPTCHA, which we want to avoid.
+            },
             'expired-callback': () => {
+               // This can happen if the user takes too long to solve a visible challenge.
                setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
+               if (recaptchaVerifierRef.current) {
+                 try {
+                   (window as any).grecaptcha.reset(recaptchaVerifierRef.current.widgetId);
+                 } catch (e) {
+                   console.error("Error resetting reCAPTCHA on expiry:", e);
+                 }
+               }
             }
         });
 
         recaptchaVerifierRef.current = verifier;
 
+        // Cleanup when the component unmounts.
         return () => {
             if (recaptchaVerifierRef.current) {
                 recaptchaVerifierRef.current.clear();
                 recaptchaVerifierRef.current = null;
             }
         };
-    }, [auth]);
+    }, [auth]); // The effect depends only on the auth object.
 
 
     const handleSendCode = async (e: React.FormEvent) => {
@@ -79,6 +94,8 @@ export default function LoginPage() {
             setError(null);
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
+            
+            // Provide a very specific error message for the user.
             if (err.code === 'auth/too-many-requests') {
                  setError("Eroare de securitate (prea multe cereri). Aceasta indică o problemă de configurare. Verificați că domeniul site-ului live este autorizat în setările reCAPTCHA din consola Google Cloud, apoi așteptați câteva minute înainte de a reîncerca.");
             } else {
@@ -87,11 +104,12 @@ export default function LoginPage() {
                 setError(`Eroare (${errorCode}): ${errorMessage}`);
             }
             
+            // Try to reset the reCAPTCHA widget on error.
             if (typeof (window as any).grecaptcha !== 'undefined' && verifier.widgetId !== undefined) {
                  try {
                     (window as any).grecaptcha.reset(verifier.widgetId);
                  } catch (resetError) {
-                    console.error("Error resetting reCAPTCHA:", resetError);
+                    console.error("Error resetting reCAPTCHA on failure:", resetError);
                  }
             }
         } finally {
@@ -112,6 +130,7 @@ export default function LoginPage() {
 
         try {
             await confirmationResult.confirm(otp);
+            // On successful login, the useEffect on top will redirect to /dashboard
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {
@@ -138,7 +157,8 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh]">
-             <div ref={recaptchaContainerRef} id="recaptcha-container" />
+             {/* This div is the container for the invisible reCAPTCHA widget. */}
+             <div id="recaptcha-container" />
              
             <Card className="w-full max-w-sm">
                 <CardHeader>
