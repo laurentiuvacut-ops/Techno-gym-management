@@ -33,11 +33,11 @@ export default function LoginPage() {
     }, [user, loading, router]);
 
     useEffect(() => {
-        if (!auth) {
+        if (!auth || recaptchaVerifierRef.current) {
             return;
         }
         
-        if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
+        if (recaptchaContainerRef.current) {
             const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
                 'size': 'invisible',
                 'callback': () => {
@@ -47,11 +47,6 @@ export default function LoginPage() {
             recaptchaVerifierRef.current = verifier;
         }
 
-        return () => {
-            if (recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current.clear();
-            }
-        };
     }, [auth]);
 
     const handleSendCode = async (e: React.FormEvent) => {
@@ -171,7 +166,6 @@ export default function LoginPage() {
                                 {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
                             </Button>
                         </form>
-                        <div ref={recaptchaContainerRef} className="mt-4"></div>
                     </CardContent>
                 ) : (
                     <CardContent>
@@ -202,6 +196,7 @@ export default function LoginPage() {
                         </form>
                     </CardContent>
                 )}
+                <div ref={recaptchaContainerRef} />
             </Card>
         </div>
     );
