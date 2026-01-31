@@ -16,9 +16,7 @@ export default function LoginPage() {
     const router = useRouter();
     const auth = getAuth();
     
-    // This ref will hold the RecaptchaVerifier instance
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-    // This ref is for the DOM element
     const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -29,23 +27,20 @@ export default function LoginPage() {
     
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
-    // Redirect if user is already logged in
     useEffect(() => {
         if (!loading && user) {
             router.push('/dashboard');
         }
     }, [user, loading, router]);
     
-    // Initialize and clean up RecaptchaVerifier
     useEffect(() => {
         if (!auth || !recaptchaContainerRef.current) {
             return;
         }
 
-        // Create the verifier instance once the component mounts
         const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
             'size': 'invisible',
-            'callback': () => { /* Not used for invisible */ },
+            'callback': () => { },
             'expired-callback': () => {
                setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
             }
@@ -53,14 +48,13 @@ export default function LoginPage() {
 
         recaptchaVerifierRef.current = verifier;
 
-        // Cleanup function to destroy the verifier when component unmounts
         return () => {
             if (recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current.clear(); // Use the official clear method
+                recaptchaVerifierRef.current.clear();
                 recaptchaVerifierRef.current = null;
             }
         };
-    }, [auth]); // Rerun if auth instance changes
+    }, [auth]);
 
 
     const handleSendCode = async (e: React.FormEvent) => {
@@ -79,18 +73,20 @@ export default function LoginPage() {
         const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
 
         try {
-            // Use the existing verifier from the ref
             const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, verifier);
             setConfirmationResult(confirmation);
             setStep('otp');
             setError(null);
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
-            const errorCode = err.code || 'UNKNOWN_ERROR';
-            const errorMessage = err.message || 'A apărut o eroare neașteptată.';
-            setError(`Eroare (${errorCode}): ${errorMessage}`);
+            if (err.code === 'auth/too-many-requests') {
+                 setError("Prea multe cereri. Acest dispozitiv sau număr de telefon a fost blocat temporar din cauza activității neobișnuite. Vă rugăm să așteptați câteva minute.");
+            } else {
+                const errorCode = err.code || 'UNKNOWN_ERROR';
+                const errorMessage = err.message || 'A apărut o eroare neașteptată.';
+                setError(`Eroare (${errorCode}): ${errorMessage}`);
+            }
             
-            // In case of error, try to reset the recaptcha for the next attempt
             if (typeof (window as any).grecaptcha !== 'undefined' && verifier.widgetId !== undefined) {
                  try {
                     (window as any).grecaptcha.reset(verifier.widgetId);
@@ -120,6 +116,8 @@ export default function LoginPage() {
             console.error(err);
             if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {
                 setError('Codul introdus este invalid sau a expirat.');
+            } else if (err.code === 'auth/too-many-requests') {
+                 setError("Prea multe încercări eșuate. Vă rugăm să solicitați un cod nou.");
             } else {
                 const errorCode = err.code || 'UNKNOWN_ERROR';
                 const errorMessage = err.message || 'A apărut o eroare la verificarea codului.';
@@ -140,7 +138,6 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh]">
-             {/* The container is now attached to a ref */}
              <div ref={recaptchaContainerRef} id="recaptcha-container" />
              
             <Card className="w-full max-w-sm">
