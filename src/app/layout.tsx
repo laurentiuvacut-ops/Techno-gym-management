@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <Script src="https://www.google.com/recaptcha/enterprise.js?render=6Lcg5FssAAAAAAjwDv-cE8aDfBHBv2cAGomw8dmX" strategy="beforeInteractive" />
+        <Script src="https://www.google.com/recaptcha/enterprise.js?render=6LcqwlosAAAAAPx4W8ob5pleV4w6qbHERxyhcWYC" strategy="beforeInteractive" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
