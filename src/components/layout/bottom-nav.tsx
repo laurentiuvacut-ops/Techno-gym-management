@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Award, Home, Dumbbell, User, ShoppingBag, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/firebase";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { href: "/dashboard", label: "Acasă", icon: Home },
@@ -17,6 +18,11 @@ const navItems = [
 export default function BottomNav() {
   const pathname = usePathname();
   const { user, loading } = useUser();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Hide bottom nav on public pages
   const noNavRoutes = ['/', '/login', '/register'];
@@ -30,8 +36,7 @@ export default function BottomNav() {
     ? { href: "/profile", label: "Profil", icon: User }
     : { href: "/login", label: "Login", icon: User };
 
-  const allNavItems = [...navItems, profileItem];
-
+  const allNavItems = isClient ? [...navItems, profileItem] : [...navItems, { href: "/login", label: "Profil", icon: User, disabled: true }];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-20 bg-card/80 backdrop-blur-sm border-t border-border/50 z-50">
