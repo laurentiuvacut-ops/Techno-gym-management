@@ -23,29 +23,38 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-    
+    // useRef for the verifier instance. This will persist across re-renders.
+    const verifierRef = useRef<RecaptchaVerifier | null>(null);
+    const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
+
+    // Initialize RecaptchaVerifier only once on component mount.
     useEffect(() => {
-        if (!auth) return;
+        if (!auth || !recaptchaContainerRef.current) return;
 
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': (response: any) => {
-                // reCAPTCHA solved, allow signInWithPhoneNumber.
-            },
-            'expired-callback': () => {
-                 if (recaptchaVerifierRef.current) {
-                    (window as any).grecaptcha?.reset();
+        // Check if verifier hasn't been created yet.
+        if (!verifierRef.current) {
+            // The verifier is attached to the div via the ref.
+            verifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+                'size': 'invisible',
+                'callback': () => {
+                    // This callback is for when the reCAPTCHA is solved successfully.
+                    // For invisible reCAPTCHA, this is often handled by the signIn call itself.
+                },
+                'expired-callback': () => {
+                    // Response expired. Ask user to solve reCAPTCHA again.
+                    setError("Verificarea reCAPTCHA a expirat. Vă rugăm să încercați din nou.");
                 }
-            }
-        });
+            });
+        }
 
-        recaptchaVerifierRef.current = verifier;
-
+        // The cleanup function will be called when the component unmounts.
         return () => {
-            verifier.clear();
+            if (verifierRef.current) {
+                verifierRef.current.clear();
+                verifierRef.current = null;
+            }
         };
-    }, [auth]);
+    }, [auth]); // Only re-run if auth instance changes.
 
 
     useEffect(() => {
@@ -60,7 +69,7 @@ export default function LoginPage() {
         setError(null);
         setIsSubmitting(true);
 
-        const verifier = recaptchaVerifierRef.current;
+        const verifier = verifierRef.current;
         if (!verifier) {
             setError("reCAPTCHA nu s-a putut inițializa. Vă rugăm reîncărcați pagina.");
             setIsSubmitting(false);
@@ -70,6 +79,7 @@ export default function LoginPage() {
         const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
 
         try {
+            // signInWithPhoneNumber will trigger the invisible reCAPTCHA.
             const result = await signInWithPhoneNumber(auth, formattedPhoneNumber, verifier);
             setConfirmationResult(result);
             setStep('otp');
@@ -78,8 +88,9 @@ export default function LoginPage() {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             
             // In case of an error, it's often best to reset the reCAPTCHA widget.
-            if (recaptchaVerifierRef.current) {
-                (window as any).grecaptcha?.reset(recaptchaVerifierRef.current.widgetId);
+            // This is safer than accessing the global grecaptcha object directly.
+            if (verifierRef.current) {
+                verifierRef.current.render().catch(console.error); // Try to re-render it.
             }
 
             const errorCode = err.code || 'UNKNOWN_ERROR';
@@ -127,7 +138,9 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh]">
-             <div id="recaptcha-container" />
+             {/* This container is now attached via a ref and must always be in the DOM */}
+             <div ref={recaptchaContainerRef} />
+             
             <Card className="w-full max-w-sm">
                 <CardHeader>
                     <div className="flex justify-center mb-4">
