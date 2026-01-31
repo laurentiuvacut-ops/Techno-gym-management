@@ -2,22 +2,26 @@
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'
 
 export function initializeFirebase() {
-  if (getApps().length) {
-    return getSdks(getApp());
-  }
-  const firebaseApp = initializeApp(firebaseConfig);
-  return getSdks(firebaseApp);
-}
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const firestore = getFirestore(app);
 
-export function getSdks(firebaseApp: FirebaseApp) {
+  // Set auth persistence to 'local'.
+  // This makes the user's session persist even after closing the browser tab/window.
+  // The user will remain logged in until they explicitly sign out.
+  setPersistence(auth, browserLocalPersistence)
+    .catch((error) => {
+      console.error("Firebase: Could not set auth persistence.", error);
+    });
+
   return {
-    firebaseApp,
-    auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp)
+    firebaseApp: app,
+    auth: auth,
+    firestore: firestore
   };
 }
 
