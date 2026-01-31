@@ -30,7 +30,7 @@ export default function Header() {
         ) : (
             <div className="flex items-center gap-2">
                  <Button asChild>
-                    <Link href="/dashboard">
+                    <Link href="/login">
                         Intră în Cont
                     </Link>
                 </Button>
