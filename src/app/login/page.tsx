@@ -23,34 +23,29 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Use a ref for the verifier instance to avoid re-creating it on every render.
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-
-    // This useEffect handles the lifecycle of the reCAPTCHA verifier.
-    // It's crucial for it to be stable and run only once.
+    
     useEffect(() => {
-        // If auth is not ready, do nothing. `getAuth()` can be called before initialization.
         if (!auth) return;
 
-        // Create the verifier instance only if it doesn't exist.
-        // We use a simple ID string for the container, which is more reliable than a ref
-        // in this context, as the element is guaranteed to exist in the DOM.
-        if (!recaptchaVerifierRef.current) {
-            recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                'size': 'invisible',
-                'callback': () => {
-                    // This callback is called when the reCAPTCHA is successfully solved.
-                    // The `handleSendCode` function below will then proceed with signInWithPhoneNumber.
+        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response: any) => {
+                // reCAPTCHA solved, allow signInWithPhoneNumber.
+            },
+            'expired-callback': () => {
+                 if (recaptchaVerifierRef.current) {
+                    (window as any).grecaptcha?.reset();
                 }
-            });
-        }
+            }
+        });
 
-        // The cleanup function is critical. When the component unmounts,
-        // we must clear the reCAPTCHA instance to prevent memory leaks and errors.
+        recaptchaVerifierRef.current = verifier;
+
         return () => {
-            recaptchaVerifierRef.current?.clear();
+            verifier.clear();
         };
-    }, [auth]); // Dependency on `auth` ensures it runs when auth is ready.
+    }, [auth]);
 
 
     useEffect(() => {
@@ -83,18 +78,14 @@ export default function LoginPage() {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             
             // In case of an error, it's often best to reset the reCAPTCHA widget.
-            // This can help if the widget gets into a stuck state.
-            (window as any).grecaptcha?.reset();
-
-            if (err.code === 'auth/invalid-phone-number') {
-                setError('Numărul de telefon introdus nu este valid.');
-            } else if (err.code === 'auth/too-many-requests') {
-                setError('Prea multe încercări. Vă rugăm încercați din nou mai târziu.');
-            } else if (err.code === 'auth/operation-not-allowed') {
-                 setError('Eroare de configurare. Asigurați-vă că politica SMS este activată în Google Cloud. Contactați suportul dacă problema persistă.');
-            } else {
-                setError(`A apărut o eroare neașteptată. Vă rugăm reîncărcați pagina. (${err.code || 'UNKNOWN_ERROR'})`);
+            if (recaptchaVerifierRef.current) {
+                (window as any).grecaptcha?.reset(recaptchaVerifierRef.current.widgetId);
             }
+
+            const errorCode = err.code || 'UNKNOWN_ERROR';
+            const errorMessage = err.message || 'A apărut o eroare neașteptată.';
+            setError(`Eroare (${errorCode}): ${errorMessage}. Vă rugăm verificați consola pentru mai multe detalii și contactați suportul dacă problema persistă.`);
+
         } finally {
             setIsSubmitting(false);
         }
@@ -117,7 +108,9 @@ export default function LoginPage() {
             if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {
                 setError('Codul introdus este invalid sau a expirat.');
             } else {
-                setError('A apărut o eroare la verificarea codului.');
+                const errorCode = err.code || 'UNKNOWN_ERROR';
+                const errorMessage = err.message || 'A apărut o eroare la verificarea codului.';
+                setError(`Eroare (${errorCode}): ${errorMessage}`);
             }
         } finally {
             setIsSubmitting(false);
@@ -134,7 +127,6 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh]">
-             {/* The reCAPTCHA container must always be in the DOM for the verifier to work. */}
              <div id="recaptcha-container" />
             <Card className="w-full max-w-sm">
                 <CardHeader>
