@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import { useUser } from '@/firebase';
@@ -11,25 +11,20 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 
-// Use the window object to store the verifier and confirmation result
-// This helps to avoid issues with React's lifecycle and re-renders.
-declare global {
-  interface Window {
-    recaptchaVerifier?: RecaptchaVerifier;
-    confirmationResult?: ConfirmationResult;
-  }
-}
-
 export default function LoginPage() {
     const { user, loading } = useUser();
     const router = useRouter();
     const auth = getAuth();
+    
+    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
     const [step, setStep] = useState('phone'); // 'phone' or 'otp'
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
     useEffect(() => {
         if (!loading && user) {
@@ -37,17 +32,22 @@ export default function LoginPage() {
         }
     }, [user, loading, router]);
     
-    const getRecaptchaVerifier = () => {
-        if (!window.recaptchaVerifier) {
-            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                'size': 'invisible',
-                'expired-callback': () => {
-                   setError("Verificarea reCAPTCHA a expirat. Vă rugăm să încercați din nou.");
-                }
-            });
-        }
-        return window.recaptchaVerifier;
-    }
+    useEffect(() => {
+        if (!auth || recaptchaVerifierRef.current) return;
+
+        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': () => {
+                // reCAPTCHA solved
+            },
+            'expired-callback': () => {
+               setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
+            }
+        });
+        
+        recaptchaVerifierRef.current = verifier;
+
+    }, [auth]);
 
 
     const handleSendCode = async (e: React.FormEvent) => {
@@ -55,23 +55,35 @@ export default function LoginPage() {
         setError(null);
         setIsSubmitting(true);
 
-        const verifier = getRecaptchaVerifier();
+        const verifier = recaptchaVerifierRef.current;
+        if (!verifier) {
+            setError("Recaptcha verifier nu este inițializat. Vă rugăm reîncărcați pagina.");
+            setIsSubmitting(false);
+            return;
+        }
+
         const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
 
         try {
             const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, verifier);
-            window.confirmationResult = confirmation;
+            setConfirmationResult(confirmation);
             setStep('otp');
             setError(null);
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
-            
             const errorCode = err.code || 'UNKNOWN_ERROR';
             const errorMessage = err.message || 'A apărut o eroare neașteptată.';
-            setError(`Eroare (${errorCode}): ${errorMessage}. Asigurați-vă că domeniul este autorizat în consola reCAPTCHA.`);
-
-            // Reset the verifier if it exists
-            window.recaptchaVerifier?.render().catch(console.error);
+            setError(`Eroare la trimiterea codului (${errorCode}): ${errorMessage}. Asigurați-vă că domeniul este autorizat și cheia reCAPTCHA este corectă.`);
+            
+            try {
+                // @ts-ignore
+                const widgetId = verifier.widgetId;
+                if (typeof window !== 'undefined' && (window as any).grecaptcha) {
+                    (window as any).grecaptcha.reset(widgetId);
+                }
+            } catch (resetError) {
+                console.error("Error resetting reCAPTCHA:", resetError);
+            }
 
         } finally {
             setIsSubmitting(false);
@@ -83,15 +95,14 @@ export default function LoginPage() {
         setError(null);
         setIsSubmitting(true);
         
-        if (!window.confirmationResult) {
+        if (!confirmationResult) {
             setError("A apărut o eroare de sesiune. Vă rugăm să reîncercați de la început.");
             setIsSubmitting(false);
             return;
         }
 
         try {
-            await window.confirmationResult.confirm(otp);
-            // onAuthStateChanged will handle the redirect to /dashboard
+            await confirmationResult.confirm(otp);
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {
@@ -191,7 +202,7 @@ export default function LoginPage() {
                             <Button type="submit" className="w-full" disabled={isSubmitting}>
                                 {isSubmitting ? 'Se verifică...' : 'Verifică'}
                             </Button>
-                            <Button variant="link" onClick={() => { setStep('phone'); setError(null); }} className="w-full">
+                            <Button variant="link" onClick={() => { setStep('phone'); setError(null); setConfirmationResult(null); }} className="w-full">
                                 Folosește alt număr de telefon
                             </Button>
                         </form>
