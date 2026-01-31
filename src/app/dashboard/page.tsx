@@ -23,12 +23,13 @@ import { Label } from "@/components/ui/label";
 
 function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCreateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      alert("Te rugăm să introduci numele tău.");
+    if (!name.trim() || !phone.trim()) {
+      alert("Te rugăm să completezi toate câmpurile.");
       return;
     }
     setIsSubmitting(true);
@@ -37,10 +38,10 @@ function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
       await setDoc(memberDocRef, {
         id: user.uid,
         name: name,
-        email: user.email, // Can be null with phone auth
-        phone: user.phoneNumber,
-        photoURL: user.photoURL,
-        qrCode: user.phoneNumber,
+        email: null, // Anonymous users don't have email
+        phone: phone,
+        photoURL: null, // Anonymous users don't have photoURL
+        qrCode: phone,
         status: 'Expired',
         daysRemaining: 0,
         subscriptionId: null,
@@ -71,6 +72,17 @@ function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
                             required
                         />
                     </div>
+                    <div>
+                        <Label htmlFor="phone">Număr de Telefon</Label>
+                        <Input
+                            id="phone"
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="0712 345 678"
+                            required
+                        />
+                    </div>
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
                         {isSubmitting ? 'Se salvează...' : 'Salvează Profilul'}
                     </Button>
@@ -95,9 +107,8 @@ export default function DashboardPage() {
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
   useEffect(() => {
-    if (!userLoading && !user) {
-      router.push('/login');
-    }
+    // With anonymous auth, user object will always exist once loaded.
+    // So we don't need to redirect if !user. The provider handles it.
   }, [user, userLoading, router]);
 
   const loading = userLoading || memberLoading;
@@ -186,5 +197,4 @@ export default function DashboardPage() {
     </div>
   );
 }
-
     

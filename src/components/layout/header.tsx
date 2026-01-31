@@ -30,7 +30,7 @@ export default function Header() {
         ) : (
             <div className="flex items-center gap-2">
                  <Button asChild>
-                    <Link href="/login">
+                    <Link href="/dashboard">
                         Intră în Cont
                     </Link>
                 </Button>
@@ -41,5 +41,4 @@ export default function Header() {
     </header>
   );
 }
-
     
