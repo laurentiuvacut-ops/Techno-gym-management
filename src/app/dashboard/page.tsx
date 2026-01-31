@@ -16,7 +16,7 @@ import {
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,14 +39,16 @@ function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
     setIsSubmitting(true);
     const memberDocRef = doc(firestore, 'members', user.uid);
     try {
+      // Using setDoc will create or overwrite the document for the current user.
+      // This is safe because we only show this form if no migrated profile was found.
       await setDoc(memberDocRef, {
         id: user.uid,
         name: name,
-        email: null,
+        email: null, // Assuming email is not collected at this stage
         phone: user.phoneNumber,
-        photoURL: null,
+        photoURL: null, // Assuming photo is not collected
         qrCode: user.phoneNumber,
-        status: 'Expired',
+        status: 'Expired', // New users start with an expired status
         daysRemaining: 0,
         subscriptionId: null,
       });
@@ -92,6 +94,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const firestore = useFirestore();
 
+  const [migrationStatus, setMigrationStatus] = useState<'idle' | 'migrating' | 'done'>('idle');
+
   const memberDocRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return doc(firestore, 'members', user.uid);
@@ -105,7 +109,75 @@ export default function DashboardPage() {
     }
   }, [user, userLoading, router]);
 
-  const loading = userLoading || memberLoading;
+  useEffect(() => {
+    // This effect handles migrating a legacy user profile to the new UID-based document structure.
+    const attemptMigration = async () => {
+      // Conditions to run: user is loaded, Firestore is available, no member data found for UID yet, and migration hasn't been attempted.
+      if (user && firestore && !memberData && !memberLoading && migrationStatus === 'idle') {
+        setMigrationStatus('migrating');
+        
+        const userPhoneNumber = user.phoneNumber;
+        if (!userPhoneNumber) {
+          console.log("User has no phone number, proceeding to onboarding.");
+          setMigrationStatus('done');
+          return;
+        }
+
+        // To handle different phone number formats in the database (e.g., +407..., 07..., 7...), we check for variations.
+        const phoneVariants = [userPhoneNumber];
+        if (userPhoneNumber.startsWith('+40')) {
+            const nationalNumber = userPhoneNumber.substring(3);
+            phoneVariants.push(nationalNumber); // "712345678"
+            phoneVariants.push(`0${nationalNumber}`); // "0712345678"
+        }
+
+        try {
+          const membersRef = collection(firestore, 'members');
+          // Query for a legacy document.
+          const q = query(membersRef, where("phone", "in", phoneVariants));
+          const querySnapshot = await getDocs(q);
+
+          let legacyDoc = null;
+          for (const doc of querySnapshot.docs) {
+              // Heuristic to find the un-migrated, legacy record: pick the first one not already matching the current user's UID.
+              if (doc.id !== user.uid) { 
+                  legacyDoc = doc;
+                  break;
+              }
+          }
+
+          if (legacyDoc) {
+            console.log("Found legacy profile, migrating...");
+            const legacyData = legacyDoc.data();
+            const newDocRef = doc(firestore, 'members', user.uid);
+            
+            // Create a new document with the UID as the ID, copying the legacy data.
+            // We can't delete the old document due to security rules, but this ensures the user sees their correct data.
+            await setDoc(newDocRef, {
+              ...legacyData,
+              id: user.uid, // Critically, we now associate the profile with the auth UID.
+              phone: userPhoneNumber, // Standardize the phone number format.
+            });
+            // The useDoc hook will now find the new document and update the UI.
+
+          } else {
+            console.log("No legacy profile found for this phone number.");
+          }
+        } catch (e) {
+          console.error("Error during profile migration check:", e);
+        } finally {
+          // Whether migration succeeded or not, we mark it as done to prevent re-running.
+          // If no doc was created, the UI will proceed to the onboarding form.
+          setMigrationStatus('done');
+        }
+      }
+    };
+
+    attemptMigration();
+  }, [user, firestore, memberData, memberLoading, migrationStatus]);
+
+
+  const loading = userLoading || memberLoading || migrationStatus === 'migrating';
 
   if (loading || !user) {
     return (
@@ -115,11 +187,21 @@ export default function DashboardPage() {
     );
   }
   
-  // If user is logged in but has no member document, show onboarding
-  if (!memberData) {
+  // If migration is done, and there's still no data, it means it's a genuinely new user.
+  if (migrationStatus === 'done' && !memberData) {
       return <OnboardingForm user={user} firestore={firestore} />;
   }
+  
+  if (!memberData) {
+      // This state is shown while loading or migrating.
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      );
+  }
 
+  // If we have memberData, show the dashboard.
   const daysLeft = memberData.daysRemaining;
   const totalDays = 30; // This might need to come from subscription data later
 
