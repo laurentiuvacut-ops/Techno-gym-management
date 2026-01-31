@@ -16,7 +16,10 @@ export default function LoginPage() {
     const router = useRouter();
     const auth = getAuth();
     
+    // This ref will hold the RecaptchaVerifier instance
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+    // This ref is for the DOM element
+    const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
@@ -26,28 +29,38 @@ export default function LoginPage() {
     
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
+    // Redirect if user is already logged in
     useEffect(() => {
         if (!loading && user) {
             router.push('/dashboard');
         }
     }, [user, loading, router]);
     
+    // Initialize and clean up RecaptchaVerifier
     useEffect(() => {
-        if (!auth || recaptchaVerifierRef.current) return;
+        if (!auth || !recaptchaContainerRef.current) {
+            return;
+        }
 
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        // Create the verifier instance once the component mounts
+        const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
             'size': 'invisible',
-            'callback': () => {
-                // reCAPTCHA solved
-            },
+            'callback': () => { /* Not used for invisible */ },
             'expired-callback': () => {
                setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
             }
         });
-        
+
         recaptchaVerifierRef.current = verifier;
 
-    }, [auth]);
+        // Cleanup function to destroy the verifier when component unmounts
+        return () => {
+            if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.clear(); // Use the official clear method
+                recaptchaVerifierRef.current = null;
+            }
+        };
+    }, [auth]); // Rerun if auth instance changes
 
 
     const handleSendCode = async (e: React.FormEvent) => {
@@ -56,8 +69,9 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         const verifier = recaptchaVerifierRef.current;
+
         if (!verifier) {
-            setError("Recaptcha verifier nu este inițializat. Vă rugăm reîncărcați pagina.");
+            setError("reCAPTCHA nu s-a încărcat corect. Vă rugăm reîncărcați pagina.");
             setIsSubmitting(false);
             return;
         }
@@ -65,6 +79,7 @@ export default function LoginPage() {
         const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
 
         try {
+            // Use the existing verifier from the ref
             const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, verifier);
             setConfirmationResult(confirmation);
             setStep('otp');
@@ -73,18 +88,16 @@ export default function LoginPage() {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             const errorCode = err.code || 'UNKNOWN_ERROR';
             const errorMessage = err.message || 'A apărut o eroare neașteptată.';
-            setError(`Eroare la trimiterea codului (${errorCode}): ${errorMessage}. Asigurați-vă că domeniul este autorizat și cheia reCAPTCHA este corectă.`);
+            setError(`Eroare (${errorCode}): ${errorMessage}`);
             
-            try {
-                // @ts-ignore
-                const widgetId = verifier.widgetId;
-                if (typeof window !== 'undefined' && (window as any).grecaptcha) {
-                    (window as any).grecaptcha.reset(widgetId);
-                }
-            } catch (resetError) {
-                console.error("Error resetting reCAPTCHA:", resetError);
+            // In case of error, try to reset the recaptcha for the next attempt
+            if (typeof (window as any).grecaptcha !== 'undefined' && verifier.widgetId !== undefined) {
+                 try {
+                    (window as any).grecaptcha.reset(verifier.widgetId);
+                 } catch (resetError) {
+                    console.error("Error resetting reCAPTCHA:", resetError);
+                 }
             }
-
         } finally {
             setIsSubmitting(false);
         }
@@ -127,7 +140,8 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh]">
-             <div id="recaptcha-container" />
+             {/* The container is now attached to a ref */}
+             <div ref={recaptchaContainerRef} id="recaptcha-container" />
              
             <Card className="w-full max-w-sm">
                 <CardHeader>
