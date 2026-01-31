@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { trainers } from "@/lib/data";
@@ -9,8 +11,24 @@ import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/firebase";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-const getImage = (id: string) => PlaceHolderImages.find(p => p.id === id);
+const getImage = (id: string) => {
+    const img = PlaceHolderImages.find(p => p.id === id);
+    if (!img) {
+        // Return a default placeholder if the image is not found
+        return {
+            id: 'not-found',
+            description: 'Placeholder image',
+            imageUrl: 'https://picsum.photos/seed/placeholder/600/400',
+            imageHint: 'placeholder',
+        };
+    }
+    return img;
+};
+
 
 export default function LandingPage() {
     const transformationBefore1 = getImage('transformation-before-1');

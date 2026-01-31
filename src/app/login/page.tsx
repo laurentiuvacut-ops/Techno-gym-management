@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Image from 'next/image';
 
 export default function LoginPage() {
     const { user, loading } = useUser();
@@ -70,9 +71,8 @@ export default function LoginPage() {
             } else if (err.code === 'auth/too-many-requests') {
                 setError('Prea multe încercări. Vă rugăm încercați din nou mai târziu.');
             } else if (err.code === 'auth/operation-not-allowed') {
-                setError('Autentificarea prin SMS nu este activată sau configurată corect în Firebase. Verificați planul Blaze și setările Identity Platform.');
-            }
-            else {
+                 setError('Eroare de configurare. Vă rugăm să activați planul Blaze și politica SMS în consola Google Cloud. Contactați suportul dacă problema persistă.');
+            } else {
                 setError('A apărut o eroare neașteptată. Vă rugăm să încercați din nou.');
             }
         } finally {
@@ -115,80 +115,84 @@ export default function LoginPage() {
     return (
         <div className="flex items-center justify-center min-h-[80vh]">
             <Card className="w-full max-w-sm">
-                {step === 'phone' ? (
-                    <>
-                        <CardHeader>
-                            <CardTitle className="text-2xl">Intră în Cont</CardTitle>
-                            <CardDescription>
+                <CardHeader>
+                    <div className="flex justify-center mb-4">
+                        <Image src="https://i.imgur.com/QdArxUJ.png" alt="Techno Gym Logo" width={48} height={48} />
+                    </div>
+                    {step === 'phone' ? (
+                        <>
+                            <CardTitle className="text-2xl text-center">Intră în Cont</CardTitle>
+                            <CardDescription className="text-center">
                                 Introdu numărul de telefon pentru a primi un cod de verificare.
                             </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handleSendCode} className="space-y-4">
-                                <div>
-                                    <Label htmlFor="phone">Număr de Telefon</Label>
-                                    <div className="flex items-center">
-                                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-background text-sm text-muted-foreground">+40</span>
-                                        <Input
-                                            id="phone"
-                                            type="tel"
-                                            value={phoneNumber}
-                                            onChange={(e) => setPhoneNumber(e.target.value)}
-                                            placeholder="712 345 678"
-                                            required
-                                            className="rounded-l-none"
-                                        />
-                                    </div>
-                                </div>
-                                {error && (
-                                    <Alert variant="destructive">
-                                        <AlertTitle>Eroare</AlertTitle>
-                                        <AlertDescription>{error}</AlertDescription>
-                                    </Alert>
-                                )}
-                                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                    {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
-                                </Button>
-                            </form>
-                            <div ref={recaptchaContainerRef} className="mt-4"></div>
-                        </CardContent>
-                    </>
-                ) : (
-                    <>
-                        <CardHeader>
-                            <CardTitle className="text-2xl">Verifică Codul</CardTitle>
-                            <CardDescription>
+                        </>
+                    ) : (
+                        <>
+                            <CardTitle className="text-2xl text-center">Verifică Codul</CardTitle>
+                            <CardDescription className="text-center">
                                 Am trimis un cod de 6 cifre la numărul tău de telefon.
                             </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handleVerifyCode} className="space-y-4">
-                                <div>
-                                    <Label htmlFor="otp">Cod de Verificare</Label>
+                        </>
+                    )}
+                </CardHeader>
+                {step === 'phone' ? (
+                    <CardContent>
+                        <form onSubmit={handleSendCode} className="space-y-4">
+                            <div>
+                                <Label htmlFor="phone">Număr de Telefon</Label>
+                                <div className="flex items-center">
+                                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-background text-sm text-muted-foreground">+40</span>
                                     <Input
-                                        id="otp"
-                                        value={otp}
-                                        onChange={(e) => setOtp(e.target.value)}
-                                        placeholder="123456"
+                                        id="phone"
+                                        type="tel"
+                                        value={phoneNumber}
+                                        onChange={(e) => setPhoneNumber(e.target.value)}
+                                        placeholder="712 345 678"
                                         required
-                                        maxLength={6}
+                                        className="rounded-l-none"
                                     />
                                 </div>
-                                {error && (
-                                    <Alert variant="destructive">
-                                        <AlertTitle>Eroare</AlertTitle>
-                                        <AlertDescription>{error}</AlertDescription>
-                                    </Alert>
-                                )}
-                                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                    {isSubmitting ? 'Se verifică...' : 'Verifică'}
-                                </Button>
-                                <Button variant="link" onClick={() => { setStep('phone'); setError(null); }} className="w-full">
-                                    Folosește alt număr de telefon
-                                </Button>
-                            </form>
-                        </CardContent>
-                    </>
+                            </div>
+                            {error && (
+                                <Alert variant="destructive">
+                                    <AlertTitle>Eroare</AlertTitle>
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            )}
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
+                            </Button>
+                        </form>
+                        <div ref={recaptchaContainerRef} className="mt-4"></div>
+                    </CardContent>
+                ) : (
+                    <CardContent>
+                        <form onSubmit={handleVerifyCode} className="space-y-4">
+                            <div>
+                                <Label htmlFor="otp">Cod de Verificare</Label>
+                                <Input
+                                    id="otp"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    placeholder="123456"
+                                    required
+                                    maxLength={6}
+                                />
+                            </div>
+                            {error && (
+                                <Alert variant="destructive">
+                                    <AlertTitle>Eroare</AlertTitle>
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            )}
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                {isSubmitting ? 'Se verifică...' : 'Verifică'}
+                            </Button>
+                            <Button variant="link" onClick={() => { setStep('phone'); setError(null); }} className="w-full">
+                                Folosește alt număr de telefon
+                            </Button>
+                        </form>
+                    </CardContent>
                 )}
             </Card>
         </div>
