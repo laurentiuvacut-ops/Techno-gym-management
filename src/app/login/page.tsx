@@ -80,7 +80,7 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             if (err.code === 'auth/too-many-requests') {
-                 setError("Prea multe cereri. Acest dispozitiv sau număr de telefon a fost blocat temporar din cauza activității neobișnuite. Vă rugăm să așteptați câteva minute.");
+                 setError("Eroare de securitate (prea multe cereri). Aceasta indică o problemă de configurare. Verificați că domeniul site-ului live este autorizat în setările reCAPTCHA din consola Google Cloud, apoi așteptați câteva minute înainte de a reîncerca.");
             } else {
                 const errorCode = err.code || 'UNKNOWN_ERROR';
                 const errorMessage = err.message || 'A apărut o eroare neașteptată.';
