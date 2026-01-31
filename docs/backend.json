@@ -197,7 +197,7 @@
   },
   "auth": {
     "providers": [
-      "anonymous"
+      "phone"
     ]
   },
   "firestore": {

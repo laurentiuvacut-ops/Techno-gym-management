@@ -1,21 +1,196 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { useUser } from '@/firebase';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function LoginPage() {
+    const { user, loading } = useUser();
     const router = useRouter();
-    
-    useEffect(() => {
-        // The FirebaseClientProvider handles anonymous login automatically.
-        // This page just redirects to the dashboard where the profile check happens.
-        router.replace('/dashboard');
-    }, [router]);
+    const auth = getAuth();
 
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [otp, setOtp] = useState('');
+    const [step, setStep] = useState('phone'); // 'phone' or 'otp'
+    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+    const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!loading && user) {
+            router.push('/dashboard');
+        }
+    }, [user, loading, router]);
+
+    useEffect(() => {
+        if (step === 'phone' && !recaptchaVerifierRef.current && recaptchaContainerRef.current) {
+            // Ensure the container is empty before rendering
+            recaptchaContainerRef.current.innerHTML = '';
+            const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+                'size': 'invisible',
+                'callback': () => {
+                    // reCAPTCHA solved, allow signInWithPhoneNumber.
+                }
+            });
+            recaptchaVerifierRef.current = verifier;
+        }
+    }, [auth, step]);
+
+    const handleSendCode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setIsSubmitting(true);
+
+        if (!recaptchaVerifierRef.current) {
+            setError("reCAPTCHA nu s-a inițializat. Vă rugăm reîncărcați pagina.");
+            setIsSubmitting(false);
+            return;
+        }
+        
+        const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
+
+        try {
+            const result = await signInWithPhoneNumber(auth, formattedPhoneNumber, recaptchaVerifierRef.current);
+            setConfirmationResult(result);
+            setStep('otp');
+            setError(null);
+        } catch (err: any) {
+            console.error(err);
+            if (err.code === 'auth/invalid-phone-number') {
+                setError('Numărul de telefon introdus nu este valid.');
+            } else if (err.code === 'auth/too-many-requests') {
+                setError('Prea multe încercări. Vă rugăm încercați din nou mai târziu.');
+            } else if (err.code === 'auth/operation-not-allowed') {
+                setError('Autentificarea prin SMS nu este activată sau configurată corect în Firebase. Verificați planul Blaze și setările Identity Platform.');
+            }
+            else {
+                setError('A apărut o eroare neașteptată. Vă rugăm să încercați din nou.');
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleVerifyCode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setIsSubmitting(true);
+        if (!confirmationResult) {
+            setError("A apărut o eroare. Vă rugăm să reîncercați de la început.");
+            setIsSubmitting(false);
+            return;
+        }
+        try {
+            await confirmationResult.confirm(otp);
+            // onAuthStateChanged will handle the redirect to /dashboard
+        } catch (err: any) {
+            console.error(err);
+            if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {
+                setError('Codul introdus este invalid sau a expirat.');
+            } else {
+                setError('A apărut o eroare la verificarea codului.');
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (loading || user) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+    
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <div className="flex items-center justify-center min-h-[80vh]">
+            <Card className="w-full max-w-sm">
+                {step === 'phone' ? (
+                    <>
+                        <CardHeader>
+                            <CardTitle className="text-2xl">Intră în Cont</CardTitle>
+                            <CardDescription>
+                                Introdu numărul de telefon pentru a primi un cod de verificare.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={handleSendCode} className="space-y-4">
+                                <div>
+                                    <Label htmlFor="phone">Număr de Telefon</Label>
+                                    <div className="flex items-center">
+                                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-background text-sm text-muted-foreground">+40</span>
+                                        <Input
+                                            id="phone"
+                                            type="tel"
+                                            value={phoneNumber}
+                                            onChange={(e) => setPhoneNumber(e.target.value)}
+                                            placeholder="712 345 678"
+                                            required
+                                            className="rounded-l-none"
+                                        />
+                                    </div>
+                                </div>
+                                {error && (
+                                    <Alert variant="destructive">
+                                        <AlertTitle>Eroare</AlertTitle>
+                                        <AlertDescription>{error}</AlertDescription>
+                                    </Alert>
+                                )}
+                                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                    {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
+                                </Button>
+                            </form>
+                            <div ref={recaptchaContainerRef} className="mt-4"></div>
+                        </CardContent>
+                    </>
+                ) : (
+                    <>
+                        <CardHeader>
+                            <CardTitle className="text-2xl">Verifică Codul</CardTitle>
+                            <CardDescription>
+                                Am trimis un cod de 6 cifre la numărul tău de telefon.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={handleVerifyCode} className="space-y-4">
+                                <div>
+                                    <Label htmlFor="otp">Cod de Verificare</Label>
+                                    <Input
+                                        id="otp"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        placeholder="123456"
+                                        required
+                                        maxLength={6}
+                                    />
+                                </div>
+                                {error && (
+                                    <Alert variant="destructive">
+                                        <AlertTitle>Eroare</AlertTitle>
+                                        <AlertDescription>{error}</AlertDescription>
+                                    </Alert>
+                                )}
+                                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                                    {isSubmitting ? 'Se verifică...' : 'Verifică'}
+                                </Button>
+                                <Button variant="link" onClick={() => { setStep('phone'); setError(null); }} className="w-full">
+                                    Folosește alt număr de telefon
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </>
+                )}
+            </Card>
         </div>
     );
 }
-    
