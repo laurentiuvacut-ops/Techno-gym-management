@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import { useUser } from '@/firebase';
@@ -11,6 +11,15 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 
+// Use the window object to store the verifier and confirmation result
+// This helps to avoid issues with React's lifecycle and re-renders.
+declare global {
+  interface Window {
+    recaptchaVerifier?: RecaptchaVerifier;
+    confirmationResult?: ConfirmationResult;
+  }
+}
+
 export default function LoginPage() {
     const { user, loading } = useUser();
     const router = useRouter();
@@ -19,49 +28,26 @@ export default function LoginPage() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
     const [step, setStep] = useState('phone'); // 'phone' or 'otp'
-    const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // useRef for the verifier instance. This will persist across re-renders.
-    const verifierRef = useRef<RecaptchaVerifier | null>(null);
-    const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
-
-    // Initialize RecaptchaVerifier only once on component mount.
-    useEffect(() => {
-        if (!auth || !recaptchaContainerRef.current) return;
-
-        // Check if verifier hasn't been created yet.
-        if (!verifierRef.current) {
-            // The verifier is attached to the div via the ref.
-            verifierRef.current = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-                'size': 'invisible',
-                'callback': () => {
-                    // This callback is for when the reCAPTCHA is solved successfully.
-                    // For invisible reCAPTCHA, this is often handled by the signIn call itself.
-                },
-                'expired-callback': () => {
-                    // Response expired. Ask user to solve reCAPTCHA again.
-                    setError("Verificarea reCAPTCHA a expirat. Vă rugăm să încercați din nou.");
-                }
-            });
-        }
-
-        // The cleanup function will be called when the component unmounts.
-        return () => {
-            if (verifierRef.current) {
-                verifierRef.current.clear();
-                verifierRef.current = null;
-            }
-        };
-    }, [auth]); // Only re-run if auth instance changes.
-
 
     useEffect(() => {
         if (!loading && user) {
             router.push('/dashboard');
         }
     }, [user, loading, router]);
+    
+    const getRecaptchaVerifier = () => {
+        if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'expired-callback': () => {
+                   setError("Verificarea reCAPTCHA a expirat. Vă rugăm să încercați din nou.");
+                }
+            });
+        }
+        return window.recaptchaVerifier;
+    }
 
 
     const handleSendCode = async (e: React.FormEvent) => {
@@ -69,33 +55,23 @@ export default function LoginPage() {
         setError(null);
         setIsSubmitting(true);
 
-        const verifier = verifierRef.current;
-        if (!verifier) {
-            setError("reCAPTCHA nu s-a putut inițializa. Vă rugăm reîncărcați pagina.");
-            setIsSubmitting(false);
-            return;
-        }
-
+        const verifier = getRecaptchaVerifier();
         const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
 
         try {
-            // signInWithPhoneNumber will trigger the invisible reCAPTCHA.
-            const result = await signInWithPhoneNumber(auth, formattedPhoneNumber, verifier);
-            setConfirmationResult(result);
+            const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, verifier);
+            window.confirmationResult = confirmation;
             setStep('otp');
             setError(null);
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             
-            // In case of an error, it's often best to reset the reCAPTCHA widget.
-            // This is safer than accessing the global grecaptcha object directly.
-            if (verifierRef.current) {
-                verifierRef.current.render().catch(console.error); // Try to re-render it.
-            }
-
             const errorCode = err.code || 'UNKNOWN_ERROR';
             const errorMessage = err.message || 'A apărut o eroare neașteptată.';
-            setError(`Eroare (${errorCode}): ${errorMessage}. Vă rugăm verificați consola pentru mai multe detalii și contactați suportul dacă problema persistă.`);
+            setError(`Eroare (${errorCode}): ${errorMessage}. Asigurați-vă că domeniul este autorizat în consola reCAPTCHA.`);
+
+            // Reset the verifier if it exists
+            window.recaptchaVerifier?.render().catch(console.error);
 
         } finally {
             setIsSubmitting(false);
@@ -106,13 +82,15 @@ export default function LoginPage() {
         e.preventDefault();
         setError(null);
         setIsSubmitting(true);
-        if (!confirmationResult) {
-            setError("A apărut o eroare. Vă rugăm să reîncercați de la început.");
+        
+        if (!window.confirmationResult) {
+            setError("A apărut o eroare de sesiune. Vă rugăm să reîncercați de la început.");
             setIsSubmitting(false);
             return;
         }
+
         try {
-            await confirmationResult.confirm(otp);
+            await window.confirmationResult.confirm(otp);
             // onAuthStateChanged will handle the redirect to /dashboard
         } catch (err: any) {
             console.error(err);
@@ -138,8 +116,7 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh]">
-             {/* This container is now attached via a ref and must always be in the DOM */}
-             <div ref={recaptchaContainerRef} />
+             <div id="recaptcha-container" />
              
             <Card className="w-full max-w-sm">
                 <CardHeader>
