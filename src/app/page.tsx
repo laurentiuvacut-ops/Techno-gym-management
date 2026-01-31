@@ -11,9 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { useUser } from "@/firebase";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 const getImage = (id: string) => {
     const img = PlaceHolderImages.find(p => p.id === id);
