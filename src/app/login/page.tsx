@@ -23,32 +23,34 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Use a ref for the verifier instance
+    // Use a ref for the verifier instance to avoid re-creating it on every render.
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
-    // This useEffect handles the lifecycle of the reCAPTCHA verifier
+    // This useEffect handles the lifecycle of the reCAPTCHA verifier.
+    // It's crucial for it to be stable and run only once.
     useEffect(() => {
-        // If auth is not ready, do nothing.
+        // If auth is not ready, do nothing. `getAuth()` can be called before initialization.
         if (!auth) return;
 
-        // Create the verifier instance once.
-        // We use an ID string for the container, which is simpler and more reliable.
+        // Create the verifier instance only if it doesn't exist.
+        // We use a simple ID string for the container, which is more reliable than a ref
+        // in this context, as the element is guaranteed to exist in the DOM.
         if (!recaptchaVerifierRef.current) {
             recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'invisible',
                 'callback': () => {
                     // This callback is called when the reCAPTCHA is successfully solved.
-                    // The `signInWithPhoneNumber` function will be called after this.
+                    // The `handleSendCode` function below will then proceed with signInWithPhoneNumber.
                 }
             });
         }
 
-        // Cleanup function to clear the reCAPTCHA when the component unmounts.
-        // This is crucial to prevent memory leaks and errors.
+        // The cleanup function is critical. When the component unmounts,
+        // we must clear the reCAPTCHA instance to prevent memory leaks and errors.
         return () => {
             recaptchaVerifierRef.current?.clear();
         };
-    }, [auth]);
+    }, [auth]); // Dependency on `auth` ensures it runs when auth is ready.
 
 
     useEffect(() => {
@@ -79,8 +81,9 @@ export default function LoginPage() {
             setError(null);
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
-            // Reset the reCAPTCHA widget in case of an error.
-            // This can help resolve issues where the widget gets into a bad state.
+            
+            // In case of an error, it's often best to reset the reCAPTCHA widget.
+            // This can help if the widget gets into a stuck state.
             (window as any).grecaptcha?.reset();
 
             if (err.code === 'auth/invalid-phone-number') {
@@ -131,7 +134,7 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh]">
-             {/* The reCAPTCHA container must always be in the DOM. */}
+             {/* The reCAPTCHA container must always be in the DOM for the verifier to work. */}
              <div id="recaptcha-container" />
             <Card className="w-full max-w-sm">
                 <CardHeader>
