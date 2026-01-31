@@ -33,9 +33,11 @@ export default function LoginPage() {
     }, [user, loading, router]);
 
     useEffect(() => {
-        if (step === 'phone' && !recaptchaVerifierRef.current && recaptchaContainerRef.current) {
-            // Ensure the container is empty before rendering
-            recaptchaContainerRef.current.innerHTML = '';
+        if (!auth) {
+            return;
+        }
+        
+        if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
             const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
                 'size': 'invisible',
                 'callback': () => {
@@ -44,7 +46,13 @@ export default function LoginPage() {
             });
             recaptchaVerifierRef.current = verifier;
         }
-    }, [auth, step]);
+
+        return () => {
+            if (recaptchaVerifierRef.current) {
+                recaptchaVerifierRef.current.clear();
+            }
+        };
+    }, [auth]);
 
     const handleSendCode = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -73,7 +81,7 @@ export default function LoginPage() {
             } else if (err.code === 'auth/operation-not-allowed') {
                  setError('Eroare de configurare. Vă rugăm să activați planul Blaze și politica SMS în consola Google Cloud. Contactați suportul dacă problema persistă.');
             } else {
-                setError('A apărut o eroare neașteptată. Vă rugăm să încercați din nou.');
+                setError(`A apărut o eroare neașteptată: ${err.code}. Vă rugăm să încercați din nou.`);
             }
         } finally {
             setIsSubmitting(false);
