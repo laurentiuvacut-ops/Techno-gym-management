@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import { useUser, useAuth } from '@/firebase';
@@ -16,9 +16,6 @@ export default function LoginPage() {
     const router = useRouter();
     const auth = useAuth();
     
-    // We still need a ref to hold the verifier instance across renders.
-    const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
     const [step, setStep] = useState('phone'); // 'phone' or 'otp'
@@ -33,57 +30,24 @@ export default function LoginPage() {
         }
     }, [user, loading, router]);
     
-    // This effect initializes the reCAPTCHA verifier.
-    useEffect(() => {
-        // It should only run once when the auth service is ready.
-        if (!auth) {
-            return;
-        }
-
-        // We pass the ID of the container element directly.
-        // This is slightly more robust than using a ref.
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': () => { 
-                // This callback is for the visible reCAPTCHA, which we want to avoid.
-            },
-            'expired-callback': () => {
-               // This can happen if the user takes too long to solve a visible challenge.
-               setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
-               if (recaptchaVerifierRef.current) {
-                 try {
-                   (window as any).grecaptcha.reset(recaptchaVerifierRef.current.widgetId);
-                 } catch (e) {
-                   console.error("Error resetting reCAPTCHA on expiry:", e);
-                 }
-               }
-            }
-        });
-
-        recaptchaVerifierRef.current = verifier;
-
-        // Cleanup when the component unmounts.
-        return () => {
-            if (recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current.clear();
-                recaptchaVerifierRef.current = null;
-            }
-        };
-    }, [auth]); // The effect depends only on the auth object.
-
-
     const handleSendCode = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setIsSubmitting(true);
 
-        const verifier = recaptchaVerifierRef.current;
-
-        if (!verifier) {
-            setError("reCAPTCHA nu s-a încărcat corect. Vă rugăm reîncărcați pagina.");
-            setIsSubmitting(false);
-            return;
-        }
+        // Create a new RecaptchaVerifier instance on each attempt.
+        // This is a more robust approach to avoid stale verifiers or race conditions.
+        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': () => {
+                // This callback is for the visible reCAPTCHA which we aren't using,
+                // but it's good practice to have it.
+            },
+            'expired-callback': () => {
+               // Response expired. Ask user to solve reCAPTCHA again.
+               setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
+            }
+        });
 
         const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
 
@@ -95,22 +59,12 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             
-            // Provide a very specific error message for the user.
             if (err.code === 'auth/too-many-requests') {
                  setError("Eroare de securitate (prea multe cereri). Aceasta indică o problemă de configurare. Verificați că domeniul site-ului live este autorizat în setările reCAPTCHA din consola Google Cloud, apoi așteptați câteva minute înainte de a reîncerca.");
             } else {
                 const errorCode = err.code || 'UNKNOWN_ERROR';
                 const errorMessage = err.message || 'A apărut o eroare neașteptată.';
                 setError(`Eroare (${errorCode}): ${errorMessage}`);
-            }
-            
-            // Try to reset the reCAPTCHA widget on error.
-            if (typeof (window as any).grecaptcha !== 'undefined' && verifier.widgetId !== undefined) {
-                 try {
-                    (window as any).grecaptcha.reset(verifier.widgetId);
-                 } catch (resetError) {
-                    console.error("Error resetting reCAPTCHA on failure:", resetError);
-                 }
             }
         } finally {
             setIsSubmitting(false);
