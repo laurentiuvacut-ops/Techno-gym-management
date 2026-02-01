@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
-import { useUser } from '@/firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { useUser, useAuth } from '@/firebase';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import Image from 'next/image';
 export default function LoginPage() {
     const { user, loading } = useUser();
     const router = useRouter();
-    const auth = getAuth();
+    const auth = useAuth();
     
     // We still need a ref to hold the verifier instance across renders.
     const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
