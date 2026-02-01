@@ -11,6 +11,13 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 
+// Extend the Window interface to avoid TypeScript errors when attaching the verifier.
+declare global {
+  interface Window {
+    recaptchaVerifier?: RecaptchaVerifier;
+  }
+}
+
 export default function LoginPage() {
     const { user, loading } = useUser();
     const router = useRouter();
@@ -35,19 +42,24 @@ export default function LoginPage() {
         setError(null);
         setIsSubmitting(true);
 
-        // Create a new RecaptchaVerifier instance on each attempt.
-        // This is a more robust approach to avoid stale verifiers or race conditions.
+        // For robustness, clear any previous verifier to ensure a clean state.
+        if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.clear();
+        }
+
+        // Create a new RecaptchaVerifier and attach it to the window object.
+        // This is a robust pattern to manage the reCAPTCHA lifecycle and prevent conflicts.
         const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
             'size': 'invisible',
             'callback': () => {
-                // This callback is for the visible reCAPTCHA which we aren't using,
-                // but it's good practice to have it.
+                // This callback is for the visible reCAPTCHA which we aren't using.
             },
             'expired-callback': () => {
-               // Response expired. Ask user to solve reCAPTCHA again.
                setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
             }
         });
+        window.recaptchaVerifier = verifier;
+
 
         const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
 

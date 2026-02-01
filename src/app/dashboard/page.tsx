@@ -157,6 +157,8 @@ export default function DashboardPage() {
               ...legacyData,
               id: user.uid, // Critically, we now associate the profile with the auth UID.
               phone: userPhoneNumber, // Standardize the phone number format.
+              // Ensure QR code is robustly handled: use legacy QR, fallback to legacy ID.
+              qrCode: legacyData.qrCode || legacyDoc.id,
             });
             // The useDoc hook will now find the new document and update the UI.
 
