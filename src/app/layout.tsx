@@ -10,6 +10,11 @@ import Script from 'next/script';
 export const metadata: Metadata = {
   title: 'Techno Gym',
   description: 'Your futuristic gym companion.',
+  manifest: '/manifest.json',
+  icons: {
+    apple: 'https://i.imgur.com/QdArxUJ.png',
+  },
+  themeColor: '#09090b',
 };
 
 export default function RootLayout({

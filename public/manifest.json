@@ -1,0 +1,23 @@
+{
+  "name": "Techno Gym",
+  "short_name": "TechnoGym",
+  "description": "Your futuristic gym companion.",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/QdArxUJ.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.imgur.com/QdArxUJ.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#00FFFF"
+}
