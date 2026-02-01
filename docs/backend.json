@@ -20,7 +20,7 @@
         },
         "phone": {
           "type": "string",
-          "description": "Phone number of the member. Used as the QR code value."
+          "description": "Phone number of the member. Used for authentication and for finding legacy profiles."
         },
         "photoURL": {
           "type": "string",
@@ -28,7 +28,7 @@
         },
         "qrCode": {
           "type": "string",
-          "description": "The QR code value for the member, which is their phone number."
+          "description": "The QR code value for the member. For new members, this is their user ID (UID). For migrated members, it is the value from the legacy system."
         },
         "status": {
           "type": "string",

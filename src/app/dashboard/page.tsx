@@ -47,7 +47,7 @@ function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
         email: null, // Assuming email is not collected at this stage
         phone: user.phoneNumber,
         photoURL: null, // Assuming photo is not collected
-        qrCode: user.phoneNumber,
+        qrCode: user.uid, // For new users, the unique UID is a secure and unique QR code value
         status: 'Expired', // New users start with an expired status
         daysRemaining: 0,
         subscriptionId: null,
