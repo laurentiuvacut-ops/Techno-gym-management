@@ -40,14 +40,13 @@ function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
     const memberDocRef = doc(firestore, 'members', user.uid);
     try {
       // Using setDoc will create or overwrite the document for the current user.
-      // This is safe because we only show this form if no migrated profile was found.
       await setDoc(memberDocRef, {
         id: user.uid,
         name: name,
         email: null, // Assuming email is not collected at this stage
         phone: user.phoneNumber,
         photoURL: null, // Assuming photo is not collected
-        qrCode: user.uid, // For new users, the unique UID is a secure and unique QR code value
+        qrCode: user.phoneNumber, // For new users, QR code is their phone number
         status: 'Expired', // New users start with an expired status
         daysRemaining: 0,
         subscriptionId: null,
@@ -157,8 +156,8 @@ export default function DashboardPage() {
               ...legacyData,
               id: user.uid, // Critically, we now associate the profile with the auth UID.
               phone: userPhoneNumber, // Standardize the phone number format.
-              // Ensure QR code is robustly handled: use legacy QR, fallback to legacy ID.
-              qrCode: legacyData.qrCode || legacyDoc.id,
+              // For migrated users, QR code should be their phone number to match the old system.
+              qrCode: userPhoneNumber,
             });
             // The useDoc hook will now find the new document and update the UI.
 
