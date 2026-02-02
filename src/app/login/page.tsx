@@ -126,7 +126,7 @@ export default function LoginPage() {
              {/* This div is the container for the invisible reCAPTCHA widget. */}
              <div id="recaptcha-container" />
              
-            <Card className="w-full max-w-sm">
+            <Card className="w-full max-w-sm glass">
                 <CardHeader>
                     <div className="flex justify-center mb-4">
                         <div className="relative w-12 h-12">
