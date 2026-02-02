@@ -2,9 +2,9 @@
 
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
@@ -27,8 +27,11 @@ export default function SubscriptionsPage() {
       </div>
     );
   }
+
+  const plansToShow = subscriptions.filter(plan => ["classic", "pro", "student"].includes(plan.id));
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
           Abonamente
@@ -38,42 +41,72 @@ export default function SubscriptionsPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {subscriptions.map((plan) => (
-          <Card
-            key={plan.id}
-            className={cn(
-                "flex flex-col glass",
-                plan.popular ? "border-primary glow-primary" : "border-border"
-            )}
-          >
-            {plan.popular && (
-              <Badge className="absolute -top-3 right-4">Popular</Badge>
-            )}
-            <CardHeader>
-              <CardTitle>{plan.title}</CardTitle>
-              <CardDescription>
-                <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                <span className="text-muted-foreground">{plan.period}</span>
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <ul className="space-y-3">
-                {plan.benefits.map((benefit, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-primary" />
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" variant={plan.popular ? "default" : "outline"}>
-                {plan.cta}
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+      <div className="grid max-w-6xl grid-cols-1 items-start gap-12 lg:grid-cols-3 lg:gap-8 mx-auto">
+        {plansToShow.map((plan) => {
+          const isFeatured = plan.popular;
+          return (
+            <div key={plan.id} className={cn("relative", isFeatured && "lg:scale-110 z-10")}>
+              {isFeatured && (
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 transform">
+                  <Badge className="bg-secondary text-secondary-foreground border-none">
+                    <Star className="mr-2 h-4 w-4" />
+                    Popular
+                  </Badge>
+                </div>
+              )}
+              <Card
+                className={cn(
+                  "flex h-full flex-col rounded-3xl",
+                  isFeatured
+                    ? "bg-primary text-primary-foreground"
+                    : "glass"
+                )}
+              >
+                <CardHeader className="items-center p-8">
+                  <CardTitle className="text-2xl">{plan.title}</CardTitle>
+                  <div className="text-center pt-4">
+                    <span className={cn(
+                        "text-5xl font-bold",
+                         isFeatured ? "text-primary-foreground" : "text-foreground"
+                    )}>
+                      {plan.price.split(' ')[0]}
+                    </span>
+                    <span className={cn(
+                        "text-lg",
+                        isFeatured ? "text-primary-foreground/80" : "text-muted-foreground"
+                    )}>
+                      {plan.price.split(' ')[1]}{plan.period}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-grow p-8 pt-0">
+                  <ul className="space-y-4">
+                    {plan.benefits.map((benefit, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <Check
+                          className={cn(
+                            "mt-1 h-5 w-5 shrink-0",
+                            isFeatured ? "text-primary-foreground" : "text-primary"
+                          )}
+                        />
+                        <span>{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter className="p-8 pt-0">
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    variant={isFeatured ? "secondary" : "default"}
+                  >
+                    {plan.cta}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
