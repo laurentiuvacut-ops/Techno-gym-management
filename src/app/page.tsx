@@ -45,7 +45,7 @@ export default function LandingPage() {
                 alt="Modern gym with equipment"
                 data-ai-hint={getImage('gym-interior-1').imageHint}
                 fill
-                className="object-cover z-0"
+                className="object-cover z-0 blur-sm"
             />
             <div className="absolute inset-0 bg-black/70 z-10" />
             <div className="container relative z-20 px-4 md:px-6 text-center">
@@ -56,15 +56,17 @@ export default function LandingPage() {
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
                     Eliberează-ți potențialul la Techno Gym. Antrenori de top, vibe-ul potrivit și o comunitate care te susține.
                 </p>
-                <Button asChild size="lg" className="glow-primary">
-                    <Link href="/login">Alătură-te Acum</Link>
-                </Button>
-                
-                <div className="inline-flex items-center gap-4 rounded-2xl p-4 glass">
-                    <Clock className="w-10 h-10 text-primary" />
-                    <div>
-                        <p className="text-3xl font-bold leading-none">24/7</p>
-                        <p className="text-base text-muted-foreground">Non-Stop</p>
+                <div className="flex flex-col items-center gap-6">
+                    <Button asChild size="lg" className="glow-primary">
+                        <Link href="/login">Alătură-te Acum</Link>
+                    </Button>
+                    
+                    <div className="inline-flex items-center gap-4 rounded-2xl p-4 glass">
+                        <Clock className="w-10 h-10 text-primary" />
+                        <div>
+                            <p className="text-3xl font-bold leading-none">24/7</p>
+                            <p className="text-base text-muted-foreground">Non-Stop</p>
+                        </div>
                     </div>
                 </div>
 
