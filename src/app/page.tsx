@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { trainers } from "@/lib/data";
+import { trainers, transformations } from "@/lib/data";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from "next/image";
 import Link from "next/link";
@@ -11,6 +11,13 @@ import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 const getImage = (id: string) => {
     const img = PlaceHolderImages.find(p => p.id === id);
@@ -28,8 +35,6 @@ const getImage = (id: string) => {
 
 
 export default function LandingPage() {
-    const transformationBefore1 = getImage('transformation-before-1');
-    const transformationAfter1 = getImage('transformation-after-1');
 
   return (
     <div className="flex flex-col min-h-dvh">
@@ -66,10 +71,12 @@ export default function LandingPage() {
               {trainers.map((trainer) => (
                 <Card key={trainer.id} className="overflow-hidden text-center">
                     <CardHeader className="items-center p-6">
-                        <Avatar className="w-24 h-24 border-4 border-primary">
-                            <AvatarImage src={trainer.image.imageUrl} alt={trainer.name} data-ai-hint={trainer.image.imageHint} />
-                            <AvatarFallback>{trainer.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
+                        <div className="relative w-24 h-24">
+                          <Avatar className="w-24 h-24 border-4 border-primary">
+                              <AvatarImage src={trainer.image.imageUrl} alt={trainer.name} data-ai-hint={trainer.image.imageHint} style={{objectFit: 'cover'}} />
+                              <AvatarFallback>{trainer.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                        </div>
                         <CardTitle>{trainer.name}</CardTitle>
                         <Badge variant="secondary">{trainer.specialty}</Badge>
                     </CardHeader>
@@ -81,29 +88,59 @@ export default function LandingPage() {
         
         {/* Transformations Section */}
         <section className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6 lg:gap-10">
-                <div className="space-y-3">
+            <div className="container px-4 md:px-6">
+                <div className="space-y-3 text-center">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Transformări Reale</h2>
-                    <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                    <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed">
                         Inspiră-te din poveștile de succes ale membrilor noștri.
                     </p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                        <h3 className="text-xl font-bold">Înainte & După</h3>
-                        <div className="grid grid-cols-2 gap-2">
-                           {transformationBefore1 && <Image src={transformationBefore1.imageUrl} alt="Before" width={300} height={400} data-ai-hint={transformationBefore1.imageHint} className="rounded-lg object-cover" />}
-                           {transformationAfter1 && <Image src={transformationAfter1.imageUrl} alt="After" width={300} height={400} data-ai-hint={transformationAfter1.imageHint} className="rounded-lg object-cover" />}
+                <Carousel
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                  className="w-full max-w-4xl mx-auto mt-12"
+                >
+                  <CarouselContent>
+                    {transformations.map((transform) => (
+                      <CarouselItem key={transform.id} className="md:basis-1/2">
+                        <div className="p-1">
+                          <Card>
+                            <CardContent className="flex flex-col items-center justify-center p-4 gap-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2 text-center">
+                                        <Image 
+                                            src={transform.before.imageUrl} 
+                                            alt="Before" 
+                                            width={300} 
+                                            height={400} 
+                                            data-ai-hint={transform.before.imageHint} 
+                                            className="rounded-lg object-cover aspect-[3/4]" 
+                                        />
+                                        <Badge variant="outline">Înainte</Badge>
+                                    </div>
+                                    <div className="space-y-2 text-center">
+                                        <Image 
+                                            src={transform.after.imageUrl} 
+                                            alt="After" 
+                                            width={300} 
+                                            height={400} 
+                                            data-ai-hint={transform.after.imageHint} 
+                                            className="rounded-lg object-cover aspect-[3/4]" 
+                                        />
+                                        <Badge variant="default">După</Badge>
+                                    </div>
+                                </div>
+                            </CardContent>
+                          </Card>
                         </div>
-                    </div>
-                    <div className="space-y-2">
-                        <h3 className="text-xl font-bold">Rezultate Vizibile</h3>
-                         <div className="grid grid-cols-2 gap-2">
-                           {getImage('transformation-before-2') && <Image src={getImage('transformation-before-2').imageUrl} alt="Before" width={300} height={400} data-ai-hint={getImage('transformation-before-2').imageHint} className="rounded-lg object-cover" />}
-                           {getImage('transformation-after-2') && <Image src={getImage('transformation-after-2').imageUrl} alt="After" width={300} height={400} data-ai-hint={getImage('transformation-after-2').imageHint} className="rounded-lg object-cover" />}
-                        </div>
-                    </div>
-                </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
             </div>
         </section>
         
@@ -162,7 +199,7 @@ export default function LandingPage() {
                     alt="Techno Gym Logo" 
                     fill
                     sizes="32px"
-                    className="object-contain"
+                    style={{objectFit:"contain"}}
                   />
                 </div>
                 <span className="text-lg font-bold tracking-tight"><span className="text-primary">TECHNO</span><span className="text-foreground">GYM</span></span>

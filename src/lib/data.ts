@@ -146,3 +146,26 @@ export const shopItems = [
         stock: "Out of Stock" as "In Stock" | "Low Stock" | "Out of Stock",
     }
 ];
+
+export const transformations = [
+  {
+    id: 1,
+    before: getImage('transformation-before-1'),
+    after: getImage('transformation-after-1'),
+  },
+  {
+    id: 2,
+    before: getImage('transformation-before-2'),
+    after: getImage('transformation-after-2'),
+  },
+  {
+    id: 3,
+    before: getImage('transformation-before-3'),
+    after: getImage('transformation-after-3'),
+  },
+  {
+    id: 4,
+    before: getImage('transformation-before-4'),
+    after: getImage('transformation-after-4'),
+  },
+];
