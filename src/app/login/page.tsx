@@ -129,7 +129,15 @@ export default function LoginPage() {
             <Card className="w-full max-w-sm">
                 <CardHeader>
                     <div className="flex justify-center mb-4">
-                        <Image src="https://i.imgur.com/QdArxUJ.png" alt="Techno Gym Logo" width={48} height={48} />
+                        <div className="relative w-12 h-12">
+                          <Image 
+                            src="https://i.imgur.com/QdArxUJ.png" 
+                            alt="Techno Gym Logo" 
+                            fill
+                            sizes="48px"
+                            className="object-contain"
+                          />
+                        </div>
                     </div>
                     {step === 'phone' ? (
                         <>
