@@ -39,7 +39,7 @@ export default function BottomNav() {
   const allNavItems = isClient ? [...navItems, profileItem] : [...navItems, { href: "/login", label: "Profil", icon: User, disabled: true }];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-card/80 backdrop-blur-sm border-t border-border/50 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 h-20 z-50 glass-strong">
       <div className="grid grid-cols-6 h-full">
         {allNavItems.map((item) => {
           const isActive = pathname === item.href;

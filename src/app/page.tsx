@@ -6,7 +6,6 @@ import { trainers, transformations } from "@/lib/data";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from "next/image";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import { subscriptions } from "@/lib/data";
@@ -40,20 +39,28 @@ export default function LandingPage() {
     <div className="flex flex-col min-h-dvh">
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-br from-background to-card/50">
-          <div className="container px-4 md:px-6 text-center">
-            <div className="space-y-4">
-              <h1 className="text-4xl font-bold tracking-tighter text-primary sm:text-5xl md:text-6xl lg:text-7xl">
-                TRANSFORMĂ-ȚI CORPUL
-              </h1>
-              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                Eliberează-ți potențialul la Techno Gym. Antrenori de top, vibe-ul potrivit și o comunitate care te susține.
-              </p>
-              <Button asChild size="lg">
-                <Link href="/login">Alătură-te Acum</Link>
-              </Button>
+        <section className="relative w-full h-[90vh] flex items-center justify-center">
+            <Image
+                src={getImage('gym-interior-1').imageUrl}
+                alt="Modern gym with equipment"
+                data-ai-hint={getImage('gym-interior-1').imageHint}
+                fill
+                className="object-cover z-0"
+            />
+            <div className="absolute inset-0 bg-black/70 z-10" />
+            <div className="container relative z-20 px-4 md:px-6 text-center">
+                <div className="space-y-6">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl text-gradient">
+                    TRANSFORMĂ-ȚI CORPUL
+                </h1>
+                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                    Eliberează-ți potențialul la Techno Gym. Antrenori de top, vibe-ul potrivit și o comunitate care te susține.
+                </p>
+                <Button asChild size="lg" className="glow-primary">
+                    <Link href="/login">Alătură-te Acum</Link>
+                </Button>
+                </div>
             </div>
-          </div>
         </section>
 
         {/* Trainers Section */}
@@ -69,17 +76,19 @@ export default function LandingPage() {
             </div>
             <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-4 lg:gap-8">
               {trainers.map((trainer) => (
-                <Card key={trainer.id} className="overflow-hidden text-center">
-                    <CardHeader className="items-center p-6">
-                        <div className="relative w-24 h-24">
-                          <Avatar className="w-24 h-24 border-4 border-primary">
-                              <AvatarImage src={trainer.image.imageUrl} alt={trainer.name} data-ai-hint={trainer.image.imageHint} style={{objectFit: 'cover'}} />
-                              <AvatarFallback>{trainer.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                        </div>
-                        <CardTitle>{trainer.name}</CardTitle>
-                        <Badge variant="secondary">{trainer.specialty}</Badge>
-                    </CardHeader>
+                <Card key={trainer.id} className="overflow-hidden group relative aspect-[3/4] border-0">
+                    <Image
+                        src={trainer.image.imageUrl}
+                        alt={trainer.name}
+                        data-ai-hint={trainer.image.imageHint}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-left">
+                        <h3 className="text-2xl font-bold text-white">{trainer.name}</h3>
+                        <p className="text-primary font-semibold">{trainer.specialty}</p>
+                    </div>
                 </Card>
               ))}
             </div>
@@ -106,7 +115,7 @@ export default function LandingPage() {
                     {transformations.map((transform) => (
                       <CarouselItem key={transform.id} className="md:basis-1/2">
                         <div className="p-1">
-                          <Card>
+                          <Card className="glass">
                             <CardContent className="flex flex-col items-center justify-center p-4 gap-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2 text-center">
@@ -157,7 +166,10 @@ export default function LandingPage() {
                     {subscriptions.map((plan) => (
                     <Card
                         key={plan.id}
-                        className={cn("flex flex-col", plan.popular ? "border-primary shadow-lg" : "")}
+                        className={cn(
+                            "flex flex-col glass", 
+                            plan.popular ? "border-primary glow-primary" : ""
+                        )}
                     >
                         {plan.popular && <Badge className="absolute -top-3 right-4">Popular</Badge>}
                         <CardHeader>

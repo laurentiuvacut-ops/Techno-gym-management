@@ -40,7 +40,7 @@ export default function TrainersPage() {
 
       <div className="grid grid-cols-1 gap-6">
         {trainers.map((trainer) => (
-          <Card key={trainer.id} className="flex flex-col sm:flex-row items-center gap-6 p-6">
+          <Card key={trainer.id} className="flex flex-col sm:flex-row items-center gap-6 p-6 glass">
             <Avatar className="w-24 h-24 border-4 border-primary">
               <AvatarImage src={trainer.image.imageUrl} alt={trainer.name} data-ai-hint={trainer.image.imageHint} />
               <AvatarFallback>{trainer.name.charAt(0)}</AvatarFallback>

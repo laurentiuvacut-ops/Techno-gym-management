@@ -49,7 +49,7 @@ export default function ProfilePage() {
 
     return (
         <div className="space-y-8">
-            <Card className="max-w-md mx-auto">
+            <Card className="max-w-md mx-auto glass">
                 <CardHeader>
                     <div className="flex flex-col items-center gap-4">
                         <Avatar className="w-24 h-24">

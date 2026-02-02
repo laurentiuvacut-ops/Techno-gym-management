@@ -53,7 +53,7 @@ function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
   
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-sm">
+        <Card className="w-full max-w-sm glass">
             <CardHeader>
                 <CardTitle className="text-2xl text-center">Finalizează Profilul</CardTitle>
             </CardHeader>
@@ -200,7 +200,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-card/80 backdrop-blur-sm">
+      <Card className="glass">
         <CardContent className="p-6">
           <div className="flex justify-between items-start mb-8">
               <div className="text-left">
@@ -221,7 +221,7 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
       
-      <Card className="bg-card/80 backdrop-blur-sm">
+      <Card className="glass">
         <CardHeader>
           <CardTitle className="text-center">Scanează la intrare</CardTitle>
         </CardHeader>
@@ -243,7 +243,7 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card/80 backdrop-blur-sm">
+      <Card className="glass">
         <CardContent className="p-4">
           <Link href="/subscriptions" className="flex items-center justify-between">
             <div>

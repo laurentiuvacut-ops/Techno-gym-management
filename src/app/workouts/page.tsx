@@ -40,7 +40,7 @@ export default function WorkoutsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {workouts.map((workout) => (
           <Link href="#" key={workout.id}>
-            <Card className="relative overflow-hidden group h-64">
+            <Card className="relative overflow-hidden group h-64 glass">
               <Image
                 src={workout.image.imageUrl}
                 alt={workout.image.description}

@@ -43,8 +43,8 @@ export default function SubscriptionsPage() {
           <Card
             key={plan.id}
             className={cn(
-                "flex flex-col",
-                plan.popular ? "border-primary shadow-lg shadow-primary/20" : "border-border"
+                "flex flex-col glass",
+                plan.popular ? "border-primary glow-primary" : "border-border"
             )}
           >
             {plan.popular && (

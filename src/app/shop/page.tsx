@@ -43,8 +43,8 @@ export default function ShopPage() {
         </p>
       </div>
 
-      <div className="bg-card rounded-lg border">
-        <ul className="divide-y divide-border">
+      <div className="glass rounded-lg">
+        <ul className="divide-y divide-border/50">
           {shopItems.map((item) => (
             <li key={item.id} className="p-4 flex justify-between items-center">
               <div>

@@ -105,7 +105,7 @@ export default function FeedbackPage() {
         </p>
       </div>
       
-      <Card>
+      <Card className="glass">
         <CardHeader>
           <CardTitle>Cum evaluezi experiența ta?</CardTitle>
           <CardDescription>Selectează un număr de stele.</CardDescription>
