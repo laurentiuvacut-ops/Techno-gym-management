@@ -41,11 +41,11 @@ export default function SubscriptionsPage() {
         </p>
       </div>
 
-      <div className="grid max-w-6xl grid-cols-1 items-start gap-12 lg:grid-cols-3 lg:gap-8 mx-auto">
+      <div className="grid max-w-2xl grid-cols-1 gap-8 mx-auto">
         {plansToShow.map((plan) => {
           const isFeatured = plan.popular;
           return (
-            <div key={plan.id} className={cn("relative", isFeatured && "lg:scale-110 z-10")}>
+            <div key={plan.id} className={cn("relative", isFeatured && "z-10")}>
               {isFeatured && (
                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 transform">
                   <Badge className="bg-secondary text-secondary-foreground border-none">
@@ -56,29 +56,16 @@ export default function SubscriptionsPage() {
               )}
               <Card
                 className={cn(
-                  "flex h-full flex-col rounded-3xl",
-                  isFeatured
-                    ? "glass"
-                    : "bg-primary text-primary-foreground"
+                  "flex h-full flex-col rounded-3xl glass"
                 )}
               >
                 <CardHeader className="items-center p-8">
                   <CardTitle className="text-2xl">{plan.title}</CardTitle>
                   <div className="text-center pt-4">
-                    <span className={cn(
-                        "text-5xl font-bold",
-                         isFeatured 
-                            ? "text-primary" 
-                            : "text-primary-foreground"
-                    )}>
+                    <span className="text-5xl font-bold text-primary">
                       {plan.price.split(' ')[0]}
                     </span>
-                    <span className={cn(
-                        "text-lg",
-                        isFeatured 
-                            ? "text-muted-foreground" 
-                            : "text-primary-foreground/80"
-                    )}>
+                    <span className="text-lg text-muted-foreground">
                       {plan.price.split(' ')[1]}{plan.period}
                     </span>
                   </div>
@@ -88,10 +75,7 @@ export default function SubscriptionsPage() {
                     {plan.benefits.map((benefit, i) => (
                       <li key={i} className="flex items-start gap-3">
                         <Check
-                          className={cn(
-                            "mt-1 h-5 w-5 shrink-0",
-                            isFeatured ? "text-primary" : "text-primary-foreground"
-                          )}
+                          className="mt-1 h-5 w-5 shrink-0 text-primary"
                         />
                         <span>{benefit}</span>
                       </li>
@@ -102,7 +86,7 @@ export default function SubscriptionsPage() {
                   <Button
                     className="w-full"
                     size="lg"
-                    variant={isFeatured ? "default" : "secondary"}
+                    variant={isFeatured ? "default" : "outline"}
                   >
                     {plan.cta}
                   </Button>
