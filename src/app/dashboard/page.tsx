@@ -3,16 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, ChevronRight } from "lucide-react";
-import { Icons } from "@/components/icons";
 import DaysRemainingChart from "@/components/days-remaining-chart";
 import Link from "next/link";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -218,33 +210,6 @@ export default function DashboardPage() {
                   {memberData.status === 'Active' && <Check className="w-5 h-5 text-green-500" />}
                 </p>
               </div>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="-mt-2 -mr-2">
-                    <Icons.qrCode className="w-8 h-8" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] bg-card/90 backdrop-blur-xl">
-                  <DialogHeader>
-                    <DialogTitle className="text-center text-2xl">Scanează la intrare</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex items-center justify-center p-8">
-                      {memberData.qrCode ? (
-                          <Image
-                              src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(memberData.qrCode)}`}
-                              width={200}
-                              height={200}
-                              alt="Member QR Code"
-                          />
-                      ) : (
-                          <p>QR Code indisponibil</p>
-                      )}
-                  </div>
-                  <p className="text-center text-muted-foreground text-sm">
-                      Prezintă acest cod la recepție pentru a intra în sală.
-                  </p>
-                </DialogContent>
-              </Dialog>
           </div>
           
           <div className="flex flex-col items-center text-center gap-2">
@@ -253,6 +218,28 @@ export default function DashboardPage() {
             <p className="text-lg text-muted-foreground">{Math.ceil(daysLeft / 7)} săptămâni</p>
           </div>
 
+        </CardContent>
+      </Card>
+      
+      <Card className="bg-card/80 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="text-center">Scanează la intrare</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center gap-4">
+          {memberData.qrCode ? (
+            <Image
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(memberData.qrCode)}`}
+              width={250}
+              height={250}
+              alt="Member QR Code"
+              className="rounded-lg"
+            />
+          ) : (
+            <p>QR Code indisponibil</p>
+          )}
+          <p className="text-center text-muted-foreground text-sm max-w-xs">
+            Prezintă acest cod la recepție pentru a intra în sală.
+          </p>
         </CardContent>
       </Card>
 

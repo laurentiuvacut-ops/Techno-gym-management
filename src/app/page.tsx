@@ -156,7 +156,7 @@ export default function LandingPage() {
         <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
           <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-4 md:px-0">
             <Link href="/" className="flex items-center gap-2">
-                <Image src="https://i.imgur.com/QdArxUJ.png" alt="Techno Gym Logo" width={32} height={32} className="object-contain" />
+                <Image src="https://i.imgur.com/QdArxUJ.png" alt="Techno Gym Logo" width={32} height={32} />
                 <span className="text-lg font-bold tracking-tight"><span className="text-primary">TECHNO</span><span className="text-foreground">GYM</span></span>
             </Link>
             <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
