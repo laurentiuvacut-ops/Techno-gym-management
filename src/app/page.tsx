@@ -1,13 +1,13 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { trainers, transformations } from "@/lib/data";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, Star } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import {
@@ -76,7 +76,7 @@ export default function LandingPage() {
             </div>
             <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-4 lg:gap-8">
               {trainers.map((trainer) => (
-                <Card key={trainer.id} className="overflow-hidden group relative aspect-[3/4] border-0">
+                <Card key={trainer.id} className="overflow-hidden group relative aspect-square border-0">
                     <Image
                         src={trainer.image.imageUrl}
                         alt={trainer.name}
@@ -141,8 +141,8 @@ export default function LandingPage() {
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
+                  <CarouselPrevious className="hidden md:inline-flex" />
+                  <CarouselNext className="hidden md:inline-flex" />
                 </Carousel>
             </div>
         </section>
@@ -156,20 +156,23 @@ export default function LandingPage() {
                         Flexibilitate maximă pentru a se potrivi stilului tău de viață.
                     </p>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
                     {subscriptions.map((plan) => (
                     <Card
                         key={plan.id}
                         className={cn(
-                            "flex flex-col glass", 
-                            plan.popular ? "border-primary glow-primary" : ""
+                            "flex h-full flex-col rounded-3xl glass"
                         )}
                     >
-                        {plan.popular && <Badge className="absolute -top-3 right-4">Popular</Badge>}
-                        <CardHeader>
+                        {plan.id === 'pro' && (
+                          <div className="relative">
+                              <Badge className="absolute -top-4 right-4 border-primary bg-primary text-primary-foreground">Popular</Badge>
+                          </div>
+                        )}
+                        <CardHeader className="pt-10">
                             <CardTitle>{plan.title}</CardTitle>
                             <p>
-                                <span className="text-4xl font-bold">{plan.price}</span>
+                                <span className={cn("text-4xl font-bold", plan.id !== 'pro' && "text-primary")}>{plan.price}</span>
                                 <span className="text-muted-foreground">{plan.period}</span>
                             </p>
                         </CardHeader>
@@ -183,6 +186,11 @@ export default function LandingPage() {
                                 ))}
                             </ul>
                         </CardContent>
+                        <CardFooter className="pb-6">
+                             <Button className="w-full" variant={plan.id === 'pro' ? "secondary" : "default"}>
+                                {plan.cta}
+                            </Button>
+                        </CardFooter>
                     </Card>
                     ))}
                 </div>
