@@ -7,7 +7,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star } from "lucide-react";
+import { Check, Star, Clock } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import {
@@ -59,6 +59,15 @@ export default function LandingPage() {
                 <Button asChild size="lg" className="glow-primary">
                     <Link href="/login">Alătură-te Acum</Link>
                 </Button>
+                
+                <div className="inline-flex items-center gap-4 rounded-2xl p-4 glass">
+                    <Clock className="w-10 h-10 text-primary" />
+                    <div>
+                        <p className="text-3xl font-bold leading-none">24/7</p>
+                        <p className="text-base text-muted-foreground">Non-Stop</p>
+                    </div>
+                </div>
+
                 </div>
             </div>
         </section>
