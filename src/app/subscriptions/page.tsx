@@ -58,8 +58,8 @@ export default function SubscriptionsPage() {
                 className={cn(
                   "flex h-full flex-col rounded-3xl",
                   isFeatured
-                    ? "bg-primary text-primary-foreground"
-                    : "glass"
+                    ? "glass"
+                    : "bg-primary text-primary-foreground"
                 )}
               >
                 <CardHeader className="items-center p-8">
@@ -67,13 +67,17 @@ export default function SubscriptionsPage() {
                   <div className="text-center pt-4">
                     <span className={cn(
                         "text-5xl font-bold",
-                         isFeatured ? "text-primary-foreground" : "text-foreground"
+                         isFeatured 
+                            ? "text-primary" 
+                            : "text-primary-foreground"
                     )}>
                       {plan.price.split(' ')[0]}
                     </span>
                     <span className={cn(
                         "text-lg",
-                        isFeatured ? "text-primary-foreground/80" : "text-muted-foreground"
+                        isFeatured 
+                            ? "text-muted-foreground" 
+                            : "text-primary-foreground/80"
                     )}>
                       {plan.price.split(' ')[1]}{plan.period}
                     </span>
@@ -86,7 +90,7 @@ export default function SubscriptionsPage() {
                         <Check
                           className={cn(
                             "mt-1 h-5 w-5 shrink-0",
-                            isFeatured ? "text-primary-foreground" : "text-primary"
+                            isFeatured ? "text-primary" : "text-primary-foreground"
                           )}
                         />
                         <span>{benefit}</span>
@@ -98,7 +102,7 @@ export default function SubscriptionsPage() {
                   <Button
                     className="w-full"
                     size="lg"
-                    variant={isFeatured ? "secondary" : "default"}
+                    variant={isFeatured ? "default" : "secondary"}
                   >
                     {plan.cta}
                   </Button>
