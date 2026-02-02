@@ -21,10 +21,9 @@ export default function Header() {
         <Link href="/" className="flex items-center gap-2">
            <div className="relative w-8 h-8">
             <Image 
-              src="https://i.imgur.com/QdArxUJ.png" 
+              src="https://i.imgur.com/gd54yJq.png" 
               alt="Techno Gym Logo" 
               fill
-              sizes="32px"
               className="object-contain"
             />
            </div>

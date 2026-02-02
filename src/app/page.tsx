@@ -195,11 +195,10 @@ export default function LandingPage() {
             <Link href="/" className="flex items-center gap-2">
                 <div className="relative w-8 h-8">
                   <Image 
-                    src="https://i.imgur.com/QdArxUJ.png" 
+                    src="https://i.imgur.com/gd54yJq.png" 
                     alt="Techno Gym Logo" 
                     fill
-                    sizes="32px"
-                    style={{objectFit:"contain"}}
+                    className="object-contain"
                   />
                 </div>
                 <span className="text-lg font-bold tracking-tight"><span className="text-primary">TECHNO</span><span className="text-foreground">GYM</span></span>
