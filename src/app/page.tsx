@@ -116,29 +116,29 @@ export default function LandingPage() {
                       <CarouselItem key={transform.id} className="md:basis-1/2">
                         <div className="p-1">
                           <Card className="glass">
-                            <CardContent className="flex flex-col items-center justify-center p-4 gap-4">
+                            <CardContent className="p-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2 text-center">
+                                    <div className="relative">
                                         <Image 
                                             src={transform.before.imageUrl} 
                                             alt="Before" 
                                             width={300} 
                                             height={400} 
                                             data-ai-hint={transform.before.imageHint} 
-                                            className="rounded-lg object-cover aspect-[3/4]" 
+                                            className="rounded-lg object-cover aspect-[3/4] w-full h-full" 
                                         />
-                                        <Badge variant="outline">Înainte</Badge>
+                                        <Badge className="absolute bottom-4 left-4 bg-black/50 text-white border-none">Înainte</Badge>
                                     </div>
-                                    <div className="space-y-2 text-center">
+                                    <div className="relative">
                                         <Image 
                                             src={transform.after.imageUrl} 
                                             alt="After" 
                                             width={300} 
                                             height={400} 
                                             data-ai-hint={transform.after.imageHint} 
-                                            className="rounded-lg object-cover aspect-[3/4]" 
+                                            className="rounded-lg object-cover aspect-[3/4] w-full h-full" 
                                         />
-                                        <Badge variant="default">După</Badge>
+                                        <Badge className="absolute bottom-4 left-4 bg-black/50 text-white border-none">După</Badge>
                                     </div>
                                 </div>
                             </CardContent>
