@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: 'Your futuristic gym companion.',
   manifest: '/manifest.json',
   icons: {
-    apple: 'https://i.imgur.com/gd54yJq.png',
+    apple: 'https://i.imgur.com/9W1ye1w.png',
   },
   themeColor: '#09090b',
 };

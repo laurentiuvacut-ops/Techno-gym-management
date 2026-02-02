@@ -131,7 +131,7 @@ export default function LoginPage() {
                     <div className="flex justify-center mb-4">
                         <div className="relative w-12 h-12">
                           <Image 
-                            src="https://i.imgur.com/gd54yJq.png" 
+                            src="https://i.imgur.com/9W1ye1w.png" 
                             alt="Techno Gym Logo" 
                             fill
                             sizes="48px"

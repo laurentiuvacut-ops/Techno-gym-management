@@ -195,7 +195,7 @@ export default function LandingPage() {
             <Link href="/" className="flex items-center gap-2">
                 <div className="relative w-8 h-8">
                   <Image 
-                    src="https://i.imgur.com/gd54yJq.png" 
+                    src="https://i.imgur.com/9W1ye1w.png" 
                     alt="Techno Gym Logo" 
                     fill
                     className="object-contain"
