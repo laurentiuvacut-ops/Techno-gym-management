@@ -28,8 +28,6 @@ export default function SubscriptionsPage() {
     );
   }
 
-  const plansToShow = subscriptions.filter(plan => ["classic", "pro", "student"].includes(plan.id));
-
   return (
     <div className="space-y-12">
       <div className="text-center">
@@ -41,8 +39,8 @@ export default function SubscriptionsPage() {
         </p>
       </div>
 
-      <div className="grid max-w-2xl grid-cols-1 gap-8 mx-auto">
-        {plansToShow.map((plan) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        {subscriptions.map((plan) => {
           const isFeatured = plan.popular;
           return (
             <div key={plan.id} className={cn("relative", isFeatured && "z-10")}>
