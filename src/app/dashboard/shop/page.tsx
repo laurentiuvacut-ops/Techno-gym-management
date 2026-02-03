@@ -1,7 +1,7 @@
 'use client';
 import { shopItems } from "@/lib/data";
 import { motion } from "framer-motion";
-import { Package, Droplet, Zap, Dna, Shirt } from "lucide-react";
+import { Package, Droplet, Zap, Dna, Shirt, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const productIcons: { [key: string]: React.FC<any> } = {
