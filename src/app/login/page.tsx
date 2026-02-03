@@ -27,7 +27,7 @@ export default function LoginPage() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
     const [step, setStep] = useState('phone'); // 'phone' or 'otp'
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<React.ReactNode | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
@@ -67,9 +67,21 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             
-            // This is the most likely configuration error. We provide a very specific message for it.
             if ((err.code && err.code.includes('auth/')) || (err.message && err.message.includes('requests-from-referer'))) {
-                 setError("Eroare de configurare domeniu. Acest domeniu nu este autorizat. Vă rugăm să verificați că domeniul este adăugat atât în lista de 'Authorized domains' din setările de Autentificare Firebase, cât și în setările cheii reCAPTCHA din Consola Google Cloud.");
+                 setError(
+                    <>
+                        <p className="font-bold">Problemă de Configurare reCAPTCHA.</p>
+                        <p className="mt-2">Această eroare apare cel mai des când setările nu s-au aplicat cheii reCAPTCHA corecte.</p>
+                        <p className="mt-2 font-semibold">Verificați cheia corectă în Google Cloud:</p>
+                        <ol className="list-decimal list-inside mt-1 space-y-1 text-sm">
+                            <li>În <span className="font-bold">Consola Firebase &gt; Authentication &gt; Sign-in method</span>, găsiți provider-ul <span className="font-bold">Phone</span>.</li>
+                            <li>Sub &quot;reCAPTCHA keys&quot;, veți vedea ce cheie este folosită (ex: `reCAPTCHA v2`).</li>
+                            <li>Mergeți în <span className="font-bold">Consola Google Cloud &gt; APIs & Services &gt; Credentials</span> și editați <span className="font-bold">exact acea cheie</span>.</li>
+                            <li>Asigurați-vă că <strong>ambele</strong> domenii (`technogymcraiova.com` și cel de test) sunt în lista de restricții a acelei chei.</li>
+                        </ol>
+                        <p className="mt-2 text-xs">Modificările pot dura câteva minute pentru a se propaga.</p>
+                    </>
+                 );
             } else {
                 const errorMessage = err.message || 'A apărut o eroare neașteptată.';
                 setError(`Eroare: ${errorMessage}`);
@@ -172,7 +184,7 @@ export default function LoginPage() {
                             </div>
                             {error && (
                                 <Alert variant="destructive">
-                                    <AlertTitle>Eroare</AlertTitle>
+                                    <AlertTitle>Eroare de Configurare</AlertTitle>
                                     <AlertDescription>{error}</AlertDescription>
                                 </Alert>
                             )}
