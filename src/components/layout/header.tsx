@@ -33,7 +33,7 @@ export default function Header() {
         {(!isClient || loading) ? (
           <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
         ) : user ? (
-          <Link href="/profile">
+          <Link href="/dashboard/profile">
             <Avatar className='w-8 h-8'>
               <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
               <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>

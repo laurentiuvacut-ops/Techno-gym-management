@@ -1,7 +1,20 @@
 import type {Metadata} from 'next';
+import { Inter, Bebas_Neue } from 'next/font/google'
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+const bebas_neue = Bebas_Neue({
+  subsets: ['latin'],
+  weight: '400',
+  display: 'swap',
+  variable: '--font-bebas-neue',
+})
 
 export const metadata: Metadata = {
   title: 'Techno Gym',
@@ -19,13 +32,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased">
+    <html lang="en" className={`dark ${inter.variable} ${bebas_neue.variable}`}>
+      <head/>
+      <body className="antialiased">
         <FirebaseClientProvider>
           {children}
           <Toaster />
