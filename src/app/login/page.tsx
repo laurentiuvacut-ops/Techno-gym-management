@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
+import Link from 'next/link';
 
 // Extend the Window interface to avoid TypeScript errors when attaching the verifier.
 declare global {
