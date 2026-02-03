@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -69,8 +70,8 @@ export default function LoginPage() {
             
             if (err.code === 'auth/too-many-requests') {
                  setError("Eroare de securitate (prea multe cereri). Aceasta indică o problemă de configurare. Verificați că domeniul site-ului live este autorizat în setările reCAPTCHA din consola Google Cloud, apoi așteptați câteva minute înainte de a reîncerca.");
-            } else if (err.code === 'auth/unauthorized-domain' || (err.message && err.message.includes('auth/requests-from-referer'))) {
-                setError("Eroare de configurare: Domeniul aplicației nu este autorizat. Accesați Consola Firebase > Authentication > Settings > Authorized domains și adăugați domeniul de pe care rulați aplicația pentru a rezolva problema.");
+            } else if (err.code === 'auth/unauthorized-domain' || (err.message && (err.message.includes('auth/requests-from-referer') || err.message.includes('auth/configuration-not-found')))) {
+                setError("Eroare de configurare domeniu. Deși domeniul este probabil adăugat în Firebase > Authentication > Authorized domains, această eroare indică o problemă cu setările reCAPTCHA. Autentificarea cu numărul de telefon folosește reCAPTCHA, care are propria listă de domenii autorizate în Consola Google Cloud. Vă rugăm să verificați setările cheii reCAPTCHA asociate cu proiectul dumneavoastră Firebase.");
             } else {
                 const errorCode = err.code || 'UNKNOWN_ERROR';
                 const errorMessage = err.message || 'A apărut o eroare neașteptată.';
