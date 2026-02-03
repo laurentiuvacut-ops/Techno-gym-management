@@ -1,8 +1,8 @@
 'use client';
 
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +15,7 @@ export default function ProfilePage() {
     const router = useRouter();
     const firestore = useFirestore();
 
-    const memberDocRef = useMemoFirebase(() => {
+    const memberDocRef = useMemo(() => {
         if (!firestore || !user) return null;
         return doc(firestore, 'members', user.uid);
     }, [firestore, user]);

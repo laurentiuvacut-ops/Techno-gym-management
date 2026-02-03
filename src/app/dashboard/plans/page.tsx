@@ -4,17 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { doc } from "firebase/firestore";
+import { useMemo } from 'react';
 
 export default function PlansPage() {
   const { user, loading } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
 
-  const memberDocRef = useMemoFirebase(() => {
+  const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
     return doc(firestore, 'members', user.uid);
   }, [firestore, user]);

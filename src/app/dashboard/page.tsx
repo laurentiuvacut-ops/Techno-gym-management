@@ -1,8 +1,8 @@
 'use client';
 
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { ArrowRight, Clock, QrCode } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -68,7 +68,7 @@ export default function DashboardHomePage() {
 
   const [migrationStatus, setMigrationStatus] = useState<'idle' | 'migrating' | 'done'>('idle');
 
-  const memberDocRef = useMemoFirebase(() => {
+  const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
     return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
