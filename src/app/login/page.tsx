@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -68,14 +67,12 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             
-            if (err.code === 'auth/too-many-requests') {
-                 setError("Eroare de securitate (prea multe cereri). Aceasta indică o problemă de configurare. Verificați că domeniul site-ului live este autorizat în setările reCAPTCHA din consola Google Cloud, apoi așteptați câteva minute înainte de a reîncerca.");
-            } else if (err.code === 'auth/unauthorized-domain' || (err.message && (err.message.includes('auth/requests-from-referer') || err.message.includes('auth/configuration-not-found')))) {
-                setError("Eroare de configurare domeniu. Deși domeniul este probabil adăugat în Firebase > Authentication > Authorized domains, această eroare indică o problemă cu setările reCAPTCHA. Autentificarea cu numărul de telefon folosește reCAPTCHA, care are propria listă de domenii autorizate în Consola Google Cloud. Vă rugăm să verificați setările cheii reCAPTCHA asociate cu proiectul dumneavoastră Firebase.");
+            // This is the most likely configuration error. We provide a very specific message for it.
+            if ((err.code && err.code.includes('auth/')) || (err.message && err.message.includes('requests-from-referer'))) {
+                 setError("Eroare de configurare domeniu. Acest domeniu nu este autorizat. Vă rugăm să verificați că domeniul este adăugat atât în lista de 'Authorized domains' din setările de Autentificare Firebase, cât și în setările cheii reCAPTCHA din Consola Google Cloud.");
             } else {
-                const errorCode = err.code || 'UNKNOWN_ERROR';
                 const errorMessage = err.message || 'A apărut o eroare neașteptată.';
-                setError(`Eroare (${errorCode}): ${errorMessage}`);
+                setError(`Eroare: ${errorMessage}`);
             }
         } finally {
             setIsSubmitting(false);
