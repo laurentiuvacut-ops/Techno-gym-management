@@ -69,6 +69,8 @@ export default function LoginPage() {
             
             if (err.code === 'auth/too-many-requests') {
                  setError("Eroare de securitate (prea multe cereri). Aceasta indică o problemă de configurare. Verificați că domeniul site-ului live este autorizat în setările reCAPTCHA din consola Google Cloud, apoi așteptați câteva minute înainte de a reîncerca.");
+            } else if (err.code === 'auth/unauthorized-domain' || (err.message && err.message.includes('auth/requests-from-referer'))) {
+                setError("Eroare de configurare: Domeniul aplicației nu este autorizat. Accesați Consola Firebase > Authentication > Settings > Authorized domains și adăugați domeniul de pe care rulați aplicația pentru a rezolva problema.");
             } else {
                 const errorCode = err.code || 'UNKNOWN_ERROR';
                 const errorMessage = err.message || 'A apărut o eroare neașteptată.';
