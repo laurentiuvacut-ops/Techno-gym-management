@@ -1,0 +1,109 @@
+'use client';
+import { subscriptions } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Check, Star } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { doc } from "firebase/firestore";
+
+export default function PlansPage() {
+  const { user, loading } = useUser();
+  const firestore = useFirestore();
+  const router = useRouter();
+
+  const memberDocRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'members', user.uid);
+  }, [firestore, user]);
+
+  const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
+
+  if (loading || memberLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    router.push('/login');
+    return null;
+  }
+
+  const currentPlanId = memberData?.subscriptionId;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-8"
+    >
+      <div className="space-y-1 text-center">
+        <h1 className="text-4xl font-headline tracking-wider">Abonamente</h1>
+        <p className="text-muted-foreground max-w-2xl mx-auto">Alege planul care ți se potrivește. Poți anula sau schimba oricând.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {subscriptions.map((plan) => {
+          const isCurrent = plan.id === currentPlanId;
+          const isPopular = plan.popular;
+          const isFeatured = isCurrent || isPopular;
+
+          return (
+            <div
+              key={plan.id}
+              className={cn(
+                "relative p-6 rounded-3xl h-full flex flex-col transition-all duration-300",
+                isFeatured ? "bg-gradient-primary text-primary-foreground glow-primary" : "glass"
+              )}
+            >
+              {isCurrent && (
+                <Badge variant="secondary" className="absolute top-4 right-4">Planul Actual</Badge>
+              )}
+               {isPopular && !isCurrent && (
+                <Badge variant="secondary" className="absolute top-4 right-4 flex items-center gap-1">
+                  <Star className="w-3 h-3"/> Popular
+                </Badge>
+              )}
+              
+              <div className="flex-grow">
+                <h3 className="text-2xl font-headline">{plan.title}</h3>
+                <p className={cn("text-sm", isFeatured ? "text-primary-foreground/80" : "text-muted-foreground")}>{plan.description}</p>
+                
+                <div className="my-6">
+                  <span className={cn("text-5xl font-bold", !isFeatured && "text-gradient")}>{plan.price.split(' ')[0]}</span>
+                  <span className={cn("text-lg", isFeatured ? "text-primary-foreground/80" : "text-muted-foreground")}> {plan.price.split(' ')[1]}{plan.period}</span>
+                </div>
+
+                <ul className="space-y-3">
+                  {plan.benefits.map((benefit, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className={cn("w-5 h-5 rounded-full flex items-center justify-center", isFeatured ? "bg-white/20" : "bg-primary/20")}>
+                        <Check className={cn("w-3.5 h-3.5", isFeatured ? "text-primary-foreground" : "text-primary")} />
+                      </div>
+                      <span className="text-sm">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-8">
+                <Button 
+                  className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")}
+                  disabled={isCurrent}
+                >
+                  {isCurrent ? "Abonament Activ" : plan.cta}
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+}

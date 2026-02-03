@@ -1,17 +1,14 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, ChevronRight } from "lucide-react";
-import DaysRemainingChart from "@/components/days-remaining-chart";
-import Link from "next/link";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
-import Image from "next/image";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ArrowRight, Clock, QrCode } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { addDays, format } from 'date-fns';
 
 function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
   const [name, setName] = useState('');
@@ -19,68 +16,52 @@ function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
 
   const handleCreateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      alert("Te rugăm să completezi numele.");
-      return;
-    }
-    if (!user.phoneNumber) {
-        alert("Numărul de telefon nu a fost găsit. Te rugăm să te re-autentifici.");
-        return;
-    }
+    if (!name.trim()) return;
+    if (!user.phoneNumber) return;
 
     setIsSubmitting(true);
     const memberDocRef = doc(firestore, 'members', user.uid);
     try {
-      // Using setDoc will create or overwrite the document for the current user.
       await setDoc(memberDocRef, {
         id: user.uid,
         name: name,
-        email: null, // Assuming email is not collected at this stage
+        email: null,
         phone: user.phoneNumber,
-        photoURL: null, // Assuming photo is not collected
-        qrCode: user.phoneNumber, // For new users, QR code is their phone number
-        status: 'Expired', // New users start with an expired status
+        photoURL: null,
+        qrCode: user.phoneNumber,
+        status: 'Expired',
         daysRemaining: 0,
         subscriptionId: null,
       });
-      // The useDoc hook in the parent will automatically pick up the new data and re-render.
     } catch (error) {
       console.error("Error creating profile:", error);
-      alert("A apărut o eroare la crearea profilului. Te rugăm să încerci din nou.");
+    } finally {
       setIsSubmitting(false);
     }
   };
   
+  // This form can be styled later if needed
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="w-full max-w-sm glass">
-            <CardHeader>
-                <CardTitle className="text-2xl text-center">Finalizează Profilul</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleCreateProfile} className="space-y-4">
-                    <div>
-                        <Label htmlFor="name">Nume Complet</Label>
-                        <Input
-                            id="name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Nume și Prenume"
-                            required
-                        />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? 'Se salvează...' : 'Salvează Profilul'}
-                    </Button>
-                </form>
-            </CardContent>
-        </Card>
+      <form onSubmit={handleCreateProfile} className="space-y-4 p-4 glass rounded-3xl">
+        <h2 className='text-2xl font-headline text-center'>Finalizează Profilul</h2>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Nume și Prenume"
+          className="w-full p-2 rounded-md bg-input text-foreground"
+          required
+        />
+        <button type="submit" className="w-full p-2 rounded-md bg-gradient-primary text-primary-foreground" disabled={isSubmitting}>
+          {isSubmitting ? 'Se salvează...' : 'Salvează Profilul'}
+        </button>
+      </form>
     </div>
   );
 }
 
 
-export default function DashboardPage() {
+export default function DashboardHomePage() {
   const { user, loading: userLoading } = useUser();
   const router = useRouter();
   const firestore = useFirestore();
@@ -101,163 +82,118 @@ export default function DashboardPage() {
   }, [user, userLoading, router]);
 
   useEffect(() => {
-    // This effect handles migrating a legacy user profile to the new UID-based document structure.
     const attemptMigration = async () => {
-      // Conditions to run: user is loaded, Firestore is available, no member data found for UID yet, and migration hasn't been attempted.
       if (user && firestore && !memberData && !memberLoading && migrationStatus === 'idle') {
         setMigrationStatus('migrating');
-        
         const userPhoneNumber = user.phoneNumber;
         if (!userPhoneNumber) {
-          console.log("User has no phone number, proceeding to onboarding.");
           setMigrationStatus('done');
           return;
         }
 
-        // To handle different phone number formats in the database (e.g., +407..., 07..., 7...), we check for variations.
-        const phoneVariants = [userPhoneNumber];
-        if (userPhoneNumber.startsWith('+40')) {
-            const nationalNumber = userPhoneNumber.substring(3);
-            phoneVariants.push(nationalNumber); // "712345678"
-            phoneVariants.push(`0${nationalNumber}`); // "0712345678"
+        const phoneVariants = [userPhoneNumber, userPhoneNumber.substring(3), `0${userPhoneNumber.substring(3)}`];
+        const q = query(collection(firestore, 'members'), where("phone", "in", phoneVariants));
+        const querySnapshot = await getDocs(q);
+
+        let legacyDoc = querySnapshot.docs.find(d => d.id !== user.uid);
+
+        if (legacyDoc) {
+          await setDoc(doc(firestore, 'members', user.uid), {
+            ...legacyDoc.data(),
+            id: user.uid,
+            phone: userPhoneNumber,
+            qrCode: userPhoneNumber,
+          });
         }
-
-        try {
-          const membersRef = collection(firestore, 'members');
-          // Query for a legacy document.
-          const q = query(membersRef, where("phone", "in", phoneVariants));
-          const querySnapshot = await getDocs(q);
-
-          let legacyDoc = null;
-          for (const doc of querySnapshot.docs) {
-              // Heuristic to find the un-migrated, legacy record: pick the first one not already matching the current user's UID.
-              if (doc.id !== user.uid) { 
-                  legacyDoc = doc;
-                  break;
-              }
-          }
-
-          if (legacyDoc) {
-            console.log("Found legacy profile, migrating...");
-            const legacyData = legacyDoc.data();
-            const newDocRef = doc(firestore, 'members', user.uid);
-            
-            // Create a new document with the UID as the ID, copying the legacy data.
-            // We can't delete the old document due to security rules, but this ensures the user sees their correct data.
-            await setDoc(newDocRef, {
-              ...legacyData,
-              id: user.uid, // Critically, we now associate the profile with the auth UID.
-              phone: userPhoneNumber, // Standardize the phone number format.
-              // For migrated users, QR code should be their phone number to match the old system.
-              qrCode: userPhoneNumber,
-            });
-            // The useDoc hook will now find the new document and update the UI.
-
-          } else {
-            console.log("No legacy profile found for this phone number.");
-          }
-        } catch (e) {
-          console.error("Error during profile migration check:", e);
-        } finally {
-          // Whether migration succeeded or not, we mark it as done to prevent re-running.
-          // If no doc was created, the UI will proceed to the onboarding form.
-          setMigrationStatus('done');
-        }
+        setMigrationStatus('done');
       }
     };
-
     attemptMigration();
   }, [user, firestore, memberData, memberLoading, migrationStatus]);
 
 
-  const loading = userLoading || memberLoading || migrationStatus === 'migrating';
+  const loading = userLoading || memberLoading || migrationStatus !== 'done';
 
-  if (loading || !user) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center h-full">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
-  
-  // If migration is done, and there's still no data, it means it's a genuinely new user.
-  if (migrationStatus === 'done' && !memberData) {
-      return <OnboardingForm user={user} firestore={firestore} />;
-  }
-  
+
   if (!memberData) {
-      // This state is shown while loading or migrating.
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      );
+    return <OnboardingForm user={user} firestore={firestore} />;
   }
 
-  // If we have memberData, show the dashboard.
-  const daysLeft = memberData.daysRemaining;
-  const totalDays = 30; // This might need to come from subscription data later
+  const expirationDate = format(addDays(new Date(), memberData.daysRemaining), 'dd MMM yyyy');
+  const displayName = memberData?.name?.split(' ')[0] || 'Membru';
 
   return (
-    <div className="space-y-6">
-      <Card className="glass">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-start mb-8">
-              <div className="text-left">
-                <p className="text-sm text-muted-foreground">STATUS ABONAMENT</p>
-                <p className="font-bold text-xl flex items-center gap-2">
-                  {memberData.status === 'Active' ? 'Activ' : 'Expirat'} 
-                  {memberData.status === 'Active' && <Check className="w-5 h-5 text-green-500" />}
-                </p>
-              </div>
-          </div>
-          
-          <div className="flex flex-col items-center text-center gap-2">
-            <DaysRemainingChart daysLeft={daysLeft} totalDays={totalDays} />
-            <p className="text-2xl font-bold mt-4">Abonamentul expiră în</p>
-            <p className="text-lg text-muted-foreground">{Math.ceil(daysLeft / 7)} săptămâni</p>
-          </div>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-8"
+    >
+      <div>
+        <h1 className="text-4xl font-headline tracking-wider">Bine ai venit, {displayName}!</h1>
+        <p className="text-muted-foreground">Iată un sumar al contului tău.</p>
+      </div>
 
-        </CardContent>
-      </Card>
-      
-      <Card className="glass">
-        <CardHeader>
-          <CardTitle className="text-center">Scanează la intrare</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center gap-4">
-          {memberData.qrCode ? (
-            <Image
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(memberData.qrCode)}`}
-              width={250}
-              height={250}
-              alt="Member QR Code"
-              className="rounded-lg"
-            />
-          ) : (
-            <p>QR Code indisponibil</p>
-          )}
-          <p className="text-center text-muted-foreground text-sm max-w-xs">
-            Prezintă acest cod la recepție pentru a intra în sală.
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="glass">
-        <CardContent className="p-4">
-          <Link href="/subscriptions" className="flex items-center justify-between">
+      <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Hero Card */}
+        <div className="relative lg:col-span-2 p-8 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[300px]">
+          <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full blur-3xl -z-10" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-primary" />
+            </div>
             <div>
-              <p className="font-bold">Reînnoiește abonamentul</p>
-              <p className="text-sm text-muted-foreground">
-                Nu lăsa să expire. Alege un plan nou astăzi!
-              </p>
+              <h2 className="font-bold">Status Abonament</h2>
+              <p className="text-sm text-primary">{memberData.status}</p>
             </div>
-            <div className="bg-white/10 p-2 rounded-full">
-                <ChevronRight className="text-white" />
+          </div>
+          <div className="text-center my-8">
+            <p className="text-8xl md:text-9xl font-headline text-gradient leading-none">{memberData.daysRemaining}</p>
+            <p className="font-bold tracking-widest">Zile Rămase</p>
+            <p className="text-sm text-muted-foreground">Expiră pe {expirationDate}</p>
+          </div>
+          <div/>
+        </div>
+
+        {/* QR Code */}
+        <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4">
+          <div className="border-2 border-dashed border-border p-4 rounded-xl">
+             <QrCode className="w-24 h-24 text-muted-foreground" />
+          </div>
+          <h3 className="font-bold">Scanează pentru acces</h3>
+          <p className="text-sm text-muted-foreground">Prezintă acest cod la recepție pentru a intra în sală.</p>
+        </div>
+      </div>
+
+      {/* Quick Links */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Link href="/dashboard/shop">
+          <div className="group p-6 glass rounded-3xl transition-colors duration-300 hover:border-primary/30">
+            <h3 className="text-2xl font-headline">Shop & Stoc</h3>
+            <p className="text-muted-foreground mb-4">Verifică stocul de produse.</p>
+            <div className="flex justify-end">
+              <ArrowRight className="text-muted-foreground transition-colors group-hover:text-primary" />
             </div>
-          </Link>
-        </CardContent>
-      </Card>
-    </div>
+          </div>
+        </Link>
+        <Link href="/dashboard/plans">
+          <div className="group p-6 glass rounded-3xl transition-colors duration-300 hover:border-primary/30">
+            <h3 className="text-2xl font-headline">Abonamente</h3>
+            <p className="text-muted-foreground mb-4">Vezi toate planurile disponibile.</p>
+            <div className="flex justify-end">
+              <ArrowRight className="text-muted-foreground transition-colors group-hover:text-primary" />
+            </div>
+          </div>
+        </Link>
+      </div>
+
+    </motion.div>
   );
 }

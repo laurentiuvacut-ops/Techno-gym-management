@@ -18,10 +18,10 @@ export const subscriptions = [
   {
     id: "classic",
     title: "Techno Classic",
-    price: "120 Ron",
+    price: "120 RON",
+    description: "Acces în intervalul 08:00 - 16:00",
     period: "/lună",
     benefits: [
-      "Acces în intervalul 08:00 - 16:00",
       "Acces la aparate și greutăți",
       "Vestiar cu dușuri inclus",
     ],
@@ -30,11 +30,13 @@ export const subscriptions = [
   {
     id: "pro",
     title: "Techno Pro",
-    price: "150 Ron",
+    price: "150 RON",
+    description: "Acces în intervalul 08:00 - 22:00",
     period: "/lună",
     benefits: [
-      "Acces în intervalul 08:00 - 22:00",
       "Toate beneficiile Classic",
+      "Acces la clasele de grup",
+      "O sesiune gratuită cu antrenor",
     ],
     cta: "Alege Pro",
     popular: true,
@@ -42,23 +44,26 @@ export const subscriptions = [
   {
     id: "student",
     title: "Techno Elevi",
-    price: "130 Ron",
+    price: "130 RON",
+    description: "Valabil cu carnet de elev/student",
     period: "/lună",
     benefits: [
       "Acces în intervalul 08:00 - 22:00",
-      "Valabil cu carnet de elev/student",
       "Toate beneficiile Pro",
+      "Reducere 10% la magazin",
     ],
     cta: "Alege Elev",
   },
   {
     id: "nonstop",
     title: "Techno Non-Stop",
-    price: "170 Ron",
+    price: "170 RON",
+    description: "Acces 24/7 nelimitat",
     period: "/lună",
     benefits: [
-      "Acces 24/7 nelimitat",
+      "Acces nelimitat 24/7",
       "Toate beneficiile Pro",
+      "Invitați un prieten în weekend",
     ],
     cta: "Alege Non-Stop",
   },
@@ -117,32 +122,32 @@ export const trainers = [
 export const shopItems = [
     {
         id: "1",
-        name: "Techno Whey Protein",
-        price: "$45.00",
+        name: "Protein Whey 2kg",
+        price: "189 RON",
         stock: "In Stock" as "In Stock" | "Low Stock" | "Out of Stock",
     },
     {
         id: "2",
-        name: "Pulse Pre-Workout",
-        price: "$35.00",
-        stock: "Low Stock" as "In Stock" | "Low Stock" | "Out of Stock",
-    },
-    {
-        id: "3",
-        name: "Hydro-Flask Water Bottle",
-        price: "$25.00",
+        name: "Apă minerală 0.5L",
+        price: "5 RON",
         stock: "In Stock" as "In Stock" | "Low Stock" | "Out of Stock",
     },
     {
+        id: "3",
+        name: "Baton proteic",
+        price: "12 RON",
+        stock: "Out of Stock" as "In Stock" | "Low Stock" | "Out of Stock",
+    },
+    {
         id: "4",
-        name: "Creatine Monohydrate",
-        price: "$30.00",
+        name: "BCAA 500g",
+        price: "129 RON",
         stock: "In Stock" as "In Stock" | "Low Stock" | "Out of Stock",
     },
     {
         id: "5",
-        name: "Techno Gym T-Shirt",
-        price: "$20.00",
+        name: "Pre-workout",
+        price: "149 RON",
         stock: "Out of Stock" as "In Stock" | "Low Stock" | "Out of Stock",
     }
 ];
@@ -174,5 +179,3 @@ export const transformations = [
     after: getImage('transformation-after-5'),
   },
 ];
-
-    

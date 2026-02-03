@@ -1,10 +1,7 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import Header from '@/components/layout/header';
-import BottomNav from '@/components/layout/bottom-nav';
 import { FirebaseClientProvider } from '@/firebase';
-import MainContainer from '@/components/layout/main-container';
 
 export const metadata: Metadata = {
   title: 'Techno Gym',
@@ -30,11 +27,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>
-          <Header />
-          <MainContainer>
-            {children}
-          </MainContainer>
-          <BottomNav />
+          {children}
           <Toaster />
         </FirebaseClientProvider>
       </body>

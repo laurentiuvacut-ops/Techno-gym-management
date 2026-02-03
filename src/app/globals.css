@@ -84,10 +84,10 @@
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 174 72% 50%;
     --sidebar-primary-foreground: 220 10% 6%;
-    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent: 220 8% 14%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 24 100% 50%;
+    --sidebar-border: 220 8% 20%;
+    --sidebar-ring: 174 72% 50%;
     --success: 150 80% 40%;
     --success-foreground: 150 80% 95%;
     --warning: 45 90% 50%;
@@ -126,14 +126,12 @@
   }
 
   .glass {
-    @apply backdrop-blur-xl;
-    background: hsl(var(--card) / 0.7);
-    border: 1px solid hsl(var(--border) / 0.5);
+    background: hsl(var(--card) / 0.6);
+    @apply backdrop-blur-md border border-border/50;
   }
 
   .glass-strong {
-    @apply backdrop-blur-2xl;
     background: hsl(var(--card) / 0.85);
-    border: 1px solid hsl(var(--border) / 0.3);
+    @apply backdrop-blur-2xl border border-border/30;
   }
 }

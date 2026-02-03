@@ -42,18 +42,13 @@ export default function LoginPage() {
         setError(null);
         setIsSubmitting(true);
 
-        // For robustness, clear any previous verifier to ensure a clean state.
         if (window.recaptchaVerifier) {
             window.recaptchaVerifier.clear();
         }
-
-        // Create a new RecaptchaVerifier and attach it to the window object.
-        // This is a robust pattern to manage the reCAPTCHA lifecycle and prevent conflicts.
+        
         const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
             'size': 'invisible',
-            'callback': () => {
-                // This callback is for the visible reCAPTCHA which we aren't using.
-            },
+            'callback': () => {},
             'expired-callback': () => {
                setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
             }
@@ -123,21 +118,22 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh]">
-             {/* This div is the container for the invisible reCAPTCHA widget. */}
              <div id="recaptcha-container" />
              
-            <Card className="w-full max-w-sm glass">
+            <Card className="w-full max-w-sm glass rounded-3xl">
                 <CardHeader>
                     <div className="flex justify-center mb-4">
-                        <div className="relative w-12 h-12">
-                          <Image 
-                            src="https://i.imgur.com/9W1ye1w.png" 
-                            alt="Techno Gym Logo" 
-                            fill
-                            sizes="48px"
-                            className="object-contain"
-                          />
-                        </div>
+                        <Link href="/" className="flex items-center gap-2">
+                           <div className="relative w-10 h-10">
+                            <Image 
+                              src="https://i.imgur.com/9W1ye1w.png" 
+                              alt="Techno Gym Logo" 
+                              fill
+                              className="object-contain"
+                            />
+                           </div>
+                           <span className="text-2xl font-bold tracking-tight text-gradient">TECHNO GYM</span>
+                        </Link>
                     </div>
                     {step === 'phone' ? (
                         <>
@@ -179,7 +175,7 @@ export default function LoginPage() {
                                     <AlertDescription>{error}</AlertDescription>
                                 </Alert>
                             )}
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground" disabled={isSubmitting}>
                                 {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
                             </Button>
                         </form>
@@ -204,7 +200,7 @@ export default function LoginPage() {
                                     <AlertDescription>{error}</AlertDescription>
                                 </Alert>
                             )}
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground" disabled={isSubmitting}>
                                 {isSubmitting ? 'Se verifică...' : 'Verifică'}
                             </Button>
                             <Button variant="link" onClick={() => { setStep('phone'); setError(null); setConfirmationResult(null); }} className="w-full">

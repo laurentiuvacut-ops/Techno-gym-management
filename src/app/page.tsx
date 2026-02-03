@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Star, Clock } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import Header from "@/components/layout/header";
 import {
   Carousel,
   CarouselContent,
@@ -37,6 +38,7 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-dvh">
+      <Header />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full h-[90vh] flex items-center justify-center">
@@ -207,7 +209,7 @@ export default function LandingPage() {
                 </div>
                  <div className="text-center mt-12">
                     <Button asChild size="lg">
-                        <Link href="/subscriptions">Vezi Toate Planurile</Link>
+                        <Link href="/dashboard/plans">Vezi Toate Planurile</Link>
                     </Button>
                 </div>
             </div>
