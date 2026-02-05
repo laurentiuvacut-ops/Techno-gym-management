@@ -67,13 +67,26 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             
-            if (err.code === 'auth/requests-from-referer' || (err.message && err.message.includes('are-blocked'))) {
+             if (err.code === 'auth/requests-from-referer' || (err.message && err.message.includes('are-blocked'))) {
                  setError(
-                    <>
-                        <p className="font-bold">Domeniul de pe care rulați aplicația nu este autorizat.</p>
-                        <p className="mt-2 text-sm">Aceasta este o setare de securitate a proiectului dumneavoastră Google Cloud, nu o eroare în codul aplicației, și de aceea nu o pot rezolva eu.</p>
-                        <p className="mt-2 text-sm">Vă rugăm să urmați din nou pașii pe care vi i-am oferit anterior pentru a adăuga domeniul de test în setările cheii reCAPTCHA corecte.</p>
-                    </>
+                    <Alert variant="destructive">
+                        <AlertTitle>Eroare de Configurare: Cheia reCAPTCHA Greșită</AlertTitle>
+                        <AlertDescription>
+                            <div className="space-y-2 text-sm">
+                                <p>Mulțumim pentru confirmare. Faptul că eroarea persistă chiar și cu domeniile adăugate indică problema cea mai frecventă: modificați <strong>cheia reCAPTCHA greșită</strong>.</p>
+                                <p>Proiectul dumneavoastră probabil are mai multe chei. Urmați acești pași pentru a o găsi și modifica pe cea corectă:</p>
+                                <ol className="list-decimal list-inside space-y-1 pl-2">
+                                    <li>În <strong>Consola Firebase</strong>, navigați la <strong>Authentication</strong> &rarr; tab-ul <strong>Settings</strong>.</li>
+                                    <li>Găsiți <strong>Phone</strong> în lista de provideri și dați click.</li>
+                                    <li>În secțiunea <strong>reCAPTCHA verification</strong>, căutați numele cheii (ex: "reCAPTCHA v2...", "reCAPTCHA Enterprise..."). <strong>Acesta este numele cheii corecte.</strong></li>
+                                    <li>Acum, în <strong>Consola Google Cloud</strong>, navigați la <strong>APIs & Services</strong> &rarr; <strong>Credentials</strong>.</li>
+                                    <li>Găsiți cheia API cu <strong>numele exact</strong> de la pasul 3.</li>
+                                    <li>Editați <strong>această cheie</strong> și la "Website restrictions" asigurați-vă că sunt adăugate ambele domenii: cel de test și cel de producție (`technogymcraiova.com`).</li>
+                                </ol>
+                                <p className="font-medium pt-2">Aceasta este o problemă de configurare și nu poate fi rezolvată prin cod. Odată ce cheia corectă este editată, eroarea va dispărea.</p>
+                            </div>
+                        </AlertDescription>
+                    </Alert>
                  );
             } else if (err.code === 'auth/invalid-phone-number') {
                 setError("Numărul de telefon introdus nu este valid.");
@@ -180,10 +193,16 @@ export default function LoginPage() {
                                 </div>
                             </div>
                             {error && (
-                                <Alert variant="destructive">
-                                    <AlertTitle>Eroare de Configurare</AlertTitle>
-                                    <AlertDescription>{error}</AlertDescription>
-                                </Alert>
+                                <div className="mt-4">
+                                    {typeof error === 'string' ? (
+                                        <Alert variant="destructive">
+                                            <AlertTitle>Eroare</AlertTitle>
+                                            <AlertDescription>{error}</AlertDescription>
+                                        </Alert>
+                                    ) : (
+                                        error
+                                    )}
+                                </div>
                             )}
                             <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground" disabled={isSubmitting}>
                                 {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
@@ -204,11 +223,17 @@ export default function LoginPage() {
                                     maxLength={6}
                                 />
                             </div>
-                            {error && (
-                                <Alert variant="destructive">
-                                    <AlertTitle>Eroare</AlertTitle>
-                                    <AlertDescription>{error}</AlertDescription>
-                                </Alert>
+                             {error && (
+                                <div className="mt-4">
+                                    {typeof error === 'string' ? (
+                                        <Alert variant="destructive">
+                                            <AlertTitle>Eroare</AlertTitle>
+                                            <AlertDescription>{error}</AlertDescription>
+                                        </Alert>
+                                    ) : (
+                                        error
+                                    )}
+                                </div>
                             )}
                             <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground" disabled={isSubmitting}>
                                 {isSubmitting ? 'Se verifică...' : 'Verifică'}
