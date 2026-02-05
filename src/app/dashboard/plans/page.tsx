@@ -5,19 +5,21 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Star, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser, useFirestore, useDoc } from '@/firebase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { doc, updateDoc } from "firebase/firestore";
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, Suspense } from 'react';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 
-export default function PlansPage() {
-  const { user, loading } = useUser();
+function PlansComponent() {
+  const { user, loading: userLoading } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
+  const searchParams = useSearchParams();
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
@@ -27,13 +29,52 @@ export default function PlansPage() {
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!userLoading && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, userLoading, router]);
+
+  // Handle successful payment redirect from Stripe
+  useEffect(() => {
+    const handleSuccessfulPayment = async () => {
+        // Check if the URL contains the success parameter from Stripe
+        if (searchParams.get('payment_success') === 'true' && user && firestore) {
+            
+            // NOTE: In a production app, you would verify the session_id with your backend.
+            // For this prototype, we'll optimistically update the user's status.
+            // This is not secure for production as a user could manually visit this URL.
+            // A secure implementation requires a backend webhook to receive events from Stripe
+            // and update the database safely.
+            
+            // Find the most likely plan (e.g., "Pro") to apply the subscription benefits.
+            const purchasedPlan = subscriptions.find(s => s.popular) || subscriptions[1];
+
+            if (purchasedPlan) {
+                const memberDocRef = doc(firestore, 'members', user.uid);
+                await updateDoc(memberDocRef, {
+                    subscriptionId: purchasedPlan.id,
+                    status: "Active",
+                    daysRemaining: 30, // Or calculate based on the specific plan
+                });
+
+                toast({
+                    title: "Plată reușită!",
+                    description: `Abonamentul tău ${purchasedPlan.title} a fost activat.`,
+                });
+            }
+
+            // Clean up the URL to prevent re-triggering this effect on refresh.
+            router.replace('/dashboard/plans', { scroll: false });
+        }
+    };
+    
+    // Run this effect only when the component mounts and dependencies change.
+    handleSuccessfulPayment();
+
+  }, [searchParams, user, firestore, router, toast]);
 
   const handlePurchase = async (plan: any) => {
-    if (!user || !firestore) {
+    if (!user) {
       toast({
         variant: "destructive",
         title: "Eroare",
@@ -42,57 +83,46 @@ export default function PlansPage() {
       return;
     }
 
+    if (!plan.stripePriceId || plan.stripePriceId === 'price_placeholder') {
+        toast({
+            variant: "destructive",
+            title: "Configurare incompletă",
+            description: "Acest plan nu este configurat pentru plată. Vă rugăm să adăugați ID-ul prețului din Stripe.",
+        });
+        return;
+    }
+
     setIsUpdating(plan.id);
 
-    // --- Integrare Stripe (Simulare) ---
-    // Într-o aplicație reală, aici ați apela un endpoint de pe backend
-    // pentru a crea o sesiune de checkout Stripe.
-    //
-    // Exemplu:
-    // const response = await fetch('/api/create-checkout-session', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ priceId: plan.stripePriceId, userId: user.uid })
-    // });
-    // const { url } = await response.json();
-    // window.location.href = url;
-    //
-    // Backend-ul ar crea sesiunea și ar asculta evenimente (webhooks) de la Stripe
-    // pentru a confirma plata și a actualiza abonamentul în mod sigur.
-    //
-    // Deoarece nu putem implementa un backend aici, simulăm o plată reușită
-    // și actualizăm direct abonamentul.
-    // ACEASTA NU ESTE O PRACTICĂ SIGURĂ PENTRU PRODUCȚIE.
-    
-    const memberDocRef = doc(firestore, 'members', user.uid);
-
     try {
-      // Simulating a short delay for payment processing
-      await new Promise(resolve => setTimeout(resolve, 1500));
+        const baseUrl = window.location.origin;
+        const { url } = await createCheckoutSession({
+            priceId: plan.stripePriceId,
+            userId: user.uid,
+            baseUrl: baseUrl
+        });
 
-      await updateDoc(memberDocRef, {
-        subscriptionId: plan.id,
-        status: "Active",
-        daysRemaining: 30, // Or calculate based on plan
-      });
-
-      toast({
-        title: "Plată reușită!",
-        description: `Abonamentul tău ${plan.title} a fost activat.`,
-      });
+        if (url) {
+            // Redirect the user to Stripe's checkout page.
+            window.location.href = url;
+        } else {
+            throw new Error("Nu s-a putut crea sesiunea de plată.");
+        }
     } catch (error) {
-      console.error("Error updating subscription after simulated payment:", error);
+      console.error("Error creating Stripe checkout session:", error);
       toast({
         variant: "destructive",
         title: "Eroare la procesarea plății",
-        description: "A apărut o problemă. Vă rugăm să încercați din nou.",
+        description: "A apărut o problemă la inițierea plății. Vă rugăm să încercați din nou.",
       });
-    } finally {
-      setIsUpdating(null);
+       setIsUpdating(null);
     }
+    // No need to set isUpdating(null) here as the page will redirect.
   };
 
-  if (loading || memberLoading || !user) {
+  const loading = userLoading || memberLoading;
+
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -183,4 +213,16 @@ export default function PlansPage() {
       </div>
     </motion.div>
   );
+}
+
+
+// A `Suspense` boundary is required to use `useSearchParams()` in a page that may be server-rendered.
+export default function PlansPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-full">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>}>
+      <PlansComponent />
+    </Suspense>
+  )
 }
