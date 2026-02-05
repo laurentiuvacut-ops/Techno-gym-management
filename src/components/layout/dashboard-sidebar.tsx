@@ -39,11 +39,14 @@ const navItems = [
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  // We need to make sure the active path is only calculated on the client
+  // to avoid hydration mismatches.
+  const [activePath, setActivePath] = useState('');
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    // On client-side mount, set the active path.
+    setActivePath(pathname);
+  }, [pathname]);
 
 
   const handleSignOut = async () => {
@@ -73,7 +76,7 @@ export default function DashboardSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={mounted ? pathname === item.href : false}
+                isActive={activePath === item.href}
                 className="data-[active=true]:bg-primary/20 data-[active=true]:text-primary text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 tooltip={item.label}
               >
