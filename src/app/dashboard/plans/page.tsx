@@ -83,7 +83,7 @@ function PlansComponent() {
       return;
     }
 
-    if (!plan.stripePriceId || plan.stripePriceId === 'price_placeholder') {
+    if (!plan.stripePriceId || plan.stripePriceId.includes('placeholder')) {
         toast({
             variant: "destructive",
             title: "Configurare incompletă",
