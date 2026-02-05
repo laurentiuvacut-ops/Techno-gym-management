@@ -45,7 +45,7 @@ export const subscriptions = [
     ],
     cta: "Cumpără Acum",
     popular: true,
-    stripePriceId: "price_1P6iGrJgCj6yZkH4nO3jF8l9", // Replace with your actual price ID from Stripe
+    stripePriceId: "price_1SxZKBF49C4yG8P9iEqDespu", // Replace with your actual price ID from Stripe
   },
   {
     id: "student",

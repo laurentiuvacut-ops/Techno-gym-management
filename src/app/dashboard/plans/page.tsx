@@ -115,13 +115,14 @@ function PlansComponent() {
             let description = stripeError || "Nu s-a putut crea sesiunea de plată. Asigurați-vă că cheia Stripe este configurată corect în fișierul .env.local.";
             
             if (stripeError && stripeError.includes('No such price')) {
-                description = `Eroare de la Stripe: "No such price". ID-ul prețului trimis (${plan.stripePriceId}) este incorect. Vă rugăm să verificați următoarele:\n1. ID-ul a fost copiat corect din Stripe în fișierul src/lib/data.ts.\n2. Folosiți un ID de preț din modul 'Test', nu 'Live'.\n3. Prețul există și este activ în contul Stripe.`;
+                description = `Eroare de la Stripe: "No such price: ${plan.stripePriceId}". Aceasta este o problemă de configurare. Cauze posibile:\n\n1. (Cel mai frecvent) Folosiți o cheie de API (sk_test_...) dintr-un mod (Test) și un ID de preț (price_...) din alt mod (Live). Cheile și ID-urile trebuie să fie din același mod.\n\n2. ID-ul de preț a fost copiat greșit sau este pentru un alt cont Stripe.\n\n3. Prețul nu este 'activ' în Stripe.\n\nVă rugăm să verificați că ID-urile din pagina de Debug se potrivesc cu cele din contul Stripe (modul Test).`;
             }
 
             toast({
               variant: "destructive",
               title: "Eroare la procesarea plății",
               description: description,
+              duration: 20000,
             });
             setIsUpdating(null);
         }

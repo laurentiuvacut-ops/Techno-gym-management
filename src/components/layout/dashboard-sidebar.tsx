@@ -17,6 +17,7 @@ import {
   ShoppingBag,
   Dumbbell,
   Users,
+  Bug,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -31,6 +32,7 @@ const navItems = [
   { href: '/dashboard/workouts', label: 'Antrenamente', icon: Dumbbell },
   { href: '/dashboard/trainers', label: 'Antrenori', icon: Users },
   { href: '/dashboard/feedback', label: 'Feedback', icon: MessageSquare },
+  { href: '/dashboard/debug-stripe', label: 'Debug Stripe', icon: Bug },
 ];
 
 export default function DashboardSidebar() {
