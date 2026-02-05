@@ -29,7 +29,7 @@ export const subscriptions = [
       "Vestiar cu dușuri inclus",
     ],
     cta: "Cumpără Acum",
-    stripePriceId: "price_1P6iFjJgCj6yZkH4n8o7yB3a", // Replace with your actual price ID from Stripe
+    stripePriceId: "price_1SxZj1F49C4yG8P9iNnORgq4", // Replace with your actual price ID from Stripe
   },
   {
     id: "pro",
@@ -60,7 +60,7 @@ export const subscriptions = [
       "Reducere 10% la magazin",
     ],
     cta: "Cumpără Acum",
-    stripePriceId: "price_1P6iHhJgCj6yZkH4f6bA0j7k", // Replace with your actual price ID from Stripe
+    stripePriceId: "price_1SxZjaF49C4yG8P9dUIPidp0", // Replace with your actual price ID from Stripe
   },
   {
     id: "nonstop",
@@ -75,7 +75,7 @@ export const subscriptions = [
       "Invitați un prieten în weekend",
     ],
     cta: "Cumpără Acum",
-    stripePriceId: "price_1P6iIiJgCj6yZkH4gK1s2l4p", // Replace with your actual price ID from Stripe
+    stripePriceId: "price_1SxZkYF49C4yG8P9dJheBSeq", // Replace with your actual price ID from Stripe
   },
 ];
 

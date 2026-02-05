@@ -105,33 +105,31 @@ function PlansComponent() {
             priceId: plan.stripePriceId,
             userId: user.uid,
             baseUrl: baseUrl,
-            planId: plan.id, // Pass the plan id to the flow
+            planId: plan.id,
         });
 
         if (url) {
-            // Redirect the user to Stripe's checkout page.
             window.location.href = url;
         } else {
-            let description = stripeError || "Nu s-a putut crea sesiunea de plată. Asigurați-vă că cheia Stripe este configurată corect în fișierul .env.local.";
-            
-            if (stripeError && stripeError.includes('No such price')) {
-                description = `Eroare de la Stripe: "No such price: ${plan.stripePriceId}". Aceasta este o problemă de configurare. Cauze posibile:\n\n1. (Cel mai frecvent) Folosiți o cheie de API (sk_test_...) dintr-un mod (Test) și un ID de preț (price_...) din alt mod (Live). Cheile și ID-urile trebuie să fie din același mod.\n\n2. ID-ul de preț a fost copiat greșit sau este pentru un alt cont Stripe.\n\n3. Prețul nu este 'activ' în Stripe.\n\nVă rugăm să verificați că ID-urile din pagina de Debug se potrivesc cu cele din contul Stripe (modul Test).`;
-            }
+            // This 'else' block will now catch any case where the URL is not returned.
+            const baseError = "Nu s-a putut iniția plata. Răspunsul de la server a fost:";
+            const details = stripeError ? `\n\nEroare: "${stripeError}"` : "\n\nServerul nu a returnat un URL sau o eroare specifică.";
+            const finalDescription = `${baseError}${details}\n\nVerificați pagina de Debug Stripe pentru a confirma că cheia și ID-urile de preț sunt corecte și active.`;
 
             toast({
               variant: "destructive",
-              title: "Eroare la procesarea plății",
-              description: description,
-              duration: 20000,
+              title: "Eroare la Crearea Sesiunii de Plată",
+              description: finalDescription,
+              duration: 25000,
             });
             setIsUpdating(null);
         }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating Stripe checkout session:", error);
       toast({
         variant: "destructive",
-        title: "Eroare la procesarea plății",
-        description: "A apărut o problemă la comunicarea cu serverul. Vă rugăm să încercați din nou.",
+        title: "Eroare Critică la Procesarea Plății",
+        description: `A apărut o problemă la comunicarea cu serverul: ${error.message || 'Eroare necunoscută'}. Vă rugăm să încercați din nou.`,
       });
        setIsUpdating(null);
     }

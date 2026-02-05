@@ -26,7 +26,7 @@ const createCheckoutSessionFlow = ai.defineFlow(
   },
   async ({ priceId, userId, baseUrl, planId }) => {
     // Explicitly check if the Stripe secret key is loaded.
-    if (!process.env.STRIPE_SECRET_KEY) {
+    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'INLOCUITI_CU_CHEIA_SECRETA_DE_LA_STRIPE') {
       const errorMessage = 'Cheia secretă Stripe (STRIPE_SECRET_KEY) nu este setată. Asigurați-vă că ați creat fișierul .env.local și ați repornit serverul.';
       console.error('Stripe Checkout Session Error:', errorMessage);
       return { url: null, error: errorMessage };
@@ -51,6 +51,12 @@ const createCheckoutSessionFlow = ai.defineFlow(
         cancel_url: `${baseUrl}/dashboard/plans`,
         client_reference_id: userId,
       });
+
+      // Defensive check: ensure the session object has a URL.
+      if (!session.url) {
+        console.error("Stripe session was created, but it did not contain a URL.", session);
+        return { url: null, error: "Eroare Stripe: Sesiunea a fost creată, dar nu a fost returnat un URL de plată. Acest lucru se poate întâmpla dacă există o problemă de configurare a contului." };
+      }
 
       return { url: session.url, error: null };
     } catch (e: any) {
