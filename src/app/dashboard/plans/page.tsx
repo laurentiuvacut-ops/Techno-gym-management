@@ -2,7 +2,7 @@
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, ArrowLeft, Bug, Copy } from "lucide-react";
+import { Check, Star, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -12,8 +12,6 @@ import { useMemo, useState, useEffect, Suspense } from 'react';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
 
 function PlansComponent() {
   const { user, loading: userLoading } = useUser();
@@ -22,9 +20,6 @@ function PlansComponent() {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const searchParams = useSearchParams();
-  const [debugUrl, setDebugUrl] = useState<string | null>(null);
-  const [debugError, setDebugError] = useState<string | null>(null);
-
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
@@ -94,9 +89,6 @@ function PlansComponent() {
     }
 
     setIsUpdating(plan.id);
-    setDebugUrl(null);
-    setDebugError(null);
-
 
     try {
         const baseUrl = window.location.origin;
@@ -109,19 +101,22 @@ function PlansComponent() {
         });
 
         if (url) {
-            // window.location.href = url; // Temporarily disabled for debugging
-            setDebugUrl(url);
-            setIsUpdating(null);
+            window.location.href = url; // Redirect to Stripe
         } else {
-            const baseError = "Nu s-a putut iniția plata. Răspunsul de la server a fost:";
-            const details = stripeError ? `\n\nEroare: "${stripeError}"` : "\n\nServerul nu a returnat un URL sau o eroare specifică.";
-            const finalDescription = `${baseError}${details}\n\nVerificați pagina de Debug Stripe pentru a confirma că cheia secretă este corectă.`;
-            setDebugError(finalDescription);
+            toast({
+                variant: "destructive",
+                title: "Eroare la crearea sesiunii de plată",
+                description: stripeError || "Serverul nu a returnat un URL de plată. Asigurați-vă că cheia secretă Stripe este corectă.",
+            });
             setIsUpdating(null);
         }
     } catch (error: any) {
       console.error("Error creating Stripe checkout session:", error);
-      setDebugError(`A apărut o problemă la comunicarea cu serverul: ${error.message || 'Eroare necunoscută'}. Vă rugăm să încercați din nou.`);
+      toast({
+        variant: "destructive",
+        title: "Eroare la comunicarea cu serverul",
+        description: `A apărut o problemă: ${error.message || 'Eroare necunoscută'}. Vă rugăm să încercați din nou.`,
+      });
       setIsUpdating(null);
     }
   };
@@ -151,44 +146,6 @@ function PlansComponent() {
               Înapoi la Panou
           </Link>
       </Button>
-
-      { (debugUrl || debugError) && (
-        <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4"
-        >
-            <Alert variant={debugError ? "destructive" : "default"} className={!debugError ? "border-primary/50 bg-primary/10" : ""}>
-                <Bug className="h-4 w-4" />
-                <AlertTitle className={debugError ? "" : "text-primary"}>
-                    {debugError ? 'Eroare la Crearea Sesiunii' : 'Mod Debug Activat'}
-                </AlertTitle>
-                <AlertDescription className="space-y-4">
-                    {debugUrl && (
-                        <div>
-                            <p>Am primit următorul URL de la Stripe, dar redirecționarea a fost oprită. Vă rugăm să copiați link-ul și să-l testați într-o filă nouă.</p>
-                            <div className="mt-2 flex items-center gap-2 rounded-md bg-background/50 p-2 border">
-                                <code className="text-xs break-all select-all flex-1">{debugUrl}</code>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(debugUrl);
-                                        toast({ title: "URL Copiat!", description: "Link-ul a fost copiat în clipboard." });
-                                    }}
-                                >
-                                    <Copy className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                    {debugError && (
-                        <p className="whitespace-pre-line">{debugError}</p>
-                    )}
-                </AlertDescription>
-            </Alert>
-        </motion.div>
-      )}
 
       <div className="space-y-1 text-center">
         <h1 className="text-4xl font-headline tracking-wider">Abonamente</h1>
