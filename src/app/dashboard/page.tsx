@@ -137,12 +137,14 @@ export default function DashboardHomePage() {
           <h1 className="text-4xl font-headline tracking-wider">Bine ai venit, {displayName}!</h1>
           <p className="text-muted-foreground">Iată un sumar al contului tău.</p>
         </div>
-        {isInstallable && (
-          <Button onClick={handleInstallClick} className="bg-gradient-primary text-primary-foreground">
-            <Download className="mr-2 h-4 w-4" />
-            Instalează Aplicația
-          </Button>
-        )}
+        <Button 
+          onClick={handleInstallClick}
+          disabled={!isInstallable}
+          className="bg-gradient-primary text-primary-foreground"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Instalează Aplicația
+        </Button>
       </div>
 
       <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8">
