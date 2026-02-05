@@ -101,7 +101,14 @@ function PlansComponent() {
         });
 
         if (url) {
-            window.location.href = url;
+            // window.location.href = url; // Temporarily disabled for debugging
+            toast({
+              variant: "default",
+              title: "Sesiune de Plată Creată (Mod Debug)",
+              description: `Am primit un URL de la Stripe, dar redirecționarea automată este oprită pentru a investiga. Vă rugăm să încercați să accesați manual următorul URL și să ne spuneți dacă funcționează:\n\n${url}`,
+              duration: 90000, // Keep toast for a long time
+            });
+            setIsUpdating(null); // Stop the loading spinner
         } else {
             // This 'else' block will now catch any case where the URL is not returned.
             const baseError = "Nu s-a putut iniția plata. Răspunsul de la server a fost:";
