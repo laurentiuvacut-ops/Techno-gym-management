@@ -7,14 +7,17 @@ import { cn } from "@/lib/utils";
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { doc } from "firebase/firestore";
-import { useMemo } from 'react';
+import { doc, updateDoc } from "firebase/firestore";
+import { useMemo, useState } from 'react';
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PlansPage() {
   const { user, loading } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
+  const [isUpdating, setIsUpdating] = useState<string | null>(null);
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
@@ -22,6 +25,42 @@ export default function PlansPage() {
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
+
+  const handleUpdateSubscription = async (plan: any) => {
+    if (!user || !firestore) {
+      toast({
+        variant: "destructive",
+        title: "Eroare",
+        description: "Trebuie să fii autentificat pentru a schimba planul.",
+      });
+      return;
+    }
+
+    setIsUpdating(plan.id);
+    const memberDocRef = doc(firestore, 'members', user.uid);
+
+    try {
+      await updateDoc(memberDocRef, {
+        subscriptionId: plan.id,
+        status: "Active",
+        daysRemaining: 30,
+      });
+
+      toast({
+        title: "Felicitări!",
+        description: `Abonamentul tău ${plan.title} este acum activ.`,
+      });
+    } catch (error) {
+      console.error("Error updating subscription:", error);
+      toast({
+        variant: "destructive",
+        title: "Eroare la actualizare",
+        description: "A apărut o problemă. Vă rugăm să încercați din nou.",
+      });
+    } finally {
+      setIsUpdating(null);
+    }
+  };
 
   if (loading || memberLoading) {
     return (
@@ -102,10 +141,15 @@ export default function PlansPage() {
 
               <div className="mt-8">
                 <Button 
+                  onClick={() => handleUpdateSubscription(plan)}
+                  disabled={isUpdating === plan.id}
                   className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")}
-                  disabled={isCurrent}
                 >
-                  {isCurrent ? "Abonament Activ" : plan.cta}
+                  {isUpdating === plan.id 
+                    ? 'Se activează...' 
+                    : isCurrent 
+                      ? 'Reînnoiește' 
+                      : plan.cta}
                 </Button>
               </div>
             </div>

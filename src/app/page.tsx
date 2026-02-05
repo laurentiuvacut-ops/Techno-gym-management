@@ -200,8 +200,8 @@ export default function LandingPage() {
                             </ul>
                         </CardContent>
                         <CardFooter className="pb-6">
-                             <Button className="w-full" variant={plan.id === 'pro' ? "secondary" : "default"}>
-                                {plan.cta}
+                             <Button asChild className="w-full" variant={plan.id === 'pro' ? "secondary" : "default"}>
+                                <Link href="/dashboard/plans">{plan.cta}</Link>
                             </Button>
                         </CardFooter>
                     </Card>
