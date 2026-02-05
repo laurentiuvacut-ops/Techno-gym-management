@@ -3,7 +3,7 @@
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
-import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, setDoc, collection, query, where, getDocs, getDoc } from "firebase/firestore";
 import { ArrowRight, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,7 @@ export default function DashboardHomePage() {
   const router = useRouter();
   const firestore = useFirestore();
 
-  const [migrationStatus, setMigrationStatus] = useState<'idle' | 'migrating' | 'done'>('idle');
+  const [migrationAttempted, setMigrationAttempted] = useState(false);
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
@@ -33,40 +33,47 @@ export default function DashboardHomePage() {
     }
   }, [user, userLoading, router]);
 
+  // This effect handles the one-time migration check for legacy accounts.
   useEffect(() => {
     const attemptMigration = async () => {
-      if (user && firestore && !memberData && !memberLoading && migrationStatus === 'idle') {
-        setMigrationStatus('migrating');
+      // Run only once per session after user and firestore are available.
+      if (user && firestore && !migrationAttempted) {
+        setMigrationAttempted(true); // Mark that we are attempting migration.
+
         const userPhoneNumber = user.phoneNumber;
         if (!userPhoneNumber) {
-          setMigrationStatus('done');
-          return;
+          return; // No phone number, cannot migrate.
         }
 
+        // Search for a legacy profile with the same phone number.
         const phoneVariants = [userPhoneNumber, userPhoneNumber.substring(3), `0${userPhoneNumber.substring(3)}`];
         const q = query(collection(firestore, 'members'), where("phone", "in", phoneVariants));
         const querySnapshot = await getDocs(q);
+        const legacyDocSnap = querySnapshot.docs.find(d => d.id !== user.uid);
 
-        let legacyDoc = querySnapshot.docs.find(d => d.id !== user.uid);
+        if (legacyDocSnap) {
+          // Legacy profile found. Now, check the user's current profile state.
+          const currentUserDocRef = doc(firestore, 'members', user.uid);
+          const currentUserDocSnap = await getDoc(currentUserDocRef);
 
-        if (legacyDoc) {
-          await setDoc(doc(firestore, 'members', user.uid), {
-            ...legacyDoc.data(),
-            id: user.uid,
-            phone: userPhoneNumber,
-            qrCode: userPhoneNumber,
-          });
+          // IMPORTANT: Only copy legacy data if the user does NOT have an active subscription.
+          // This prevents overwriting a valid, paid membership with old data.
+          if (!currentUserDocSnap.exists() || (currentUserDocSnap.data().daysRemaining || 0) <= 0) {
+            await setDoc(currentUserDocRef, {
+              ...legacyDocSnap.data(), // Copy data from the old profile
+              id: user.uid, // Overwrite with the correct new UID
+              phone: userPhoneNumber, // Ensure phone is the new E.164 format
+              qrCode: userPhoneNumber, // Update QR code to the new standard
+            });
+          }
         }
-        setMigrationStatus('done');
-      } else if (migrationStatus === 'idle' && !memberLoading) {
-        setMigrationStatus('done');
       }
     };
     attemptMigration();
-  }, [user, firestore, memberData, memberLoading, migrationStatus]);
+  }, [user, firestore, migrationAttempted]);
 
 
-  const loading = userLoading || memberLoading || migrationStatus !== 'done';
+  const loading = userLoading || memberLoading || !migrationAttempted;
 
   useEffect(() => {
     if (!loading && user && !memberData) {
