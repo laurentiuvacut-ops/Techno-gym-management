@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export default function WorkoutsPage() {
   const { user, loading } = useUser();
@@ -27,7 +29,13 @@ export default function WorkoutsPage() {
   }
   
   return (
-    <div className="space-y-8">
+    <div className="container py-8 space-y-8">
+      <Button asChild variant="outline" className="w-fit">
+          <Link href="/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Înapoi la Panou
+          </Link>
+      </Button>
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
           Workout Library

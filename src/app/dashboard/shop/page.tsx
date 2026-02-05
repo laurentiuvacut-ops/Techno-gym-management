@@ -1,8 +1,10 @@
 'use client';
 import { shopItems } from "@/lib/data";
 import { motion } from "framer-motion";
-import { Package, Droplet, Zap, Dna, Shirt, ShoppingBag } from "lucide-react";
+import { Package, Droplet, Zap, Dna, Shirt, ShoppingBag, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const productIcons: { [key: string]: React.FC<any> } = {
   "Protein Whey 2kg": Package,
@@ -21,6 +23,12 @@ export default function ShopPage() {
       transition={{ duration: 0.4 }}
       className="space-y-8"
     >
+      <Button asChild variant="outline" className="w-fit">
+          <Link href="/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Înapoi la Panou
+          </Link>
+      </Button>
       <div className="space-y-1">
         <h1 className="text-4xl font-headline tracking-wider flex items-center gap-3">
           <ShoppingBag className="w-8 h-8" />

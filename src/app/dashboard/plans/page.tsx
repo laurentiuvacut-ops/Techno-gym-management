@@ -2,13 +2,14 @@
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star } from "lucide-react";
+import { Check, Star, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { doc } from "firebase/firestore";
 import { useMemo } from 'react';
+import Link from "next/link";
 
 export default function PlansPage() {
   const { user, loading } = useUser();
@@ -44,6 +45,12 @@ export default function PlansPage() {
       transition={{ duration: 0.4 }}
       className="space-y-8"
     >
+      <Button asChild variant="outline" className="w-fit">
+          <Link href="/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Înapoi la Panou
+          </Link>
+      </Button>
       <div className="space-y-1 text-center">
         <h1 className="text-4xl font-headline tracking-wider">Abonamente</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">Alege planul care ți se potrivește. Poți anula sau schimba oricând.</p>

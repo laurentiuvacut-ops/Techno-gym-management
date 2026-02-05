@@ -7,8 +7,9 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Shield, CheckCircle } from 'lucide-react';
+import { Shield, CheckCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 export default function FeedbackPage() {
   const { user } = useUser();
@@ -54,6 +55,12 @@ export default function FeedbackPage() {
       transition={{ duration: 0.4 }}
       className="max-w-2xl mx-auto space-y-8"
     >
+      <Button asChild variant="outline" className="w-fit">
+          <Link href="/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Înapoi la Panou
+          </Link>
+      </Button>
       <div className="space-y-1 text-center">
         <h1 className="text-4xl font-headline tracking-wider">Feedback</h1>
         <p className="text-muted-foreground">Opinia ta este importantă pentru noi.</p>

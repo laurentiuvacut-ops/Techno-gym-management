@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getAuth, signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function ProfilePage() {
     const { user, loading: userLoading } = useUser();
@@ -54,8 +56,14 @@ export default function ProfilePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="max-w-md mx-auto"
+            className="max-w-md mx-auto space-y-8"
         >
+            <Button asChild variant="outline" className="w-fit">
+                <Link href="/dashboard">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Înapoi la Panou
+                </Link>
+            </Button>
             <Card className="glass rounded-3xl">
                 <CardHeader className="items-center text-center">
                     <Avatar className="w-24 h-24 border-4 border-primary/50">
