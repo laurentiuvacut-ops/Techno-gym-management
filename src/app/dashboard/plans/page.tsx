@@ -116,6 +116,8 @@ function PlansComponent() {
             
             if (stripeError && stripeError.includes('No such price')) {
                 description = `Eroare de la Stripe: "No such price: ${plan.stripePriceId}". Aceasta este o problemă de configurare. Cauze posibile:\n\n1. (Cel mai frecvent) Folosiți o cheie de API (sk_test_...) dintr-un mod (Test) și un ID de preț (price_...) din alt mod (Live). Cheile și ID-urile trebuie să fie din același mod.\n\n2. ID-ul de preț a fost copiat greșit sau este pentru un alt cont Stripe.\n\n3. Prețul nu este 'activ' în Stripe.\n\nVă rugăm să verificați că ID-urile din pagina de Debug se potrivesc cu cele din contul Stripe (modul Test).`;
+            } else if (stripeError && stripeError.includes('recurring price in subscription mode')) {
+                description = `Eroare de configurare a prețului în Stripe. Prețul cu ID-ul "${plan.stripePriceId}" nu este configurat ca unul recurent (subscription).\n\n**Soluție:**\n1. În contul Stripe, mergeți la produsul corespunzător.\n2. Asigurați-vă că modelul de preț (Pricing model) este setat pe **"Recurring"** (Recurent).\n3. Dacă ați creat prețul ca "One-time" (O singură plată), va trebui să îl arhivați și să creați unul nou, de tip "Recurring", pentru același produs. Apoi copiați noul ID de preț în fișierul \`src/lib/data.ts\`.`;
             }
 
             toast({
