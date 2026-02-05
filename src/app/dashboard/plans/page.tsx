@@ -32,35 +32,59 @@ export default function PlansPage() {
     }
   }, [user, loading, router]);
 
-  const handleUpdateSubscription = async (plan: any) => {
+  const handlePurchase = async (plan: any) => {
     if (!user || !firestore) {
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "Trebuie să fii autentificat pentru a schimba planul.",
+        description: "Trebuie să fii autentificat pentru a efectua o plată.",
       });
       return;
     }
 
     setIsUpdating(plan.id);
+
+    // --- Integrare Stripe (Simulare) ---
+    // Într-o aplicație reală, aici ați apela un endpoint de pe backend
+    // pentru a crea o sesiune de checkout Stripe.
+    //
+    // Exemplu:
+    // const response = await fetch('/api/create-checkout-session', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ priceId: plan.stripePriceId, userId: user.uid })
+    // });
+    // const { url } = await response.json();
+    // window.location.href = url;
+    //
+    // Backend-ul ar crea sesiunea și ar asculta evenimente (webhooks) de la Stripe
+    // pentru a confirma plata și a actualiza abonamentul în mod sigur.
+    //
+    // Deoarece nu putem implementa un backend aici, simulăm o plată reușită
+    // și actualizăm direct abonamentul.
+    // ACEASTA NU ESTE O PRACTICĂ SIGURĂ PENTRU PRODUCȚIE.
+    
     const memberDocRef = doc(firestore, 'members', user.uid);
 
     try {
+      // Simulating a short delay for payment processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
       await updateDoc(memberDocRef, {
         subscriptionId: plan.id,
         status: "Active",
-        daysRemaining: 30,
+        daysRemaining: 30, // Or calculate based on plan
       });
 
       toast({
-        title: "Felicitări!",
-        description: `Abonamentul tău ${plan.title} este acum activ.`,
+        title: "Plată reușită!",
+        description: `Abonamentul tău ${plan.title} a fost activat.`,
       });
     } catch (error) {
-      console.error("Error updating subscription:", error);
+      console.error("Error updating subscription after simulated payment:", error);
       toast({
         variant: "destructive",
-        title: "Eroare la actualizare",
+        title: "Eroare la procesarea plății",
         description: "A apărut o problemă. Vă rugăm să încercați din nou.",
       });
     } finally {
@@ -142,12 +166,12 @@ export default function PlansPage() {
 
               <div className="mt-8">
                 <Button 
-                  onClick={() => handleUpdateSubscription(plan)}
+                  onClick={() => handlePurchase(plan)}
                   disabled={isUpdating === plan.id}
                   className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")}
                 >
                   {isUpdating === plan.id 
-                    ? 'Se activează...' 
+                    ? 'Se procesează...' 
                     : isCurrent 
                       ? 'Reînnoiește' 
                       : plan.cta}

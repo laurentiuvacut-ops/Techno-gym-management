@@ -25,7 +25,8 @@ export const subscriptions = [
       "Acces la aparate și greutăți",
       "Vestiar cu dușuri inclus",
     ],
-    cta: "Alege Classic",
+    cta: "Cumpără Acum",
+    stripePriceId: "price_placeholder_classic",
   },
   {
     id: "pro",
@@ -38,8 +39,9 @@ export const subscriptions = [
       "Acces la clasele de grup",
       "O sesiune gratuită cu antrenor",
     ],
-    cta: "Alege Pro",
+    cta: "Cumpără Acum",
     popular: true,
+    stripePriceId: "price_placeholder_pro",
   },
   {
     id: "student",
@@ -52,7 +54,8 @@ export const subscriptions = [
       "Toate beneficiile Pro",
       "Reducere 10% la magazin",
     ],
-    cta: "Alege Elev",
+    cta: "Cumpără Acum",
+    stripePriceId: "price_placeholder_student",
   },
   {
     id: "nonstop",
@@ -65,7 +68,8 @@ export const subscriptions = [
       "Toate beneficiile Pro",
       "Invitați un prieten în weekend",
     ],
-    cta: "Alege Non-Stop",
+    cta: "Cumpără Acum",
+    stripePriceId: "price_placeholder_nonstop",
   },
 ];
 
