@@ -23,12 +23,13 @@ export const subscriptions = [
     price: "120 RON",
     description: "Acces în intervalul 08:00 - 16:00",
     period: "/lună",
+    durationDays: 30,
     benefits: [
       "Acces la aparate și greutăți",
       "Vestiar cu dușuri inclus",
     ],
     cta: "Cumpără Acum",
-    stripePriceId: "price_classic_placeholder", // Replace with your actual price ID from Stripe
+    stripePriceId: "price_1P6iFjJgCj6yZkH4n8o7yB3a", // Replace with your actual price ID from Stripe
   },
   {
     id: "pro",
@@ -36,6 +37,7 @@ export const subscriptions = [
     price: "150 RON",
     description: "Acces în intervalul 08:00 - 22:00",
     period: "/lună",
+    durationDays: 30,
     benefits: [
       "Toate beneficiile Classic",
       "Acces la clasele de grup",
@@ -43,7 +45,7 @@ export const subscriptions = [
     ],
     cta: "Cumpără Acum",
     popular: true,
-    stripePriceId: "price_pro_placeholder", // Replace with your actual price ID from Stripe
+    stripePriceId: "price_1P6iGrJgCj6yZkH4nO3jF8l9", // Replace with your actual price ID from Stripe
   },
   {
     id: "student",
@@ -51,13 +53,14 @@ export const subscriptions = [
     price: "130 RON",
     description: "Valabil cu carnet de elev/student",
     period: "/lună",
+    durationDays: 30,
     benefits: [
       "Acces în intervalul 08:00 - 22:00",
       "Toate beneficiile Pro",
       "Reducere 10% la magazin",
     ],
     cta: "Cumpără Acum",
-    stripePriceId: "price_student_placeholder", // Replace with your actual price ID from Stripe
+    stripePriceId: "price_1P6iHhJgCj6yZkH4f6bA0j7k", // Replace with your actual price ID from Stripe
   },
   {
     id: "nonstop",
@@ -65,13 +68,14 @@ export const subscriptions = [
     price: "170 RON",
     description: "Acces 24/7 nelimitat",
     period: "/lună",
+    durationDays: 30,
     benefits: [
       "Acces nelimitat 24/7",
       "Toate beneficiile Pro",
       "Invitați un prieten în weekend",
     ],
     cta: "Cumpără Acum",
-    stripePriceId: "price_nonstop_placeholder", // Replace with your actual price ID from Stripe
+    stripePriceId: "price_1P6iIiJgCj6yZkH4gK1s2l4p", // Replace with your actual price ID from Stripe
   },
 ];
 

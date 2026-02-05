@@ -13,6 +13,7 @@ const CreateCheckoutSessionInputSchema = z.object({
   priceId: z.string().describe('The ID of the Stripe Price object.'),
   userId: z.string().describe('The ID of the user initiating the purchase.'),
   baseUrl: z.string().describe('The base URL of the application for success/cancel redirects.'),
+  planId: z.string().describe('The ID of the subscription plan from the app.'),
 });
 export type CreateCheckoutSessionInput = z.infer<typeof CreateCheckoutSessionInputSchema>;
 
@@ -29,7 +30,7 @@ const createCheckoutSessionFlow = ai.defineFlow(
     inputSchema: CreateCheckoutSessionInputSchema,
     outputSchema: z.object({ url: z.string().nullable() }),
   },
-  async ({ priceId, userId, baseUrl }) => {
+  async ({ priceId, userId, baseUrl, planId }) => {
     try {
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -40,7 +41,7 @@ const createCheckoutSessionFlow = ai.defineFlow(
           },
         ],
         mode: 'subscription', // Use 'payment' for one-time purchases
-        success_url: `${baseUrl}/dashboard/plans?payment_success=true&session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${baseUrl}/dashboard/plans?payment_success=true&session_id={CHECKOUT_SESSION_ID}&plan_id=${planId}`,
         cancel_url: `${baseUrl}/dashboard/plans`,
         client_reference_id: userId, // Link the session to the user for webhook reconciliation
       });

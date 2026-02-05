@@ -37,24 +37,27 @@ function PlansComponent() {
   // Handle successful payment redirect from Stripe
   useEffect(() => {
     const handleSuccessfulPayment = async () => {
-        // Check if the URL contains the success parameter from Stripe
-        if (searchParams.get('payment_success') === 'true' && user && firestore) {
+        const planId = searchParams.get('plan_id');
+        // Check if the URL contains the success parameter and plan_id from Stripe
+        if (searchParams.get('payment_success') === 'true' && user && firestore && planId) {
             
             // NOTE: In a production app, you would verify the session_id with your backend.
-            // For this prototype, we'll optimistically update the user's status.
-            // This is not secure for production as a user could manually visit this URL.
-            // A secure implementation requires a backend webhook to receive events from Stripe
-            // and update the database safely.
+            // For this prototype, we optimistically update the user's status.
             
-            // Find the most likely plan (e.g., "Pro") to apply the subscription benefits.
-            const purchasedPlan = subscriptions.find(s => s.popular) || subscriptions[1];
+            const purchasedPlan = subscriptions.find(s => s.id === planId);
 
             if (purchasedPlan) {
                 const memberDocRef = doc(firestore, 'members', user.uid);
+                
+                // Add purchased days to existing days, or set them if expired
+                const currentDaysRemaining = memberData?.daysRemaining || 0;
+                const daysToAdd = (purchasedPlan as any).durationDays || 30;
+                const newDaysRemaining = (currentDaysRemaining > 0 ? currentDaysRemaining : 0) + daysToAdd;
+
                 await updateDoc(memberDocRef, {
                     subscriptionId: purchasedPlan.id,
                     status: "Active",
-                    daysRemaining: 30, // Or calculate based on the specific plan
+                    daysRemaining: newDaysRemaining,
                 });
 
                 toast({
@@ -68,10 +71,12 @@ function PlansComponent() {
         }
     };
     
-    // Run this effect only when the component mounts and dependencies change.
-    handleSuccessfulPayment();
+    // Run this effect only when the user and member data are loaded to avoid race conditions.
+    if(!userLoading && !memberLoading) {
+      handleSuccessfulPayment();
+    }
 
-  }, [searchParams, user, firestore, router, toast]);
+  }, [searchParams, user, firestore, router, toast, memberData, userLoading, memberLoading]);
 
   const handlePurchase = async (plan: any) => {
     if (!user) {
@@ -99,7 +104,8 @@ function PlansComponent() {
         const { url } = await createCheckoutSession({
             priceId: plan.stripePriceId,
             userId: user.uid,
-            baseUrl: baseUrl
+            baseUrl: baseUrl,
+            planId: plan.id, // Pass the plan id to the flow
         });
 
         if (url) {
