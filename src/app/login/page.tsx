@@ -67,21 +67,18 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error("Firebase signInWithPhoneNumber Error:", err);
             
-            if ((err.code && err.code.includes('auth/')) || (err.message && err.message.includes('requests-from-referer'))) {
+            if (err.code === 'auth/requests-from-referer' || (err.message && err.message.includes('are-blocked'))) {
                  setError(
                     <>
-                        <p className="font-bold">Problemă de Configurare reCAPTCHA.</p>
-                        <p className="mt-2">Această eroare apare cel mai des când setările nu s-au aplicat cheii reCAPTCHA corecte.</p>
-                        <p className="mt-2 font-semibold">Verificați cheia corectă în Google Cloud:</p>
-                        <ol className="list-decimal list-inside mt-1 space-y-1 text-sm">
-                            <li>În <span className="font-bold">Consola Firebase &gt; Authentication &gt; Sign-in method</span>, găsiți provider-ul <span className="font-bold">Phone</span>.</li>
-                            <li>Sub &quot;reCAPTCHA keys&quot;, veți vedea ce cheie este folosită (ex: `reCAPTCHA v2`).</li>
-                            <li>Mergeți în <span className="font-bold">Consola Google Cloud &gt; APIs & Services &gt; Credentials</span> și editați <span className="font-bold">exact acea cheie</span>.</li>
-                            <li>Asigurați-vă că <strong>ambele</strong> domenii (`technogymcraiova.com` și cel de test) sunt în lista de restricții a acelei chei.</li>
-                        </ol>
-                        <p className="mt-2 text-xs">Modificările pot dura câteva minute pentru a se propaga.</p>
+                        <p className="font-bold">Domeniul de pe care rulați aplicația nu este autorizat.</p>
+                        <p className="mt-2 text-sm">Aceasta este o setare de securitate a proiectului dumneavoastră Google Cloud, nu o eroare în codul aplicației, și de aceea nu o pot rezolva eu.</p>
+                        <p className="mt-2 text-sm">Vă rugăm să urmați din nou pașii pe care vi i-am oferit anterior pentru a adăuga domeniul de test în setările cheii reCAPTCHA corecte.</p>
                     </>
                  );
+            } else if (err.code === 'auth/invalid-phone-number') {
+                setError("Numărul de telefon introdus nu este valid.");
+            } else if (err.code === 'auth/too-many-requests') {
+                 setError("Prea multe încercări. Vă rugăm să încercați mai târziu.");
             } else {
                 const errorMessage = err.message || 'A apărut o eroare neașteptată.';
                 setError(`Eroare: ${errorMessage}`);
