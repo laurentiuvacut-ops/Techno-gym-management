@@ -1,4 +1,4 @@
-import type {Metadata} from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Bebas_Neue } from 'next/font/google'
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   icons: {
     apple: 'https://i.imgur.com/9W1ye1w.png',
   },
+};
+
+export const viewport: Viewport = {
   themeColor: '#09090b',
 };
 
