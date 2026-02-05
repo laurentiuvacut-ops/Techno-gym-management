@@ -12,6 +12,16 @@ import Image from 'next/image';
 import { addDays, format } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 
 export default function DashboardHomePage() {
@@ -20,7 +30,6 @@ export default function DashboardHomePage() {
   const firestore = useFirestore();
 
   const [migrationAttempted, setMigrationAttempted] = useState(false);
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
@@ -74,39 +83,6 @@ export default function DashboardHomePage() {
     attemptMigration();
   }, [user, firestore, migrationAttempted]);
 
-  // PWA install prompt handler
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-        console.log('PWA: `beforeinstallprompt` event a fost declanșat.');
-        // Prevent the mini-infobar from appearing on mobile
-        e.preventDefault();
-        // Stash the event so it can be triggered later.
-        setInstallPrompt(e);
-    };
-    
-    console.log('PWA: Se adaugă listener pentru `beforeinstallprompt`.');
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-        console.log('PWA: Se elimină listener pentru `beforeinstallprompt`.');
-        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, []);
-
-  const handleInstallClick = async () => {
-      if (!installPrompt) {
-          return;
-      }
-      // Show the install prompt
-      await installPrompt.prompt();
-      // Wait for the user to respond to the prompt
-      const { outcome } = await installPrompt.userChoice;
-      // Optionally, send analytics event with outcome of user choice
-      console.log(`User response to the install prompt: ${outcome}`);
-      // We've used the prompt, and can't use it again, so clear it.
-      setInstallPrompt(null);
-  };
-
 
   const loading = userLoading || memberLoading || !migrationAttempted;
 
@@ -145,12 +121,40 @@ export default function DashboardHomePage() {
           <h1 className="text-4xl font-headline tracking-wider">Bine ai venit, {displayName}!</h1>
           <p className="text-muted-foreground">Iată un sumar al contului tău.</p>
         </div>
-        {installPrompt && (
-          <Button onClick={handleInstallClick} className="bg-gradient-primary text-primary-foreground">
-            <Download className="mr-2 h-4 w-4" />
-            Instalează Aplicația
-          </Button>
-        )}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+              <Button className="bg-gradient-primary text-primary-foreground">
+                <Download className="mr-2 h-4 w-4" />
+                Instalează Aplicația
+              </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Instalează pe Ecranul Principal</AlertDialogTitle>
+              <AlertDialogDescription className="space-y-4 text-left pt-4">
+                <div>
+                  <h3 className="font-bold text-foreground">Pentru iPhone & iPad:</h3>
+                  <ol className="list-decimal list-inside text-muted-foreground text-sm space-y-1 mt-1">
+                    <li>Apasă pe butonul <strong>Partajare</strong> (iconița cu un pătrat și o săgeată în sus) din bara de jos a browserului Safari.</li>
+                    <li>Derulează în jos și selectează <strong>"Adaugă pe ecranul principal"</strong>.</li>
+                    <li>Confirmă apăsând <strong>"Adaugă"</strong>.</li>
+                  </ol>
+                </div>
+                <div>
+                    <h3 className="font-bold text-foreground">Pentru Android & Desktop (Chrome):</h3>
+                    <ol className="list-decimal list-inside text-muted-foreground text-sm space-y-1 mt-1">
+                        <li>Apasă pe meniul cu trei puncte (<strong>⋮</strong>) din colțul dreapta-sus al browserului.</li>
+                        <li>Selectează <strong>"Instalează aplicația"</strong> sau <strong>"Adaugă la ecranul de pornire"</strong>.</li>
+                        <li>Urmează instrucțiunile de pe ecran.</li>
+                    </ol>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction>Am înțeles</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8">
