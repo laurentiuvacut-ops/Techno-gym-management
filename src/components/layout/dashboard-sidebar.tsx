@@ -15,6 +15,7 @@ import {
   LogOut,
   MessageSquare,
   ShoppingBag,
+  Dumbbell,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -26,6 +27,7 @@ const navItems = [
   { href: '/dashboard', label: 'Acasă', icon: Home },
   { href: '/dashboard/shop', label: 'Shop & Stoc', icon: ShoppingBag },
   { href: '/dashboard/plans', label: 'Abonamente', icon: Award },
+  { href: '/workouts', label: 'Antrenamente', icon: Dumbbell },
   { href: '/dashboard/feedback', label: 'Feedback', icon: MessageSquare },
 ];
 
