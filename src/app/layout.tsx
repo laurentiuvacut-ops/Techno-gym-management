@@ -19,7 +19,6 @@ const bebas_neue = Bebas_Neue({
 export const metadata: Metadata = {
   title: 'Techno Gym',
   description: 'Your futuristic gym companion.',
-  manifest: '/manifest.json',
   icons: {
     apple: 'https://i.imgur.com/9W1ye1w.png',
   },

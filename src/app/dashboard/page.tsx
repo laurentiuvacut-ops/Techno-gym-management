@@ -4,13 +4,14 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import { doc, setDoc, collection, query, where, getDocs, getDoc } from "firebase/firestore";
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
 import { addDays, format } from 'date-fns';
 import { subscriptions } from '@/lib/data';
+import { Button } from '@/components/ui/button';
 
 
 export default function DashboardHomePage() {
@@ -19,6 +20,7 @@ export default function DashboardHomePage() {
   const firestore = useFirestore();
 
   const [migrationAttempted, setMigrationAttempted] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
@@ -72,6 +74,36 @@ export default function DashboardHomePage() {
     attemptMigration();
   }, [user, firestore, migrationAttempted]);
 
+  // PWA install prompt handler
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+        // Prevent the mini-infobar from appearing on mobile
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        setInstallPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+      if (!installPrompt) {
+          return;
+      }
+      // Show the install prompt
+      await installPrompt.prompt();
+      // Wait for the user to respond to the prompt
+      const { outcome } = await installPrompt.userChoice;
+      // Optionally, send analytics event with outcome of user choice
+      console.log(`User response to the install prompt: ${outcome}`);
+      // We've used the prompt, and can't use it again, so clear it.
+      setInstallPrompt(null);
+  };
+
 
   const loading = userLoading || memberLoading || !migrationAttempted;
 
@@ -105,9 +137,17 @@ export default function DashboardHomePage() {
       transition={{ duration: 0.4 }}
       className="space-y-8"
     >
-      <div>
-        <h1 className="text-4xl font-headline tracking-wider">Bine ai venit, {displayName}!</h1>
-        <p className="text-muted-foreground">Iată un sumar al contului tău.</p>
+      <div className="flex justify-between items-center flex-wrap gap-4">
+        <div>
+          <h1 className="text-4xl font-headline tracking-wider">Bine ai venit, {displayName}!</h1>
+          <p className="text-muted-foreground">Iată un sumar al contului tău.</p>
+        </div>
+        {installPrompt && (
+          <Button onClick={handleInstallClick} className="bg-gradient-primary text-primary-foreground">
+            <Download className="mr-2 h-4 w-4" />
+            Instalează Aplicația
+          </Button>
+        )}
       </div>
 
       <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8">
