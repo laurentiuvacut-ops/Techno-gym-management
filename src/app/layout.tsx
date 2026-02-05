@@ -37,7 +37,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`dark ${inter.variable} ${bebas_neue.variable}`}>
-      <head/>
       <body className="antialiased">
         <FirebaseClientProvider>
           {children}
