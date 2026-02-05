@@ -2,7 +2,7 @@
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, ArrowLeft } from "lucide-react";
+import { Check, Star, ArrowLeft, LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -19,6 +19,7 @@ function PlansComponent() {
   const router = useRouter();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const searchParams = useSearchParams();
 
   const memberDocRef = useMemo(() => {
@@ -79,6 +80,7 @@ function PlansComponent() {
   }, [searchParams, user, firestore, router, toast, memberData, userLoading, memberLoading]);
 
   const handlePurchase = async (plan: any) => {
+    setCheckoutUrl(null);
     if (!user) {
       toast({
         variant: "destructive",
@@ -101,7 +103,7 @@ function PlansComponent() {
         });
 
         if (url) {
-            window.location.href = url; // Redirect to Stripe
+            setCheckoutUrl(url);
         } else {
             toast({
                 variant: "destructive",
@@ -157,6 +159,7 @@ function PlansComponent() {
           const isCurrent = plan.id === currentPlanId;
           const isPopular = plan.popular;
           const isFeatured = isCurrent || isPopular;
+          const isProcessingThisPlan = isUpdating === plan.id;
 
           return (
             <div
@@ -197,17 +200,26 @@ function PlansComponent() {
               </div>
 
               <div className="mt-8">
-                <Button 
-                  onClick={() => handlePurchase(plan)}
-                  disabled={isUpdating === plan.id}
-                  className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")}
-                >
-                  {isUpdating === plan.id 
-                    ? 'Se procesează...' 
-                    : isCurrent 
-                      ? 'Reînnoiește' 
-                      : plan.cta}
-                </Button>
+                {isProcessingThisPlan && checkoutUrl ? (
+                  <Button asChild className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "")}>
+                    <a href={checkoutUrl}>
+                      <LinkIcon className="mr-2 h-4 w-4" />
+                      Finalizează Plata
+                    </a>
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => handlePurchase(plan)}
+                    disabled={isProcessingThisPlan}
+                    className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")}
+                  >
+                    {isProcessingThisPlan 
+                      ? 'Se procesează...' 
+                      : isCurrent 
+                        ? 'Reînnoiește' 
+                        : plan.cta}
+                  </Button>
+                )}
               </div>
             </div>
           );
