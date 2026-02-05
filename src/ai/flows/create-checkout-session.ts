@@ -10,10 +10,11 @@ import { z } from 'genkit';
 import Stripe from 'stripe';
 
 const CreateCheckoutSessionInputSchema = z.object({
-  priceId: z.string().describe('The ID of the Stripe Price object.'),
   userId: z.string().describe('The ID of the user initiating the purchase.'),
   baseUrl: z.string().describe('The base URL of the application for success/cancel redirects.'),
   planId: z.string().describe('The ID of the subscription plan from the app.'),
+  planTitle: z.string().describe('The title of the subscription plan.'),
+  planPrice: z.string().describe('The price string of the plan (e.g., "150 RON").'),
 });
 export type CreateCheckoutSessionInput = z.infer<typeof CreateCheckoutSessionInputSchema>;
 
@@ -23,7 +24,7 @@ const createCheckoutSessionFlow = ai.defineFlow(
     inputSchema: CreateCheckoutSessionInputSchema,
     outputSchema: z.object({ url: z.string().nullable(), error: z.string().nullable() }),
   },
-  async ({ priceId, userId, baseUrl, planId }) => {
+  async ({ userId, baseUrl, planId, planTitle, planPrice }) => {
     // Explicitly check if the Stripe secret key is loaded.
     if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'INLOCUITI_CU_CHEIA_SECRETA_DE_LA_STRIPE') {
       const errorMessage = 'Cheia secretă Stripe (STRIPE_SECRET_KEY) nu este setată. Asigurați-vă că ați creat fișierul .env.local și ați repornit serverul.';
@@ -37,11 +38,23 @@ const createCheckoutSessionFlow = ai.defineFlow(
           typescript: true,
       });
 
+      // Parse amount from price string (e.g., "150 RON") to smallest currency unit (bani)
+      const amount = parseInt(planPrice.split(' ')[0]) * 100;
+      if (isNaN(amount)) {
+        return { url: null, error: `Formatul prețului "${planPrice}" este invalid.` };
+      }
+
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
           {
-            price: priceId,
+            price_data: {
+              currency: 'ron',
+              product_data: {
+                name: planTitle,
+              },
+              unit_amount: amount,
+            },
             quantity: 1,
           },
         ],

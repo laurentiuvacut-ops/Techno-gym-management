@@ -14,8 +14,8 @@ const getImage = (id: string): ImagePlaceholder => {
     return img;
 };
 
-// IMPORTANT: Replace these placeholder IDs with your actual Stripe Price IDs.
-// You can get these from your Stripe Dashboard after creating your products (under Products > "Your Product Name" > Pricing).
+// IMPORTANT: These prices and titles are sent directly to Stripe.
+// You can edit them here, and the changes will reflect on the checkout page.
 export const subscriptions = [
   {
     id: "classic",
@@ -29,7 +29,6 @@ export const subscriptions = [
       "Vestiar cu dușuri inclus",
     ],
     cta: "Cumpără Acum",
-    stripePriceId: "price_1SxZj1F49C4yG8P9iNnORgq4", // Replace with your actual price ID from Stripe
   },
   {
     id: "pro",
@@ -45,7 +44,6 @@ export const subscriptions = [
     ],
     cta: "Cumpără Acum",
     popular: true,
-    stripePriceId: "price_1SxZKBF49C4yG8P9iEqDespu", // Replace with your actual price ID from Stripe
   },
   {
     id: "student",
@@ -60,7 +58,6 @@ export const subscriptions = [
       "Reducere 10% la magazin",
     ],
     cta: "Cumpără Acum",
-    stripePriceId: "price_1SxZjaF49C4yG8P9dUIPidp0", // Replace with your actual price ID from Stripe
   },
   {
     id: "nonstop",
@@ -75,7 +72,6 @@ export const subscriptions = [
       "Invitați un prieten în weekend",
     ],
     cta: "Cumpără Acum",
-    stripePriceId: "price_1SxZkYF49C4yG8P9dJheBSeq", // Replace with your actual price ID from Stripe
   },
 ];
 

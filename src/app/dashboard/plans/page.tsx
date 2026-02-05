@@ -88,24 +88,16 @@ function PlansComponent() {
       return;
     }
 
-    if (!plan.stripePriceId || plan.stripePriceId.includes('placeholder')) {
-        toast({
-            variant: "destructive",
-            title: "Configurare incompletă",
-            description: "Acest plan nu este configurat pentru plată. Vă rugăm să adăugați ID-ul prețului din Stripe.",
-        });
-        return;
-    }
-
     setIsUpdating(plan.id);
 
     try {
         const baseUrl = window.location.origin;
         const { url, error: stripeError } = await createCheckoutSession({
-            priceId: plan.stripePriceId,
             userId: user.uid,
             baseUrl: baseUrl,
             planId: plan.id,
+            planTitle: plan.title,
+            planPrice: plan.price,
         });
 
         if (url) {
@@ -114,7 +106,7 @@ function PlansComponent() {
             // This 'else' block will now catch any case where the URL is not returned.
             const baseError = "Nu s-a putut iniția plata. Răspunsul de la server a fost:";
             const details = stripeError ? `\n\nEroare: "${stripeError}"` : "\n\nServerul nu a returnat un URL sau o eroare specifică.";
-            const finalDescription = `${baseError}${details}\n\nVerificați pagina de Debug Stripe pentru a confirma că cheia și ID-urile de preț sunt corecte și active.`;
+            const finalDescription = `${baseError}${details}\n\nVerificați pagina de Debug Stripe pentru a confirma că cheia secretă este corectă.`;
 
             toast({
               variant: "destructive",
