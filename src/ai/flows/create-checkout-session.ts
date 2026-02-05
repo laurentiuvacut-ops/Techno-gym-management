@@ -5,7 +5,6 @@
  * - createCheckoutSession - A function that creates and returns a Stripe Checkout session URL.
  * - CreateCheckoutSessionInput - The input type for the createCheckoutSession function.
  */
-import 'dotenv/config';
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import Stripe from 'stripe';
@@ -34,7 +33,7 @@ const createCheckoutSessionFlow = ai.defineFlow(
     
     try {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-          apiVersion: '2024-04-10',
+          apiVersion: '2024-06-20',
           typescript: true,
       });
 

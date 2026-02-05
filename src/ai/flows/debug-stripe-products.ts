@@ -3,7 +3,6 @@
  * @fileOverview A Genkit flow for advanced debugging of Stripe products and prices.
  * - debugStripeProducts - Compares products/prices in `data.ts` with the Stripe account.
  */
-import 'dotenv/config';
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import Stripe from 'stripe';
@@ -36,7 +35,7 @@ const debugStripeProductsFlow = ai.defineFlow(
 
     try {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-        apiVersion: '2024-04-10',
+        apiVersion: '2024-06-20',
         typescript: true,
       });
 

@@ -3,7 +3,6 @@
  * @fileOverview A Genkit flow for debugging Stripe configuration.
  * - getStripeConfigStatus - Checks if the Stripe secret key is set on the server.
  */
-import 'dotenv/config';
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
