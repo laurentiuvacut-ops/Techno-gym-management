@@ -41,6 +41,11 @@
         "subscriptionId": {
           "type": "string",
           "description": "Reference to Subscription. (Relationship: Member 1:1 Subscription)"
+        },
+        "agreedToTermsAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of when the member agreed to the terms and conditions."
         }
       },
       "required": [

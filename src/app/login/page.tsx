@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, getAdditionalUserInfo } from 'firebase/auth';
 import { useUser, useAuth } from '@/firebase';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -113,8 +113,14 @@ export default function LoginPage() {
         }
 
         try {
-            await confirmationResult.confirm(otp);
-            // On successful login, the useEffect on top will redirect to /dashboard
+            const userCredential = await confirmationResult.confirm(otp);
+            const additionalUserInfo = getAdditionalUserInfo(userCredential);
+
+            if (additionalUserInfo?.isNewUser) {
+                router.push('/register');
+            } else {
+                router.push('/dashboard');
+            }
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {

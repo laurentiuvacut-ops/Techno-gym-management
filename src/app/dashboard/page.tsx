@@ -10,56 +10,6 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { addDays, format } from 'date-fns';
 
-function OnboardingForm({ user, firestore }: { user: any, firestore: any }) {
-  const [name, setName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleCreateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    if (!user.phoneNumber) return;
-
-    setIsSubmitting(true);
-    const memberDocRef = doc(firestore, 'members', user.uid);
-    try {
-      await setDoc(memberDocRef, {
-        id: user.uid,
-        name: name,
-        email: null,
-        phone: user.phoneNumber,
-        photoURL: null,
-        qrCode: user.phoneNumber,
-        status: 'Expired',
-        daysRemaining: 0,
-        subscriptionId: null,
-      });
-    } catch (error) {
-      console.error("Error creating profile:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
-  // This form can be styled later if needed
-  return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <form onSubmit={handleCreateProfile} className="space-y-4 p-4 glass rounded-3xl">
-        <h2 className='text-2xl font-headline text-center'>Finalizează Profilul</h2>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Nume și Prenume"
-          className="w-full p-2 rounded-md bg-input text-foreground"
-          required
-        />
-        <button type="submit" className="w-full p-2 rounded-md bg-gradient-primary text-primary-foreground" disabled={isSubmitting}>
-          {isSubmitting ? 'Se salvează...' : 'Salvează Profilul'}
-        </button>
-      </form>
-    </div>
-  );
-}
-
 
 export default function DashboardHomePage() {
   const { user, loading: userLoading } = useUser();
@@ -106,6 +56,8 @@ export default function DashboardHomePage() {
           });
         }
         setMigrationStatus('done');
+      } else if (migrationStatus === 'idle' && !memberLoading) {
+        setMigrationStatus('done');
       }
     };
     attemptMigration();
@@ -114,16 +66,18 @@ export default function DashboardHomePage() {
 
   const loading = userLoading || memberLoading || migrationStatus !== 'done';
 
-  if (loading) {
+  useEffect(() => {
+    if (!loading && user && !memberData) {
+        router.push('/register');
+    }
+  }, [loading, user, memberData, router]);
+
+  if (loading || !memberData) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
-  }
-
-  if (!memberData) {
-    return <OnboardingForm user={user} firestore={firestore} />;
   }
 
   const expirationDate = format(addDays(new Date(), memberData.daysRemaining), 'dd MMM yyyy');
