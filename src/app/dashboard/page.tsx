@@ -60,7 +60,7 @@ export default function DashboardHomePage() {
 
           // IMPORTANT: Only copy legacy data if the user does NOT have an active subscription.
           // This prevents overwriting a valid, paid membership with old data.
-          if (!currentUserDocSnap.exists() || (currentUserDocSnap.data().daysRemaining || 0) <= 0) {
+          if (!currentUserDocSnap.exists() || (currentUserDocSnap.data()?.daysRemaining || 0) <= 0) {
             await setDoc(currentUserDocRef, {
               ...legacyDocSnap.data(), // Copy data from the old profile
               id: user.uid, // Overwrite with the correct new UID
@@ -77,15 +77,18 @@ export default function DashboardHomePage() {
   // PWA install prompt handler
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
+        console.log('PWA: `beforeinstallprompt` event a fost declanșat.');
         // Prevent the mini-infobar from appearing on mobile
         e.preventDefault();
         // Stash the event so it can be triggered later.
         setInstallPrompt(e);
     };
-
+    
+    console.log('PWA: Se adaugă listener pentru `beforeinstallprompt`.');
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     return () => {
+        console.log('PWA: Se elimină listener pentru `beforeinstallprompt`.');
         window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, []);
