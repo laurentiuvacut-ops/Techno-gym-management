@@ -4,10 +4,11 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { ArrowRight, Clock, QrCode } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import Image from 'next/image';
 import { addDays, format } from 'date-fns';
 
 
@@ -118,9 +119,21 @@ export default function DashboardHomePage() {
 
         {/* QR Code */}
         <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4">
-          <div className="border-2 border-dashed border-border p-4 rounded-xl">
-             <QrCode className="w-24 h-24 text-muted-foreground" />
-          </div>
+            <div className="p-2 bg-white rounded-xl">
+                {memberData.qrCode ? (
+                    <Image
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${memberData.qrCode}&bgcolor=255-255-255`}
+                        alt="QR Code pentru acces"
+                        width={128}
+                        height={128}
+                        className="rounded-md"
+                    />
+                ) : (
+                    <div className="w-32 h-32 bg-muted rounded-md flex items-center justify-center">
+                        <p className="text-xs text-muted-foreground">QR indisponibil</p>
+                    </div>
+                )}
+            </div>
           <h3 className="font-bold">Scanează pentru acces</h3>
           <p className="text-sm text-muted-foreground">Prezintă acest cod la recepție pentru a intra în sală.</p>
         </div>
