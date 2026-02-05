@@ -8,7 +8,7 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { doc, updateDoc } from "firebase/firestore";
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,6 +25,12 @@ export default function PlansPage() {
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
 
   const handleUpdateSubscription = async (plan: any) => {
     if (!user || !firestore) {
@@ -62,17 +68,12 @@ export default function PlansPage() {
     }
   };
 
-  if (loading || memberLoading) {
+  if (loading || memberLoading || !user) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
-  }
-
-  if (!user) {
-    router.push('/login');
-    return null;
   }
 
   const currentPlanId = memberData?.subscriptionId;
