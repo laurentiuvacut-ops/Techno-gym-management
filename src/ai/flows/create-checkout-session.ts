@@ -28,7 +28,7 @@ const createCheckoutSessionFlow = ai.defineFlow(
   {
     name: 'createCheckoutSessionFlow',
     inputSchema: CreateCheckoutSessionInputSchema,
-    outputSchema: z.object({ url: z.string().nullable() }),
+    outputSchema: z.object({ url: z.string().nullable(), error: z.string().nullable() }),
   },
   async ({ priceId, userId, baseUrl, planId }) => {
     try {
@@ -46,16 +46,16 @@ const createCheckoutSessionFlow = ai.defineFlow(
         client_reference_id: userId, // Link the session to the user for webhook reconciliation
       });
 
-      return { url: session.url };
+      return { url: session.url, error: null };
     } catch (e: any) {
       console.error('Stripe Checkout Session Error:', e.message);
-      return { url: null };
+      return { url: null, error: e.message };
     }
   }
 );
 
 export async function createCheckoutSession(
   input: CreateCheckoutSessionInput
-): Promise<{ url: string | null }> {
+): Promise<{ url: string | null; error: string | null; }> {
   return createCheckoutSessionFlow(input);
 }

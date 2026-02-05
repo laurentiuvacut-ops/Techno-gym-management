@@ -101,7 +101,7 @@ function PlansComponent() {
 
     try {
         const baseUrl = window.location.origin;
-        const { url } = await createCheckoutSession({
+        const { url, error: stripeError } = await createCheckoutSession({
             priceId: plan.stripePriceId,
             userId: user.uid,
             baseUrl: baseUrl,
@@ -112,18 +112,22 @@ function PlansComponent() {
             // Redirect the user to Stripe's checkout page.
             window.location.href = url;
         } else {
-            throw new Error("Nu s-a putut crea sesiunea de plată.");
+            toast({
+              variant: "destructive",
+              title: "Eroare la procesarea plății",
+              description: stripeError || "Nu s-a putut crea sesiunea de plată. Asigurați-vă că cheia Stripe este configurată corect în fișierul .env.local.",
+            });
+            setIsUpdating(null);
         }
     } catch (error) {
       console.error("Error creating Stripe checkout session:", error);
       toast({
         variant: "destructive",
         title: "Eroare la procesarea plății",
-        description: "A apărut o problemă la inițierea plății. Vă rugăm să încercați din nou.",
+        description: "A apărut o problemă la comunicarea cu serverul. Vă rugăm să încercați din nou.",
       });
        setIsUpdating(null);
     }
-    // No need to set isUpdating(null) here as the page will redirect.
   };
 
   const loading = userLoading || memberLoading;
