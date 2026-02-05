@@ -10,7 +10,9 @@ import { getAuth, signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Award } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { subscriptions } from '@/lib/data';
 
 export default function ProfilePage() {
     const { user, loading: userLoading } = useUser();
@@ -23,6 +25,11 @@ export default function ProfilePage() {
     }, [firestore, user]);
 
     const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
+    
+    const currentSubscription = useMemo(() => {
+        if (!memberData) return null;
+        return subscriptions.find(sub => sub.id === memberData.subscriptionId);
+    }, [memberData]);
 
     useEffect(() => {
         if (!userLoading && !user) {
@@ -79,6 +86,15 @@ export default function ProfilePage() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-6">
+                     {currentSubscription && (
+                        <div className="mb-6 space-y-3 text-center border-b border-border/50 pb-6">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center justify-center gap-2">
+                                <Award className="h-4 w-4" />
+                                Abonament Actual
+                            </h4>
+                            <Badge className="text-base font-semibold" variant="outline">{currentSubscription.title}</Badge>
+                        </div>
+                    )}
                     <Button variant="outline" className="w-full hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50" onClick={handleSignOut}>
                         Deconectare
                     </Button>

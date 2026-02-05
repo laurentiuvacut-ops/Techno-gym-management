@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
 import { addDays, format } from 'date-fns';
+import { subscriptions } from '@/lib/data';
 
 
 export default function DashboardHomePage() {
@@ -73,6 +74,11 @@ export default function DashboardHomePage() {
     }
   }, [loading, user, memberData, router]);
 
+  const currentSubscription = useMemo(() => {
+    if (!memberData) return null;
+    return subscriptions.find(sub => sub.id === memberData.subscriptionId);
+  }, [memberData]);
+  
   if (loading || !memberData) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -83,6 +89,7 @@ export default function DashboardHomePage() {
 
   const expirationDate = format(addDays(new Date(), memberData.daysRemaining), 'dd MMM yyyy');
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
+  const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
 
   return (
     <motion.div 
@@ -105,7 +112,7 @@ export default function DashboardHomePage() {
               <Clock className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="font-bold">Status Abonament</h2>
+              <h2 className="font-bold">{subscriptionTitle}</h2>
               <p className="text-sm text-primary">{memberData.status}</p>
             </div>
           </div>
