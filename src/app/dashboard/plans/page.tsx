@@ -8,7 +8,7 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { doc, updateDoc } from "firebase/firestore";
-import { useMemo, useState, useEffect, Suspense } from 'react';
+import { useMemo, useState, useEffect, Suspense, useRef } from 'react';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
@@ -20,8 +20,10 @@ function PlansComponent() {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
-  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const searchParams = useSearchParams();
+  
+  // Use a ref to track if we've already handled the payment for this session to prevent loops.
+  const paymentProcessedRef = useRef(false);
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
@@ -40,9 +42,12 @@ function PlansComponent() {
   useEffect(() => {
     const handleSuccessfulPayment = async () => {
         const planId = searchParams.get('plan_id');
-        // Check if the URL contains the success parameter and we haven't already processed this payment.
-        if (searchParams.get('payment_success') === 'true' && user && firestore && planId && !isPaymentProcessing) {
-            setIsPaymentProcessing(true); // Mark as processing to prevent re-entry.
+        const paymentSuccess = searchParams.get('payment_success') === 'true';
+
+        // CRITICAL: Check if the URL indicates a successful payment AND we have NOT already processed it.
+        if (paymentSuccess && user && firestore && planId && !paymentProcessedRef.current) {
+            // Immediately mark payment as processed to prevent any re-entry from re-renders.
+            paymentProcessedRef.current = true; 
             
             const purchasedPlan = subscriptions.find(s => s.id === planId);
 
@@ -66,17 +71,18 @@ function PlansComponent() {
                 });
             }
 
-            // Clean up the URL to prevent re-triggering this effect on refresh.
+            // Clean up the URL to prevent re-triggering this effect on page refresh.
             router.replace('/dashboard/plans', { scroll: false });
         }
     };
     
-    // Run this effect only when the user and member data are loaded to avoid race conditions.
-    if(!userLoading && !memberLoading) {
+    // Run this effect only when the user and member data are fully loaded to avoid race conditions.
+    if(!userLoading && !memberLoading && memberData) {
       handleSuccessfulPayment();
     }
 
-  }, [searchParams, user, firestore, router, toast, memberData, userLoading, memberLoading, isPaymentProcessing]);
+  }, [searchParams, user, firestore, router, toast, memberData, userLoading, memberLoading]);
+
 
   const handlePurchase = async (plan: any) => {
     setCheckoutUrl(null);
