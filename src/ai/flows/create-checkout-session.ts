@@ -5,6 +5,7 @@
  * - createCheckoutSession - A function that creates and returns a Stripe Checkout session URL.
  * - CreateCheckoutSessionInput - The input type for the createCheckoutSession function.
  */
+import 'dotenv/config';
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import Stripe from 'stripe';
@@ -17,13 +18,6 @@ const CreateCheckoutSessionInputSchema = z.object({
 });
 export type CreateCheckoutSessionInput = z.infer<typeof CreateCheckoutSessionInputSchema>;
 
-// Initialize Stripe with the secret key from environment variables.
-// IMPORTANT: The user must create a .env.local file with STRIPE_SECRET_KEY.
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-04-10',
-  typescript: true,
-});
-
 const createCheckoutSessionFlow = ai.defineFlow(
   {
     name: 'createCheckoutSessionFlow',
@@ -31,6 +25,18 @@ const createCheckoutSessionFlow = ai.defineFlow(
     outputSchema: z.object({ url: z.string().nullable(), error: z.string().nullable() }),
   },
   async ({ priceId, userId, baseUrl, planId }) => {
+    // Explicitly check if the Stripe secret key is loaded.
+    if (!process.env.STRIPE_SECRET_KEY) {
+      const errorMessage = 'Cheia secretă Stripe (STRIPE_SECRET_KEY) nu este setată. Asigurați-vă că ați creat fișierul .env.local și ați repornit serverul.';
+      console.error('Stripe Checkout Session Error:', errorMessage);
+      return { url: null, error: errorMessage };
+    }
+    
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: '2024-04-10',
+        typescript: true,
+    });
+
     try {
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -40,15 +46,16 @@ const createCheckoutSessionFlow = ai.defineFlow(
             quantity: 1,
           },
         ],
-        mode: 'subscription', // Use 'payment' for one-time purchases
+        mode: 'subscription',
         success_url: `${baseUrl}/dashboard/plans?payment_success=true&session_id={CHECKOUT_SESSION_ID}&plan_id=${planId}`,
         cancel_url: `${baseUrl}/dashboard/plans`,
-        client_reference_id: userId, // Link the session to the user for webhook reconciliation
+        client_reference_id: userId,
       });
 
       return { url: session.url, error: null };
     } catch (e: any) {
       console.error('Stripe Checkout Session Error:', e.message);
+      // Return the specific error message from Stripe to the client.
       return { url: null, error: e.message };
     }
   }
