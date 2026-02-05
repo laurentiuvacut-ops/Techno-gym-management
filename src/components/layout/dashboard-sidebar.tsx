@@ -39,10 +39,10 @@ const navItems = [
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
+    setMounted(true);
   }, []);
 
 
@@ -73,7 +73,7 @@ export default function DashboardSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={isClient ? pathname === item.href : false}
+                isActive={mounted ? pathname === item.href : false}
                 className="data-[active=true]:bg-primary/20 data-[active=true]:text-primary text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 tooltip={item.label}
               >
