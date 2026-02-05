@@ -6,23 +6,11 @@ import { useEffect, useState, useMemo } from 'react';
 import { doc, setDoc, collection, query, where, getDocs, getDoc } from "firebase/firestore";
 import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
 import { addDays, format } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-
 
 export default function DashboardHomePage() {
   const { user, loading: userLoading } = useUser();
@@ -30,6 +18,34 @@ export default function DashboardHomePage() {
   const firestore = useFirestore();
 
   const [migrationAttempted, setMigrationAttempted] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) {
+      return;
+    }
+    await (installPrompt as any).prompt();
+    const { outcome } = await (installPrompt as any).userChoice;
+    if (outcome === 'accepted') {
+      setIsInstallable(false);
+      setInstallPrompt(null);
+    }
+  };
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
@@ -121,40 +137,12 @@ export default function DashboardHomePage() {
           <h1 className="text-4xl font-headline tracking-wider">Bine ai venit, {displayName}!</h1>
           <p className="text-muted-foreground">Iată un sumar al contului tău.</p>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-              <Button className="bg-gradient-primary text-primary-foreground">
-                <Download className="mr-2 h-4 w-4" />
-                Instalează Aplicația
-              </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Instalează pe Ecranul Principal</AlertDialogTitle>
-              <AlertDialogDescription className="space-y-4 text-left pt-4">
-                <div>
-                  <h3 className="font-bold text-foreground">Pentru iPhone & iPad:</h3>
-                  <ol className="list-decimal list-inside text-muted-foreground text-sm space-y-1 mt-1">
-                    <li>Apasă pe butonul <strong>Partajare</strong> (iconița cu un pătrat și o săgeată în sus) din bara de jos a browserului Safari.</li>
-                    <li>Derulează în jos și selectează <strong>"Adaugă pe ecranul principal"</strong>.</li>
-                    <li>Confirmă apăsând <strong>"Adaugă"</strong>.</li>
-                  </ol>
-                </div>
-                <div>
-                    <h3 className="font-bold text-foreground">Pentru Android & Desktop (Chrome):</h3>
-                    <ol className="list-decimal list-inside text-muted-foreground text-sm space-y-1 mt-1">
-                        <li>Apasă pe meniul cu trei puncte (<strong>⋮</strong>) din colțul dreapta-sus al browserului.</li>
-                        <li>Selectează <strong>"Instalează aplicația"</strong> sau <strong>"Adaugă la ecranul de pornire"</strong>.</li>
-                        <li>Urmează instrucțiunile de pe ecran.</li>
-                    </ol>
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogAction>Am înțeles</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        {isInstallable && (
+          <Button onClick={handleInstallClick} className="bg-gradient-primary text-primary-foreground">
+            <Download className="mr-2 h-4 w-4" />
+            Instalează Aplicația
+          </Button>
+        )}
       </div>
 
       <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8">
