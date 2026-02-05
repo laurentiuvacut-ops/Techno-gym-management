@@ -46,7 +46,7 @@ const createCheckoutSessionFlow = ai.defineFlow(
             quantity: 1,
           },
         ],
-        mode: 'subscription',
+        mode: 'payment',
         success_url: `${baseUrl}/dashboard/plans?payment_success=true&session_id={CHECKOUT_SESSION_ID}&plan_id=${planId}`,
         cancel_url: `${baseUrl}/dashboard/plans`,
         client_reference_id: userId,
