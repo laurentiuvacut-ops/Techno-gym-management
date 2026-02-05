@@ -20,6 +20,7 @@ function PlansComponent() {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const searchParams = useSearchParams();
 
   const memberDocRef = useMemo(() => {
@@ -39,11 +40,9 @@ function PlansComponent() {
   useEffect(() => {
     const handleSuccessfulPayment = async () => {
         const planId = searchParams.get('plan_id');
-        // Check if the URL contains the success parameter and plan_id from Stripe
-        if (searchParams.get('payment_success') === 'true' && user && firestore && planId) {
-            
-            // NOTE: In a production app, you would verify the session_id with your backend.
-            // For this prototype, we optimistically update the user's status.
+        // Check if the URL contains the success parameter and we haven't already processed this payment.
+        if (searchParams.get('payment_success') === 'true' && user && firestore && planId && !isPaymentProcessing) {
+            setIsPaymentProcessing(true); // Mark as processing to prevent re-entry.
             
             const purchasedPlan = subscriptions.find(s => s.id === planId);
 
@@ -77,7 +76,7 @@ function PlansComponent() {
       handleSuccessfulPayment();
     }
 
-  }, [searchParams, user, firestore, router, toast, memberData, userLoading, memberLoading]);
+  }, [searchParams, user, firestore, router, toast, memberData, userLoading, memberLoading, isPaymentProcessing]);
 
   const handlePurchase = async (plan: any) => {
     setCheckoutUrl(null);
