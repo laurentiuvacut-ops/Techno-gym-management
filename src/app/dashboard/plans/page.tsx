@@ -112,10 +112,16 @@ function PlansComponent() {
             // Redirect the user to Stripe's checkout page.
             window.location.href = url;
         } else {
+            let description = stripeError || "Nu s-a putut crea sesiunea de plată. Asigurați-vă că cheia Stripe este configurată corect în fișierul .env.local.";
+            
+            if (stripeError && stripeError.includes('No such price')) {
+                description = `Eroare de la Stripe: "No such price". ID-ul prețului trimis (${plan.stripePriceId}) este incorect. Vă rugăm să verificați următoarele:\n1. ID-ul a fost copiat corect din Stripe în fișierul src/lib/data.ts.\n2. Folosiți un ID de preț din modul 'Test', nu 'Live'.\n3. Prețul există și este activ în contul Stripe.`;
+            }
+
             toast({
               variant: "destructive",
               title: "Eroare la procesarea plății",
-              description: stripeError || "Nu s-a putut crea sesiunea de plată. Asigurați-vă că cheia Stripe este configurată corect în fișierul .env.local.",
+              description: description,
             });
             setIsUpdating(null);
         }
