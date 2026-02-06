@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { addDays, format } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
+import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
 
 export default function DashboardHomePage() {
   const { user, loading: userLoading } = useUser();
@@ -18,33 +19,10 @@ export default function DashboardHomePage() {
   const firestore = useFirestore();
 
   const [migrationAttempted, setMigrationAttempted] = useState(false);
-  const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
+  const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setInstallPrompt(e);
-      setIsInstallable(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!installPrompt) {
-      return;
-    }
-    await (installPrompt as any).prompt();
-    const { outcome } = await (installPrompt as any).userChoice;
-    if (outcome === 'accepted') {
-      setIsInstallable(false);
-      setInstallPrompt(null);
-    }
+  const handleInstallClick = () => {
+    setShowInstallInstructions(true);
   };
 
   const memberDocRef = useMemo(() => {
@@ -126,6 +104,8 @@ export default function DashboardHomePage() {
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
 
   return (
+    <>
+    <PwaInstallInstructions open={showInstallInstructions} onOpenChange={setShowInstallInstructions} />
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -139,7 +119,6 @@ export default function DashboardHomePage() {
         </div>
         <Button 
           onClick={handleInstallClick}
-          disabled={!isInstallable}
           className="bg-gradient-primary text-primary-foreground"
         >
           <Download className="mr-2 h-4 w-4" />
@@ -213,5 +192,6 @@ export default function DashboardHomePage() {
       </div>
 
     </motion.div>
+    </>
   );
 }
