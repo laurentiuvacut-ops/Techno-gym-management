@@ -53,10 +53,12 @@ export default function TrainersPage() {
             transition={{ duration: 0.3, delay: index * 0.05 }}
           >
             <Card className="flex flex-col sm:flex-row items-center gap-6 p-6 glass">
-              <Avatar className="w-24 h-24 border-4 border-primary">
-                <AvatarImage src={trainer.image.imageUrl} alt={trainer.name} data-ai-hint={trainer.image.imageHint} />
-                <AvatarFallback>{trainer.name.charAt(0)}</AvatarFallback>
-              </Avatar>
+              <a href={trainer.instagramUrl} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
+                <Avatar className="w-24 h-24 border-4 border-primary hover:border-accent transition-colors">
+                  <AvatarImage src={trainer.image.imageUrl} alt={trainer.name} data-ai-hint={trainer.image.imageHint} />
+                  <AvatarFallback>{trainer.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+              </a>
               <div className="flex-grow text-center sm:text-left">
                 <h2 className="text-xl font-bold">{trainer.name}</h2>
                 <Badge variant="secondary" className="mt-1">{trainer.specialty}</Badge>

@@ -104,24 +104,28 @@ export const trainers = [
     name: "Laurentiu Vacut",
     specialty: "Personal Trainer & Nutritionist",
     image: getImage('trainer-1'),
+    instagramUrl: "https://www.instagram.com/laurentiu_vacut/",
   },
   {
     id: "2",
     name: "Luca Mihai",
     specialty: "Personal Trainer & Nutritionist",
     image: getImage('trainer-2'),
+    instagramUrl: "https://www.instagram.com/lucamihai/",
   },
   {
     id: "3",
     name: "Maria Cirnu",
     specialty: "Personal Trainer",
     image: getImage('trainer-3'),
+    instagramUrl: "https://www.instagram.com/mariacirnu/",
   },
   {
     id: "4",
     name: "Ana Oprescu",
     specialty: "Personal Trainer",
     image: getImage('trainer-4'),
+    instagramUrl: "https://www.instagram.com/anaoprescu/",
   },
 ];
 

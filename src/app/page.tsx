@@ -89,20 +89,22 @@ export default function LandingPage() {
             </div>
             <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 py-12 sm:grid-cols-2 md:grid-cols-4 lg:gap-8">
               {trainers.map((trainer) => (
-                <Card key={trainer.id} className="overflow-hidden group relative aspect-square border-0">
-                    <Image
-                        src={trainer.image.imageUrl}
-                        alt={trainer.name}
-                        data-ai-hint={trainer.image.imageHint}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6 text-left">
-                        <h3 className="text-2xl font-bold text-white">{trainer.name}</h3>
-                        <p className="text-primary font-semibold">{trainer.specialty}</p>
-                    </div>
-                </Card>
+                <a href={trainer.instagramUrl} target="_blank" rel="noopener noreferrer" key={trainer.id}>
+                    <Card className="overflow-hidden group relative aspect-square border-0">
+                        <Image
+                            src={trainer.image.imageUrl}
+                            alt={trainer.name}
+                            data-ai-hint={trainer.image.imageHint}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-6 text-left">
+                            <h3 className="text-2xl font-bold text-white">{trainer.name}</h3>
+                            <p className="text-primary font-semibold">{trainer.specialty}</p>
+                        </div>
+                    </Card>
+                </a>
               ))}
             </div>
           </div>
