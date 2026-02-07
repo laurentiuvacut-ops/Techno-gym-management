@@ -4,35 +4,58 @@
  * Data Structure: The data is organized into a flat hierarchy of top-level collections. This structural segregation simplifies security rules, as each collection has a uniform access control pattern. For example, the `/members/{phoneNumber}` collection follows a strict ownership model, while the `/workouts` collection is public. There are no nested subcollections, which avoids complex hierarchical rule logic.
  *
  * Key Security Decisions:
- * - Member Data Isolation: A user's personal data in `/members/{phoneNumber}` is accessible only to them. The document's internal `id` field must match the authenticated user's UID. The document ID itself is the user's phone number. Listing of all members is explicitly disallowed to protect user privacy.
+ * - Member Data Isolation: A user's personal data in `/members/{phoneNumber}` is accessible only to them. Ownership is verified by matching the phone number from their auth token with the document ID. Listing of all members is explicitly disallowed to protect user privacy.
  * - Public App Content: Collections like `/subscriptions`, `/workouts`, `/trainers`, and `/products` are treated as public, read-only data. This allows any client (authenticated or not) to fetch this information, but prevents any client-side modification, ensuring data integrity. Changes to this data must be made through a trusted admin environment (e.g., the Firebase Console or a backend server).
  * - Write-Only Feedback: The `/feedback` collection is designed for users to submit content without being able to read, update, or delete it, preventing misuse.
  *
  * Denormalization for Authorization:
- * - The `members` documents contain an `id` field that is validated to match the user's UID, ensuring relational integrity between the user's identity and their data record.
+ * - The `members` documents contain an `id` field (the user's UID) that is validated on create, update, and delete to ensure a user can only modify their own record.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions for concise and readable rules
+    // =================================
+    // Helper Functions
+    // =================================
+
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * @description Enforces that only the authenticated member can access their own data, using phone number as document ID.
-     * @path /members/{phoneNumber}
-     * @allow A signed-in user can (get) their own document at `/members/+40712345678` if their auth token's phone number matches.
-     * @deny A signed-in user cannot (get) another user's document.
-     * @principle Restricts access to a user's own data by matching their token's phone number with the document ID.
-     */
+    // Checks if the requesting user's UID matches the document's `id` field.
+    function isOwner(docId) {
+      return isSignedIn() && request.auth.uid == docId;
+    }
+    
+    // Checks if the requesting user's phone number from their token
+    // matches the phone number in the document's path.
+    function isOwnerByPhone(pathPhoneNumber) {
+        return isSignedIn() && request.auth.token.phone_number == pathPhoneNumber;
+    }
+
+    // =================================
+    // Collection Rules
+    // =================================
+
     match /members/{phoneNumber} {
-      allow get: if isSignedIn() && request.auth.token.phone_number == phoneNumber;
-      allow list: if false; // Disallow listing all members for privacy.
-      allow create: if isSignedIn() && request.auth.token.phone_number == phoneNumber && request.resource.data.id == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.id == request.auth.uid && request.resource.data.id == resource.data.id;
-      allow delete: if isSignedIn() && resource.data.id == request.auth.uid;
+      // READ: Allow a user to read their own document if their token's 
+      // phone number matches the document ID.
+      allow get: if isOwnerByPhone(phoneNumber);
+      
+      // LIST: Disallow listing all members for privacy.
+      allow list: if false; 
+
+      // CREATE: Allow a user to create their own profile. The document ID must be their
+      // phone number, and the `id` field inside the doc must be their UID.
+      allow create: if isOwnerByPhone(phoneNumber) && request.resource.data.id == request.auth.uid;
+      
+      // UPDATE: Allow a user to update their own document, verified by the stored UID.
+      // Prevents the UID ('id' field) from being changed after creation.
+      allow update: if isOwner(resource.data.id) && request.resource.data.id == resource.data.id;
+
+      // DELETE: Allow a user to delete their own document, verified by the stored UID.
+      allow delete: if isOwner(resource.data.id);
     }
 
     /**
