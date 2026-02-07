@@ -164,34 +164,6 @@ export const shopItems = [
 
 export const transformations = [
   {
-    id: 1,
-    name: 'Andrei P.',
-    story: '"Am slăbit 15 kg în 3 luni și am mai multă energie ca oricând!"',
-    before: getImage('transformation-before-1'),
-    after: getImage('transformation-after-1'),
-  },
-  {
-    id: 2,
-    name: 'Elena I.',
-    story: '"Mi-am recăpătat încrederea în mine și mă simt extraordinar."',
-    before: getImage('transformation-before-2'),
-    after: getImage('transformation-after-2'),
-  },
-  {
-    id: 3,
-    name: 'Alexandru D.',
-    story: '"Am învățat ce înseamnă disciplina și am obținut rezultate la care nu visam."',
-    before: getImage('transformation-before-3'),
-    after: getImage('transformation-after-3'),
-  },
-  {
-    id: 4,
-    name: 'Laura G.',
-    story: '"Comunitatea de aici m-a motivat să nu renunț. Mulțumesc!"',
-    before: getImage('transformation-before-4'),
-    after: getImage('transformation-after-4'),
-  },
-  {
     id: 5,
     name: 'Mihai C.',
     story: '"De la zero la erou. Transformarea este reală și merită tot efortul."',
@@ -211,5 +183,12 @@ export const transformations = [
     story: 'O nouă transformare de succes!',
     before: getImage('transformation-before-7'),
     after: getImage('transformation-after-7'),
+  },
+  {
+    id: 8,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-8'),
+    after: getImage('transformation-after-8'),
   },
 ];

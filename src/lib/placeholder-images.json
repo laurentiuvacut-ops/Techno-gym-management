@@ -61,54 +61,6 @@
       "imageHint": "gym weights"
     },
     {
-      "id": "transformation-before-1",
-      "description": "A man standing before his fitness transformation",
-      "imageUrl": "https://images.unsplash.com/photo-1693845610623-bd624b8eb2c2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWFuJTIwc3RhbmRpbmd8ZW58MHx8fHwxNzY5ODA5NDA5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "man standing"
-    },
-    {
-      "id": "transformation-after-1",
-      "description": "A fit man after his fitness transformation",
-      "imageUrl": "https://images.unsplash.com/photo-1641971215245-b4ac37f97bb0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmaXQlMjBtYW58ZW58MHx8fHwxNzY5Njk2NTk4fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fit man"
-    },
-    {
-      "id": "transformation-before-2",
-      "description": "A woman standing before her fitness transformation",
-      "imageUrl": "https://images.unsplash.com/photo-1618308178796-f4dc0a03bab6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b21hbiUyMHN0YW5kaW5nfGVufDB8fHx8fDE3Njk3MzUyNjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "woman standing"
-    },
-    {
-      "id": "transformation-after-2",
-      "description": "A fit woman after her fitness transformation",
-      "imageUrl": "https://images.unsplash.com/photo-1587395865650-1f4ad12573e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmaXQlMjB3b21hbnxlbnwwfHx8fDE3Njk4MDk0MDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fit woman"
-    },
-    {
-      "id": "transformation-before-3",
-      "description": "A person standing before their fitness transformation",
-      "imageUrl": "https://images.unsplash.com/photo-1609179548370-a5ee66e7a69e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBzdGFuZGluZ3xlbnwwfHx8fDE3NzAwMjcwMzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "person standing"
-    },
-    {
-      "id": "transformation-after-3",
-      "description": "A fit person after their fitness transformation",
-      "imageUrl": "https://images.unsplash.com/photo-1715333157294-49b465a34054?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmaXQlMjBwZXJzb258ZW58MHx8fHwxNzcwMDU5NDc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fit person"
-    },
-    {
-      "id": "transformation-before-4",
-      "description": "A person standing before their fitness transformation",
-      "imageUrl": "https://images.unsplash.com/photo-1666342873508-453f4b7883b6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBzdGFuZGluZ3xlbnwwfHx8fDE3NzAwMjcwMzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "person standing"
-    },
-    {
-      "id": "transformation-after-4",
-      "description": "A fit person after their fitness transformation",
-      "imageUrl": "https://images.unsplash.com/photo-1441438045054-547315d595f5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmaXQlMjBwZXJzb258ZW58MHx8fHwxNzcwMDU5NDc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fit person"
-    },
-    {
       "id": "transformation-before-5",
       "description": "Member before transformation",
       "imageUrl": "https://i.imgur.com/cJGfAUK.jpg",
@@ -142,6 +94,18 @@
       "id": "transformation-after-7",
       "description": "Member after transformation",
       "imageUrl": "https://i.imgur.com/2j1eAwR.jpg",
+      "imageHint": "fit man"
+    },
+    {
+      "id": "transformation-before-8",
+      "description": "Member before transformation",
+      "imageUrl": "https://i.imgur.com/fws8TFv.jpg",
+      "imageHint": "man standing"
+    },
+    {
+      "id": "transformation-after-8",
+      "description": "Member after transformation",
+      "imageUrl": "https://i.imgur.com/FnS64Ks.jpg",
       "imageHint": "fit man"
     }
   ]
