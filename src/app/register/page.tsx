@@ -34,18 +34,17 @@ export default function RegisterPage() {
 
         setIsSubmitting(true);
         
-        // Use the phone number (national format) as the document ID for a single source of truth.
-        const nationalPhoneNumber = user.phoneNumber.replace('+40', '0');
-        const memberDocRef = doc(firestore, 'members', nationalPhoneNumber);
+        // The document ID is now the user's UID, which is secure and standard.
+        const memberDocRef = doc(firestore, 'members', user.uid);
         
         try {
             await setDoc(memberDocRef, {
                 id: user.uid, // Store the Firebase Auth UID for security rules.
                 name: name,
                 email: user.email || null,
-                phone: nationalPhoneNumber,
+                phone: user.phoneNumber, // Store the full E.164 phone number.
                 photoURL: user.photoURL || null,
-                qrCode: nationalPhoneNumber,
+                qrCode: user.phoneNumber, // The QR code can be the phone number.
                 expirationDate: format(new Date(0), 'yyyy-MM-dd'), // No active subscription
                 subscriptionType: null,
                 status: "Inactive",

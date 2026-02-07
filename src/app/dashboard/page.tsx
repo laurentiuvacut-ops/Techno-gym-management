@@ -20,11 +20,10 @@ export default function DashboardHomePage() {
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
-  // Document ID is now the phone number for a single source of truth.
+  // The document ID is now the user's UID. This is the secure, standard way.
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user || !user.phoneNumber) return null;
-    const nationalPhoneNumber = user.phoneNumber.replace('+40', '0');
-    return doc(firestore, 'members', nationalPhoneNumber);
+    if (!firestore || !user) return null;
+    return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
   
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -42,6 +41,7 @@ export default function DashboardHomePage() {
   const expDate = useMemo(() => {
       if (memberData?.expirationDate) {
           const expDateString = memberData.expirationDate;
+          // Handle 'YYYY-MM-DD' strings safely across timezones by parsing into UTC.
           if (typeof expDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(expDateString)) {
               const [year, month, day] = expDateString.split('-').map(Number);
               return new Date(Date.UTC(year, month - 1, day));
@@ -56,6 +56,7 @@ export default function DashboardHomePage() {
       return 0;
     }
     const today = new Date();
+    // Compare dates at UTC midnight to avoid timezone issues.
     const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     const diffTime = expirationDate.getTime() - todayUTC.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -72,6 +73,8 @@ export default function DashboardHomePage() {
     );
   }
   
+  // This now correctly waits for the loading to finish before deciding
+  // whether to show the registration prompt.
   if (!memberLoading && !memberData) {
     return (
         <motion.div 

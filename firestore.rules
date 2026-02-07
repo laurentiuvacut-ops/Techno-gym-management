@@ -1,10 +1,10 @@
 /**
  * Core Philosophy: This ruleset establishes a clear boundary between public, read-only application data and private, user-owned data. Public content like workouts, products, and trainer info is globally readable to support the app's features for all users. Private data, such as a member's personal information, is strictly protected, ensuring a user can only access and manage their own documents.
  *
- * Data Structure: The data is organized into a flat hierarchy of top-level collections. The `/members/{memberId}` collection uses the member's phone number as the document ID for unified access, while security is enforced by matching the authenticated user's UID against an `id` field within the document.
+ * Data Structure: The data is organized into a flat hierarchy of top-level collections. For /members/{memberId}, the document ID {memberId} MUST match the authenticated user's UID. This is the most secure and standard way to handle user-specific data in Firestore.
  *
  * Key Security Decisions:
- * - Member Data Unification: A member's data in `/members/{memberId}` (where memberId is the phone number) is accessible only to them. Ownership is verified by matching the user's auth UID with the `id` field stored inside the document. This allows both the web app and other systems to reference the same document via phone number, while maintaining strict user-level security.
+ * - UID as Primary Key: Each member's data is stored in a document where the ID is the user's Firebase Authentication UID. This provides a direct, secure link between the authenticated user and their data, preventing one user from accessing another's information.
  * - Public App Content: Collections like `/subscriptions`, `/workouts`, `/trainers`, and `/products` are treated as public, read-only data. This allows any client (authenticated or not) to fetch this information, but prevents any client-side modification, ensuring data integrity. Changes to this data must be made through a trusted admin environment (e.g., the Firebase Console or a backend server).
  * - Write-Only Feedback: The `/feedback` collection is designed for users to submit content without being able to read, update, or delete it, preventing misuse.
  */
@@ -17,10 +17,9 @@ service cloud.firestore {
     // =================================
 
     match /members/{memberId} {
-      // A user can read, create, update, or delete their own member document.
-      // Ownership is verified by matching the requester's UID with the 'id' field inside the document.
-      // The document ID ({memberId}) is the user's phone number, allowing for a single source of truth.
-      allow read, write: if request.auth != null && request.auth.uid == (request.resource.data.id || resource.data.id);
+      // A user can read and write to their own document.
+      // The document ID ({memberId}) must match the authenticated user's UID.
+      allow read, write: if request.auth != null && request.auth.uid == memberId;
       
       // Explicitly disallow listing all members for privacy.
       allow list: if false;

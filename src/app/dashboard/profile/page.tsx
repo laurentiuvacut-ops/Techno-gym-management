@@ -19,11 +19,10 @@ export default function ProfilePage() {
     const router = useRouter();
     const firestore = useFirestore();
 
+    // The document ID is now the user's UID.
     const memberDocRef = useMemo(() => {
-        if (!firestore || !user || !user.phoneNumber) return null;
-        // Use phone number as the document ID for a single source of truth.
-        const nationalPhoneNumber = user.phoneNumber.replace('+40', '0');
-        return doc(firestore, 'members', nationalPhoneNumber);
+        if (!firestore || !user) return null;
+        return doc(firestore, 'members', user.uid);
     }, [firestore, user]);
 
     const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);

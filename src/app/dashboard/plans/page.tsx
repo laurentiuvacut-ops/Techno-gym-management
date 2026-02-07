@@ -25,11 +25,10 @@ function PlansComponent() {
   
   const paymentProcessedRef = useRef(false);
 
+  // The document ID is now the user's UID.
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user || !user.phoneNumber) return null;
-    // Use phone number as the document ID for a single source of truth.
-    const nationalPhoneNumber = user.phoneNumber.replace('+40', '0');
-    return doc(firestore, 'members', nationalPhoneNumber);
+    if (!firestore || !user) return null;
+    return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -120,7 +119,7 @@ function PlansComponent() {
     try {
         const baseUrl = window.location.origin;
         const { url, error: stripeError } = await createCheckoutSession({
-            userId: user.uid, // Stripe still needs a reference, UID is good.
+            userId: user.uid, // Stripe needs a reference, UID is good.
             baseUrl: baseUrl,
             planId: plan.id,
             planTitle: plan.title,
