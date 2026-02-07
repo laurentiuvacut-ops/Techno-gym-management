@@ -20,7 +20,11 @@
         },
         "phone": {
           "type": "string",
-          "description": "Phone number of the member."
+          "description": "Phone number of the member in E.164 format (e.g., +40...)."
+        },
+        "localPhone": {
+          "type": "string",
+          "description": "Phone number of the member in local format (e.g., 07...)."
         },
         "photoURL": {
           "type": "string",
@@ -28,7 +32,7 @@
         },
         "qrCode": {
           "type": "string",
-          "description": "The QR code value for the member, typically their phone number."
+          "description": "The QR code value for the member, typically their local phone number."
         },
         "expirationDate": {
           "type": "string",

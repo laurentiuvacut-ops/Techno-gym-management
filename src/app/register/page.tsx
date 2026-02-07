@@ -12,6 +12,16 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
+// Normalizes an E.164 phone number (+40...) to a local format (07...).
+const normalizePhoneNumber = (phoneNumber: string | null | undefined): string | null => {
+    if (!phoneNumber) return null;
+    if (phoneNumber.startsWith('+40')) {
+        return '0' + phoneNumber.substring(3);
+    }
+    // Return original if it doesn't match the expected format
+    return phoneNumber;
+};
+
 export default function RegisterPage() {
     const { user, loading: userLoading } = useUser();
     const firestore = useFirestore();
@@ -34,17 +44,20 @@ export default function RegisterPage() {
 
         setIsSubmitting(true);
         
-        // The document ID is now the user's UID, which is secure and standard.
+        // The document ID is the user's UID, which is secure and standard.
         const memberDocRef = doc(firestore, 'members', user.uid);
         
+        const localPhoneNumber = normalizePhoneNumber(user.phoneNumber);
+
         try {
             await setDoc(memberDocRef, {
-                id: user.uid, // Store the Firebase Auth UID for security rules.
+                id: user.uid, // The user's UID is the primary identifier for security rules
                 name: name,
                 email: user.email || null,
-                phone: user.phoneNumber, // Store the full E.164 phone number.
+                phone: user.phoneNumber, // Original E.164 format (e.g., +407...)
+                localPhone: localPhoneNumber, // Normalized local format (e.g., 07...)
                 photoURL: user.photoURL || null,
-                qrCode: user.phoneNumber, // The QR code can be the phone number.
+                qrCode: localPhoneNumber, // Use the local format for QR for consistency
                 expirationDate: format(new Date(0), 'yyyy-MM-dd'), // No active subscription
                 subscriptionType: null,
                 status: "Inactive",
