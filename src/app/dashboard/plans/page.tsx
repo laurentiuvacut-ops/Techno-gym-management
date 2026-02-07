@@ -12,7 +12,7 @@ import { useMemo, useState, useEffect, Suspense, useRef } from 'react';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
-import { addDays, isAfter } from 'date-fns';
+import { addDays, isAfter, format } from 'date-fns';
 
 function PlansComponent() {
   const { user, loading: userLoading } = useUser();
@@ -23,12 +23,11 @@ function PlansComponent() {
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const searchParams = useSearchParams();
   
-  // Use a ref to track if we've already handled the payment for this session to prevent loops.
   const paymentProcessedRef = useRef(false);
 
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'members', user.uid);
+    if (!firestore || !user || !user.phoneNumber) return null;
+    return doc(firestore, 'members', user.phoneNumber);
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -39,21 +38,18 @@ function PlansComponent() {
     }
   }, [user, userLoading, router]);
 
-  // Handle successful payment redirect from Stripe
   useEffect(() => {
     const handleSuccessfulPayment = async () => {
         const planId = searchParams.get('plan_id');
         const paymentSuccess = searchParams.get('payment_success') === 'true';
 
-        // CRITICAL: Check if the URL indicates a successful payment AND we have NOT already processed it.
-        if (paymentSuccess && user && firestore && planId && !paymentProcessedRef.current) {
-            // Immediately mark payment as processed to prevent any re-entry from re-renders.
+        if (paymentSuccess && user && firestore && user.phoneNumber && planId && !paymentProcessedRef.current) {
             paymentProcessedRef.current = true; 
             
             const purchasedPlan = subscriptions.find(s => s.id === planId);
 
             if (purchasedPlan) {
-                const memberDocRef = doc(firestore, 'members', user.uid);
+                const memberDocRef = doc(firestore, 'members', user.phoneNumber);
                 
                 const daysToAdd = (purchasedPlan as any).durationDays || 30;
                 const currentExpirationDate = memberData?.expirationDate ? new Date(memberData.expirationDate) : new Date();
@@ -61,9 +57,8 @@ function PlansComponent() {
                 const newExpirationDate = addDays(startDate, daysToAdd);
 
                 await updateDoc(memberDocRef, {
-                    subscriptionId: purchasedPlan.id,
-                    status: "Active",
-                    expirationDate: newExpirationDate.toISOString(),
+                    expirationDate: format(newExpirationDate, 'yyyy-MM-dd'),
+                    subscriptionType: purchasedPlan.title,
                 });
 
                 toast({
@@ -72,12 +67,10 @@ function PlansComponent() {
                 });
             }
 
-            // Clean up the URL to prevent re-triggering this effect on page refresh.
             router.replace('/dashboard/plans', { scroll: false });
         }
     };
     
-    // Run this effect only when the user and member data are fully loaded to avoid race conditions.
     if(!userLoading && !memberLoading && memberData) {
       handleSuccessfulPayment();
     }
@@ -138,8 +131,13 @@ function PlansComponent() {
       </div>
     );
   }
-
-  const currentPlanId = memberData?.subscriptionId;
+  
+  const currentSubscription = useMemo(() => {
+    if (!memberData || !memberData.subscriptionType) return null;
+    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
+  }, [memberData]);
+  
+  const currentPlanId = currentSubscription?.id;
 
   return (
     <motion.div
@@ -253,5 +251,3 @@ export default function PlansPage() {
     </Suspense>
   )
 }
-
-    

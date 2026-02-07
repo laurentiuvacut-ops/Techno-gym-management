@@ -20,15 +20,15 @@ export default function ProfilePage() {
     const firestore = useFirestore();
 
     const memberDocRef = useMemo(() => {
-        if (!firestore || !user) return null;
-        return doc(firestore, 'members', user.uid);
+        if (!firestore || !user || !user.phoneNumber) return null;
+        return doc(firestore, 'members', user.phoneNumber);
     }, [firestore, user]);
 
     const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
     
     const currentSubscription = useMemo(() => {
-        if (!memberData) return null;
-        return subscriptions.find(sub => sub.id === memberData.subscriptionId);
+        if (!memberData || !memberData.subscriptionType) return null;
+        return subscriptions.find(sub => sub.title === memberData.subscriptionType);
     }, [memberData]);
 
     useEffect(() => {

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 export default function RegisterPage() {
     const { user, loading: userLoading } = useUser();
@@ -41,7 +42,7 @@ export default function RegisterPage() {
         }
 
         setIsSubmitting(true);
-        const memberDocRef = doc(firestore, 'members', user.uid);
+        const memberDocRef = doc(firestore, 'members', user.phoneNumber);
         try {
             await setDoc(memberDocRef, {
                 id: user.uid,
@@ -50,10 +51,9 @@ export default function RegisterPage() {
                 phone: user.phoneNumber,
                 photoURL: user.photoURL || null,
                 qrCode: user.phoneNumber,
-                status: 'Expired',
-                expirationDate: new Date(0).toISOString(),
-                subscriptionId: null,
-                agreedToTermsAt: new Date(),
+                expirationDate: format(new Date(0), 'yyyy-MM-dd'),
+                subscriptionType: null,
+                agreedToTermsAt: new Date().toISOString(),
             });
             router.push('/dashboard');
         } catch (error) {
@@ -137,5 +137,3 @@ export default function RegisterPage() {
         </div>
     );
 }
-
-    

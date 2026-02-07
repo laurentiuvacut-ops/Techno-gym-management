@@ -26,8 +26,8 @@ export default function DashboardHomePage() {
   };
 
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'members', user.uid);
+    if (!firestore || !user || !user.phoneNumber) return null;
+    return doc(firestore, 'members', user.phoneNumber);
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -42,41 +42,39 @@ export default function DashboardHomePage() {
   useEffect(() => {
     const attemptMigration = async () => {
       // Run only once per session after user and firestore are available.
-      if (user && firestore && !migrationAttempted) {
+      if (user && firestore && user.phoneNumber && !migrationAttempted) {
         setMigrationAttempted(true); // Mark that we are attempting migration.
 
         const userPhoneNumber = user.phoneNumber;
-        if (!userPhoneNumber) {
-          return; // No phone number, cannot migrate.
-        }
-
+        
         // Search for a legacy profile with the same phone number.
         const phoneVariants = [userPhoneNumber, userPhoneNumber.substring(3), `0${userPhoneNumber.substring(3)}`];
         const q = query(collection(firestore, 'members'), where("phone", "in", phoneVariants));
         const querySnapshot = await getDocs(q);
-        const legacyDocSnap = querySnapshot.docs.find(d => d.id !== user.uid);
+        
+        const legacyDocSnap = querySnapshot.docs.find(d => d.id !== user.uid && d.id !== user.phoneNumber);
 
         if (legacyDocSnap) {
           // Legacy profile found. Now, check the user's current profile state.
-          const currentUserDocRef = doc(firestore, 'members', user.uid);
+          const currentUserDocRef = doc(firestore, 'members', userPhoneNumber);
           const currentUserDocSnap = await getDoc(currentUserDocRef);
           
           const currentExpiration = currentUserDocSnap.data()?.expirationDate;
           const isExpired = !currentUserDocSnap.exists() || !currentExpiration || !isAfter(new Date(currentExpiration), new Date());
 
-          // IMPORTANT: Only copy legacy data if the user does NOT have an active subscription.
-          // This prevents overwriting a valid, paid membership with old data.
           if (isExpired) {
              const legacyData = legacyDocSnap.data();
-             const { daysRemaining, ...restOfLegacyData } = legacyData;
+             const { daysRemaining, subscriptionId, status, ...restOfLegacyData } = legacyData;
              const daysFromLegacy = daysRemaining || 0;
+             const sub = subscriptions.find(s => s.id === subscriptionId);
 
             await setDoc(currentUserDocRef, {
               ...restOfLegacyData,
-              id: user.uid, // Overwrite with the correct new UID
-              phone: userPhoneNumber, // Ensure phone is the new E.164 format
-              qrCode: userPhoneNumber, // Update QR code to the new standard
-              expirationDate: addDays(new Date(), daysFromLegacy).toISOString(),
+              id: user.uid,
+              phone: userPhoneNumber,
+              qrCode: userPhoneNumber,
+              expirationDate: format(addDays(new Date(), daysFromLegacy), 'yyyy-MM-dd'),
+              subscriptionType: sub ? sub.title : null,
             });
           }
         }
@@ -95,8 +93,8 @@ export default function DashboardHomePage() {
   }, [loading, user, memberData, router]);
 
   const currentSubscription = useMemo(() => {
-    if (!memberData) return null;
-    return subscriptions.find(sub => sub.id === memberData.subscriptionId);
+    if (!memberData || !memberData.subscriptionType) return null;
+    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
   }, [memberData]);
   
   if (loading || !memberData) {
@@ -206,5 +204,3 @@ export default function DashboardHomePage() {
     </>
   );
 }
-
-    

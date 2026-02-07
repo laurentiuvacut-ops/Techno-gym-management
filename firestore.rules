@@ -1,15 +1,15 @@
 /**
  * Core Philosophy: This ruleset establishes a clear boundary between public, read-only application data and private, user-owned data. Public content like workouts, products, and trainer info is globally readable to support the app's features for all users. Private data, such as a member's personal information, is strictly protected, ensuring a user can only access and manage their own documents.
  *
- * Data Structure: The data is organized into a flat hierarchy of top-level collections. This structural segregation simplifies security rules, as each collection has a uniform access control pattern. For example, the `/members/{memberId}` collection follows a strict ownership model, while the `/workouts` collection is public. There are no nested subcollections, which avoids complex hierarchical rule logic.
+ * Data Structure: The data is organized into a flat hierarchy of top-level collections. This structural segregation simplifies security rules, as each collection has a uniform access control pattern. For example, the `/members/{phoneNumber}` collection follows a strict ownership model, while the `/workouts` collection is public. There are no nested subcollections, which avoids complex hierarchical rule logic.
  *
  * Key Security Decisions:
- * - Member Data Isolation: A user's personal data in `/members/{memberId}` is accessible only to them. The document ID (`memberId`) must match the authenticated user's UID. Listing of all members is explicitly disallowed to protect user privacy.
+ * - Member Data Isolation: A user's personal data in `/members/{phoneNumber}` is accessible only to them. The document's internal `id` field must match the authenticated user's UID. The document ID itself is the user's phone number. Listing of all members is explicitly disallowed to protect user privacy.
  * - Public App Content: Collections like `/subscriptions`, `/workouts`, `/trainers`, and `/products` are treated as public, read-only data. This allows any client (authenticated or not) to fetch this information, but prevents any client-side modification, ensuring data integrity. Changes to this data must be made through a trusted admin environment (e.g., the Firebase Console or a backend server).
  * - Write-Only Feedback: The `/feedback` collection is designed for users to submit content without being able to read, update, or delete it, preventing misuse.
  *
  * Denormalization for Authorization:
- * - The `members` documents contain an `id` field that is validated to match the document's ID and the user's UID, ensuring relational integrity between the user's identity and their data record.
+ * - The `members` documents contain an `id` field that is validated to match the user's UID, ensuring relational integrity between the user's identity and their data record.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -20,28 +20,19 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    // Checks for ownership on an existing document. Used for update/delete.
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
     /**
-     * @description Enforces that only the authenticated member can access their own data.
-     * @path /members/{memberId}
-     * @allow A signed-in user (UID: 'user123') can (get) their own document at `/members/user123`.
-     * @deny A signed-in user (UID: 'user123') cannot (get) another user's document at `/members/user456`.
-     * @principle Restricts access to a user's own data tree.
+     * @description Enforces that only the authenticated member can access their own data, using phone number as document ID.
+     * @path /members/{phoneNumber}
+     * @allow A signed-in user can (get) their own document at `/members/+40712345678` if the document's `id` field matches their auth UID.
+     * @deny A signed-in user cannot (get) another user's document.
+     * @principle Restricts access to a user's own data, identified by phone number but authorized by UID.
      */
-    match /members/{memberId} {
-      allow get: if isOwner(memberId);
+    match /members/{phoneNumber} {
+      allow get: if isSignedIn() && get(/databases/$(database)/documents/members/$(phoneNumber)).data.id == request.auth.uid;
       allow list: if false; // Disallow listing all members for privacy.
-      allow create: if isOwner(memberId) && request.resource.data.id == memberId;
-      allow update: if isExistingOwner(memberId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(memberId);
+      allow create: if isSignedIn() && request.auth.token.phone_number == phoneNumber && request.resource.data.id == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.id == request.auth.uid && request.resource.data.id == resource.data.id;
+      allow delete: if isSignedIn() && resource.data.id == request.auth.uid;
     }
 
     /**

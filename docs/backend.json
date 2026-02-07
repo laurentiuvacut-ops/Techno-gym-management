@@ -8,7 +8,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the member."
+          "description": "Unique identifier for the user (UID from Firebase Auth)."
         },
         "name": {
           "type": "string",
@@ -20,7 +20,7 @@
         },
         "phone": {
           "type": "string",
-          "description": "Phone number of the member. Used for authentication and for finding legacy profiles."
+          "description": "Phone number of the member. Used for authentication and as document ID."
         },
         "photoURL": {
           "type": "string",
@@ -28,20 +28,16 @@
         },
         "qrCode": {
           "type": "string",
-          "description": "The QR code value for the member. For new members, this is their user ID (UID). For migrated members, it is the value from the legacy system."
-        },
-        "status": {
-          "type": "string",
-          "description": "The membership status (Active/Expired)."
+          "description": "The QR code value for the member. For new members, this is their phone number."
         },
         "expirationDate": {
           "type": "string",
-          "format": "date-time",
-          "description": "The date when the member's subscription expires."
+          "format": "date",
+          "description": "The date when the member's subscription expires, in YYYY-MM-DD format."
         },
-        "subscriptionId": {
+        "subscriptionType": {
           "type": "string",
-          "description": "Reference to Subscription. (Relationship: Member 1:1 Subscription)"
+          "description": "The name of the subscription plan (e.g., 'Techno Pro')."
         },
         "agreedToTermsAt": {
           "type": "string",
@@ -52,10 +48,8 @@
       "required": [
         "id",
         "name",
-        "email",
         "phone",
-        "qrCode",
-        "status"
+        "qrCode"
       ]
     },
     "Subscription": {
@@ -208,17 +202,17 @@
   "firestore": {
     "structure": [
       {
-        "path": "/members/{memberId}",
+        "path": "/members/{phoneNumber}",
         "definition": {
           "entityName": "Member",
           "schema": {
             "$ref": "#/backend/entities/Member"
           },
-          "description": "Stores gym member data. Includes fields for QR code, membership status, days remaining, and subscription ID.",
+          "description": "Stores gym member data. The document ID is the member's phone number.",
           "params": [
             {
-              "name": "memberId",
-              "description": "Unique identifier for the member."
+              "name": "phoneNumber",
+              "description": "The member's phone number, used as the document ID."
             }
           ]
         }
@@ -307,4 +301,3 @@
     "reasoning": "The Firestore data structure is designed to address the error encountered during user registration ('auth/configuration-not-found') and support the Techno Gym app's core features. The structure emphasizes Authorization Independence (CRITICAL) by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data with a direct relationship to subscriptions.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Stores customer feedback.\n\nThe structure facilitates secure `list` operations (QAPs) by ensuring that each collection contains data with similar access control requirements.  For example, member-specific data and general workout data are stored in separate collections."
   }
 }
-    
