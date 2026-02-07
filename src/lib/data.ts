@@ -111,7 +111,7 @@ export const trainers = [
     name: "Luca Mihai",
     specialty: "Personal Trainer & Nutritionist",
     image: getImage('trainer-2'),
-    instagramUrl: "https://www.instagram.com/lucamihai/",
+    instagramUrl: "https://www.instagram.com/iamlucamihai/",
   },
   {
     id: "3",
