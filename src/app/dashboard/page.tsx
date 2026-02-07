@@ -36,45 +36,37 @@ export default function DashboardHomePage() {
   const handleInstallClick = () => {
     setShowInstallInstructions(true);
   };
-
-  const currentSubscription = useMemo(() => {
-    if (!memberData || !memberData.subscriptionType) return null;
-    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
+  
+  // Create a single, robust Date object from the string using UTC.
+  const expDate = useMemo(() => {
+      if (memberData?.expirationDate) {
+          const expDateString = memberData.expirationDate;
+          if (typeof expDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(expDateString)) {
+              const [year, month, day] = expDateString.split('-').map(Number);
+              // Use Date.UTC to create a timezone-independent date.
+              return new Date(Date.UTC(year, month - 1, day));
+          }
+      }
+      return null;
   }, [memberData]);
 
-  const loading = userLoading || memberLoading;
 
-  const calculateDaysLeft = (user: any) => {
-    if (user && user.expirationDate) {
-      const expDateString = user.expirationDate; // "YYYY-MM-DD"
-      
-      // Verificăm formatul string-ului pentru a evita erori
-      if (typeof expDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(expDateString)) {
-        // Parsăm manual pentru a evita problemele de fus orar cu `new Date(string)`
-        const [year, month, day] = expDateString.split('-').map(Number);
-        
-        // `new Date(year, month - 1, day)` creează data la miezul nopții în fusul orar local
-        const expDate = new Date(year, month - 1, day);
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Data de azi la miezul nopții
-
-        // Verificăm dacă data este validă (ex: luna este 1-12)
-        if (!isNaN(expDate.getTime())) {
-            const diffTime = expDate.getTime() - today.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            return diffDays;
-        }
-      }
+  const calculateDaysLeft = (expirationDate: Date | null) => {
+    if (!expirationDate || isNaN(expirationDate.getTime())) {
+      return 0;
     }
+
+    // Create today's date in UTC at midnight.
+    const today = new Date();
+    const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+
+    const diffTime = expirationDate.getTime() - todayUTC.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    // Dacă nu există dată de expirare sau e invalidă, returnăm 0.
-    return 0;
+    return diffDays;
   };
 
-
-  if (loading || !user) {
+  if (userLoading || memberLoading || !user) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -98,13 +90,16 @@ export default function DashboardHomePage() {
         </motion.div>
     );
   }
-
-  const daysRemaining = calculateDaysLeft(memberData);
+  
+  const currentSubscription = subscriptions.find(sub => sub.title === memberData.subscriptionType);
+  
+  const daysRemaining = calculateDaysLeft(expDate);
   const daysForDisplay = Math.max(0, daysRemaining);
-
   const status = daysRemaining > 0 ? "Activ" : "Expirat";
-  const expDate = memberData.expirationDate ? new Date(memberData.expirationDate.replace(/-/g, '/')) : null;
-  const expirationDateDisplay = expDate && !isNaN(expDate.getTime()) && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
+  
+  // Use the robust `expDate` object for formatting.
+  const expirationDateDisplay = expDate && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
+  
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
 
