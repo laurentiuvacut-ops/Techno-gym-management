@@ -8,7 +8,7 @@ import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { format, isValid } from 'date-fns';
+import { format } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
@@ -44,6 +44,30 @@ export default function DashboardHomePage() {
 
   const loading = userLoading || memberLoading;
 
+  const calculateDaysLeft = (user: any) => {
+    // 1. Prioritate maximă: Dacă avem dată de expirare, calculăm!
+    if (user && user.expirationDate) {
+      const expDate = new Date(user.expirationDate);
+      
+      // Verificăm dacă data este validă.
+      if (!isNaN(expDate.getTime())) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        expDate.setHours(0, 0, 0, 0);
+        
+        const diffTime = expDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        return diffDays;
+      }
+    }
+    
+    // Dacă nu există dată de expirare sau e invalidă, returnăm 0.
+    // Logica veche cu 'daysRemaining' este ignorată complet.
+    return 0;
+  };
+
+
   if (loading || !user) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -69,37 +93,12 @@ export default function DashboardHomePage() {
     );
   }
 
-  const calculateDaysLeft = (user: any) => {
-    // 1. Prioritate maximă: Dacă avem dată de expirare, calculăm!
-    if (user.expirationDate && isValid(new Date(user.expirationDate))) {
-      const today = new Date();
-      const expDate = new Date(user.expirationDate);
-      
-      // Setăm ambele date la miezul nopții ca să fie calculul curat
-      today.setHours(0, 0, 0, 0);
-      expDate.setHours(0, 0, 0, 0);
-      
-      const diffTime = expDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      // Returnăm zilele calculate, chiar dacă sunt 100 sau -5
-      return diffDays; 
-    }
-    
-    // 2. Doar dacă NU avem dată, ne uităm la câmpul vechi
-    if (user.daysRemaining !== undefined) {
-      return parseInt(user.daysRemaining, 10);
-    }
-    
-    return 0;
-  };
-
   const daysRemaining = calculateDaysLeft(memberData);
   const daysForDisplay = Math.max(0, daysRemaining);
 
   const status = daysRemaining > 0 ? "Activ" : "Expirat";
   const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : null;
-  const expirationDateDisplay = expDate && isValid(expDate) && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
+  const expirationDateDisplay = expDate && !isNaN(expDate.getTime()) && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
 
