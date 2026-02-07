@@ -118,7 +118,7 @@ export const trainers = [
     name: "Maria Cirnu",
     specialty: "Personal Trainer",
     image: getImage('trainer-3'),
-    instagramUrl: "https://www.instagram.com/mariacirnu/",
+    instagramUrl: "https://www.instagram.com/maria_cirnu/",
   },
   {
     id: "4",
