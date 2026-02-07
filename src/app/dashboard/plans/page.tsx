@@ -121,6 +121,11 @@ function PlansComponent() {
       setIsUpdating(null);
     }
   };
+  
+  const currentSubscription = useMemo(() => {
+    if (!memberData || !memberData.subscriptionType) return null;
+    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
+  }, [memberData]);
 
   const loading = userLoading || memberLoading;
 
@@ -131,11 +136,6 @@ function PlansComponent() {
       </div>
     );
   }
-  
-  const currentSubscription = useMemo(() => {
-    if (!memberData || !memberData.subscriptionType) return null;
-    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
-  }, [memberData]);
   
   const currentPlanId = currentSubscription?.id;
 
