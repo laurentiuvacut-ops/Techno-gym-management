@@ -124,34 +124,42 @@ export default function LandingPage() {
                     align: "start",
                     loop: true,
                   }}
-                  className="w-full max-w-4xl mx-auto mt-12"
+                  className="w-full max-w-5xl mx-auto mt-12"
                 >
                   <CarouselContent>
                     {transformations.map((transform) => (
-                      <CarouselItem key={transform.id} className="md:basis-1/2">
-                        <div className="p-2">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="relative aspect-[3/4]">
-                              <Image
-                                src={transform.before.imageUrl}
-                                alt="Before"
-                                fill
-                                data-ai-hint={transform.before.imageHint}
-                                className="rounded-lg object-cover"
-                              />
-                              <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">Înainte</Badge>
-                            </div>
-                            <div className="relative aspect-[3/4]">
-                              <Image
-                                src={transform.after.imageUrl}
-                                alt="After"
-                                fill
-                                data-ai-hint={transform.after.imageHint}
-                                className="rounded-lg object-cover"
-                              />
-                              <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">După</Badge>
-                            </div>
-                          </div>
+                      <CarouselItem key={transform.id} className="md:basis-1/2 lg:basis-1/3">
+                        <div className="p-4">
+                          <Card className="overflow-hidden glass">
+                            <CardContent className="p-0">
+                              <div className="grid grid-cols-2">
+                                <div className="relative aspect-[3/4]">
+                                  <Image
+                                    src={transform.before.imageUrl}
+                                    alt="Before"
+                                    fill
+                                    data-ai-hint={transform.before.imageHint}
+                                    className="object-cover"
+                                  />
+                                  <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">Înainte</Badge>
+                                </div>
+                                <div className="relative aspect-[3/4]">
+                                  <Image
+                                    src={transform.after.imageUrl}
+                                    alt="After"
+                                    fill
+                                    data-ai-hint={transform.after.imageHint}
+                                    className="object-cover"
+                                  />
+                                  <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">După</Badge>
+                                </div>
+                              </div>
+                            </CardContent>
+                            <CardFooter className="flex-col items-start p-4">
+                               <h3 className="font-bold text-lg">{transform.name}</h3>
+                               <p className="text-muted-foreground text-sm italic">{transform.story}</p>
+                            </CardFooter>
+                          </Card>
                         </div>
                       </CarouselItem>
                     ))}
