@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star, ArrowLeft, LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser, useFirestore, useDoc } from '@/firebase';
+import { useUser, useFirestore, useDoc, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { doc, updateDoc } from "firebase/firestore";
@@ -27,7 +27,6 @@ function PlansComponent() {
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
-    // Use UID for document ID
     return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
 
@@ -45,7 +44,7 @@ function PlansComponent() {
   }, [user, userLoading, router]);
 
   useEffect(() => {
-    const handleSuccessfulPayment = async () => {
+    const handleSuccessfulPayment = () => {
         const planId = searchParams.get('plan_id');
         const paymentSuccess = searchParams.get('payment_success') === 'true';
 
@@ -63,16 +62,35 @@ function PlansComponent() {
                 const startDate = isValid(currentExpirationDate) && isAfter(currentExpirationDate, new Date()) ? currentExpirationDate : new Date();
                 const newExpirationDate = addDays(startDate, daysToAdd);
 
-                await updateDoc(memberDocRef, {
+                const updatedData = {
                     expirationDate: format(newExpirationDate, 'yyyy-MM-dd'),
                     subscriptionType: purchasedPlan.title,
-                });
+                    status: "Active",
+                };
 
-                toast({
-                    title: "Plată reușită!",
-                    description: `Abonamentul tău ${purchasedPlan.title} a fost activat.`,
-                    className: "bg-success text-success-foreground",
-                });
+                updateDoc(memberDocRef, updatedData)
+                  .then(() => {
+                      toast({
+                          title: "Plată reușită!",
+                          description: `Abonamentul tău ${purchasedPlan.title} a fost activat.`,
+                          className: "bg-success text-success-foreground",
+                      });
+                  })
+                  .catch(error => {
+                      console.error("Failed to update member document:", error);
+                      const permissionError = new FirestorePermissionError({
+                          path: memberDocRef.path,
+                          operation: 'update',
+                          requestResourceData: updatedData
+                      });
+                      errorEmitter.emit('permission-error', permissionError);
+
+                      toast({
+                          variant: "destructive",
+                          title: "Eroare la actualizarea abonamentului",
+                          description: "Nu am putut salva datele abonamentului. Vă rugăm contactați suportul.",
+                      });
+                  });
             }
 
             router.replace('/dashboard/plans', { scroll: false });

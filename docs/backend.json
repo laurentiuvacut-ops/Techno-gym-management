@@ -39,6 +39,10 @@
           "type": "string",
           "description": "The name of the subscription plan (e.g., 'Techno Pro')."
         },
+        "status": {
+          "type": "string",
+          "description": "Subscription status, e.g., 'Active' or 'Expired'."
+        },
         "agreedToTermsAt": {
           "type": "string",
           "format": "date-time",
