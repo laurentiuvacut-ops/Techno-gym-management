@@ -31,27 +31,19 @@ export default function RegisterPage() {
     const handleCreateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!name.trim() || !agreed || !user || !firestore) return;
-        if (!user.phoneNumber) {
-            console.error("No phone number found for user.");
-            toast({
-                variant: "destructive",
-                title: "Eroare",
-                description: "Numărul de telefon nu a fost găsit. Vă rugăm reîncercați.",
-            });
-            return;
-        }
 
         setIsSubmitting(true);
-        const memberDocRef = doc(firestore, 'members', user.phoneNumber);
+        // Use user's UID as the document ID
+        const memberDocRef = doc(firestore, 'members', user.uid);
         try {
             await setDoc(memberDocRef, {
                 id: user.uid,
                 name: name,
                 email: user.email || null,
-                phone: user.phoneNumber,
+                phone: user.phoneNumber, // Keep phone number as a field
                 photoURL: user.photoURL || null,
-                qrCode: user.phoneNumber,
-                expirationDate: format(new Date(0), 'yyyy-MM-dd'),
+                qrCode: user.phoneNumber, // QR Code can still be phone number for scanning
+                expirationDate: format(new Date(0), 'yyyy-MM-dd'), // Indicates no active subscription
                 subscriptionType: null,
                 agreedToTermsAt: new Date().toISOString(),
             });

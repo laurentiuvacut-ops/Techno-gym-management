@@ -1,136 +1,72 @@
 /**
  * Core Philosophy: This ruleset establishes a clear boundary between public, read-only application data and private, user-owned data. Public content like workouts, products, and trainer info is globally readable to support the app's features for all users. Private data, such as a member's personal information, is strictly protected, ensuring a user can only access and manage their own documents.
  *
- * Data Structure: The data is organized into a flat hierarchy of top-level collections. This structural segregation simplifies security rules, as each collection has a uniform access control pattern. For example, the `/members/{phoneNumber}` collection follows a strict ownership model, while the `/workouts` collection is public. There are no nested subcollections, which avoids complex hierarchical rule logic.
+ * Data Structure: The data is organized into a flat hierarchy of top-level collections. This structural segregation simplifies security rules, as each collection has a uniform access control pattern. The `/members/{memberId}` collection follows a strict ownership model where the document ID must match the authenticated user's UID.
  *
  * Key Security Decisions:
- * - Member Data Isolation: A user's personal data in `/members/{phoneNumber}` is accessible only to them. Ownership is verified by matching the phone number from their auth token with the document ID. Listing of all members is explicitly disallowed to protect user privacy.
+ * - Member Data Isolation: A user's personal data in `/members/{memberId}` is accessible only to them. Ownership is verified by matching the user's auth UID with the document ID (`memberId`). This is the most secure and standard way to protect user data. Listing of all members is explicitly disallowed to protect user privacy.
  * - Public App Content: Collections like `/subscriptions`, `/workouts`, `/trainers`, and `/products` are treated as public, read-only data. This allows any client (authenticated or not) to fetch this information, but prevents any client-side modification, ensuring data integrity. Changes to this data must be made through a trusted admin environment (e.g., the Firebase Console or a backend server).
  * - Write-Only Feedback: The `/feedback` collection is designed for users to submit content without being able to read, update, or delete it, preventing misuse.
- *
- * Denormalization for Authorization:
- * - The `members` documents contain an `id` field (the user's UID) that is validated on create, update, and delete to ensure a user can only modify their own record.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // =================================
-    // Helper Functions
-    // =================================
-
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // Checks if the requesting user's UID matches the document's `id` field.
-    function isOwner(docId) {
-      return isSignedIn() && request.auth.uid == docId;
-    }
-    
-    // Checks if the requesting user's phone number from their token
-    // matches the phone number in the document's path.
-    function isOwnerByPhone(pathPhoneNumber) {
-        return isSignedIn() && request.auth.token.phone_number == pathPhoneNumber;
-    }
-
-    // =================================
     // Collection Rules
     // =================================
 
-    match /members/{phoneNumber} {
-      // READ: Allow a user to read their own document if their token's 
-      // phone number matches the document ID.
-      allow get: if isOwnerByPhone(phoneNumber);
-      
-      // LIST: Disallow listing all members for privacy.
-      allow list: if false; 
+    match /members/{memberId} {
+      // A user can read, update, or delete their own member document.
+      // Ownership is determined by matching the requester's UID with the document ID.
+      allow get, update, delete: if request.auth.uid == memberId;
 
-      // CREATE: Allow a user to create their own profile. The document ID must be their
-      // phone number, and the `id` field inside the doc must be their UID.
-      allow create: if isOwnerByPhone(phoneNumber) && request.resource.data.id == request.auth.uid;
+      // A user can create their own member document.
+      // This rule ensures the document ID matches the user's UID.
+      allow create: if request.auth.uid == memberId;
       
-      // UPDATE: Allow a user to update their own document, verified by the stored UID.
-      // Prevents the UID ('id' field) from being changed after creation.
-      allow update: if isOwner(resource.data.id) && request.resource.data.id == resource.data.id;
-
-      // DELETE: Allow a user to delete their own document, verified by the stored UID.
-      allow delete: if isOwner(resource.data.id);
+      // For privacy, disallow listing all members.
+      allow list: if false;
     }
 
     /**
      * @description Allows any user, including unauthenticated ones, to read subscription info. Writes are disabled.
-     * @path /subscriptions/{subscriptionId}
-     * @allow Any anonymous user can (list) all documents in the `/subscriptions` collection.
-     * @deny Any signed-in user cannot (create) a new document at `/subscriptions/new-tier`.
-     * @principle Provides public read access for application content while preventing client-side modification.
      */
     match /subscriptions/{subscriptionId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
 
     /**
      * @description Allows any user, including unauthenticated ones, to read workout info. Writes are disabled.
-     * @path /workouts/{workoutId}
-     * @allow Any anonymous user can (get) a document at `/workouts/strength-day-1`.
-     * @deny Any signed-in user cannot (update) a document at `/workouts/strength-day-1`.
-     * @principle Provides public read access for application content while preventing client-side modification.
      */
     match /workouts/{workoutId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
 
     /**
      * @description Allows any user, including unauthenticated ones, to read trainer profiles. Writes are disabled.
-     * @path /trainers/{trainerId}
-     * @allow Any anonymous user can (list) all documents in the `/trainers` collection.
-     * @deny Any signed-in user cannot (delete) a document at `/trainers/trainer-jane`.
-     * @principle Provides public read access for application content while preventing client-side modification.
      */
     match /trainers/{trainerId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
 
     /**
      * @description Allows any user, including unauthenticated ones, to read product info. Writes are disabled.
-     * @path /products/{productId}
-     * @allow Any anonymous user can (get) a document at `/products/protein-powder`.
-     * @deny Any signed-in user cannot (create) a new document at `/products/new-item`.
-     * @principle Provides public read access for application content while preventing client-side modification.
      */
     match /products/{productId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
 
     /**
      * @description Enforces that only an authenticated user can submit feedback. The feedback is anonymous.
-     * @path /feedback/{feedbackId}
-     * @allow A signed-in user can (create) their own feedback.
-     * @deny A user cannot read, update, or delete any feedback.
-     * @principle Collect user-generated content in a write-only manner for clients.
      */
     match /feedback/{feedbackId} {
-      allow list: if false;
-      allow get: if false;
-      allow create: if isSignedIn();
-      allow update: if false;
-      allow delete: if false;
+      allow create: if request.auth != null;
+      allow get, list, update, delete: if false;
     }
   }
 }

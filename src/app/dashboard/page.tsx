@@ -8,7 +8,7 @@ import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { format, differenceInDays, isAfter } from 'date-fns';
+import { format, differenceInDays, isAfter, isValid } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
@@ -25,8 +25,9 @@ export default function DashboardHomePage() {
   };
 
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user || !user.phoneNumber) return null;
-    return doc(firestore, 'members', user.phoneNumber);
+    if (!firestore || !user) return null;
+    // Use UID for document ID
+    return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -42,19 +43,15 @@ export default function DashboardHomePage() {
     }
   }, [user, userLoading, router]);
 
-
-  const loading = userLoading || memberLoading;
-
   useEffect(() => {
-    // If the initial user load is complete, and we have a user,
-    // but the member data is not loading and is confirmed to not exist,
-    // then it's a new user who needs to register.
     if (!userLoading && user && !memberLoading && !memberData) {
         router.push('/register');
     }
   }, [userLoading, user, memberLoading, memberData, router]);
 
-  if (loading || !memberData) {
+  const loading = userLoading || memberLoading;
+
+  if (loading || !user || !memberData) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -62,10 +59,10 @@ export default function DashboardHomePage() {
     );
   }
 
-  const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : new Date(0);
-  const daysRemaining = isAfter(expDate, new Date()) ? differenceInDays(expDate, new Date()) : 0;
-  const status = daysRemaining > 0 ? "Active" : "Expired";
-  const expirationDateDisplay = format(expDate, 'dd MMM yyyy');
+  const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : null;
+  const daysRemaining = expDate && isValid(expDate) && isAfter(expDate, new Date()) ? differenceInDays(expDate, new Date()) : 0;
+  const status = daysRemaining > 0 ? "Activ" : "Expirat";
+  const expirationDateDisplay = expDate && isValid(expDate) ? format(expDate, 'dd MMM yyyy') : "N/A";
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
 

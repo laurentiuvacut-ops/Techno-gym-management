@@ -20,8 +20,9 @@ export default function ProfilePage() {
     const firestore = useFirestore();
 
     const memberDocRef = useMemo(() => {
-        if (!firestore || !user || !user.phoneNumber) return null;
-        return doc(firestore, 'members', user.phoneNumber);
+        if (!firestore || !user) return null;
+        // Use UID for document ID
+        return doc(firestore, 'members', user.uid);
     }, [firestore, user]);
 
     const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -45,7 +46,7 @@ export default function ProfilePage() {
 
     const loading = userLoading || memberLoading;
 
-    if (loading || !user) {
+    if (loading || !user || !memberData) {
         return (
             <div className="flex items-center justify-center h-full">
                 <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>

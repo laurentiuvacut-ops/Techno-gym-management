@@ -12,7 +12,7 @@ import { useMemo, useState, useEffect, Suspense, useRef } from 'react';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
-import { addDays, isAfter, format } from 'date-fns';
+import { addDays, isAfter, format, isValid } from 'date-fns';
 
 function PlansComponent() {
   const { user, loading: userLoading } = useUser();
@@ -26,8 +26,9 @@ function PlansComponent() {
   const paymentProcessedRef = useRef(false);
 
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user || !user.phoneNumber) return null;
-    return doc(firestore, 'members', user.phoneNumber);
+    if (!firestore || !user) return null;
+    // Use UID for document ID
+    return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -48,17 +49,18 @@ function PlansComponent() {
         const planId = searchParams.get('plan_id');
         const paymentSuccess = searchParams.get('payment_success') === 'true';
 
-        if (paymentSuccess && user && firestore && user.phoneNumber && planId && !paymentProcessedRef.current) {
+        if (paymentSuccess && user && firestore && planId && !paymentProcessedRef.current) {
             paymentProcessedRef.current = true; 
             
             const purchasedPlan = subscriptions.find(s => s.id === planId);
 
             if (purchasedPlan) {
-                const memberDocRef = doc(firestore, 'members', user.phoneNumber);
+                const memberDocRef = doc(firestore, 'members', user.uid);
                 
-                const daysToAdd = (purchasedPlan as any).durationDays || 30;
-                const currentExpirationDate = memberData?.expirationDate ? new Date(memberData.expirationDate) : new Date();
-                const startDate = isAfter(currentExpirationDate, new Date()) ? currentExpirationDate : new Date();
+                const daysToAdd = purchasedPlan.durationDays || 30;
+                
+                const currentExpirationDate = memberData?.expirationDate ? new Date(memberData.expirationDate) : new Date(0);
+                const startDate = isValid(currentExpirationDate) && isAfter(currentExpirationDate, new Date()) ? currentExpirationDate : new Date();
                 const newExpirationDate = addDays(startDate, daysToAdd);
 
                 await updateDoc(memberDocRef, {
@@ -69,6 +71,7 @@ function PlansComponent() {
                 toast({
                     title: "Plată reușită!",
                     description: `Abonamentul tău ${purchasedPlan.title} a fost activat.`,
+                    className: "bg-success text-success-foreground",
                 });
             }
 

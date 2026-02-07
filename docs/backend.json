@@ -16,11 +16,11 @@
         },
         "email": {
           "type": "string",
-          "description": "Email of the member, used for authentication."
+          "description": "Email of the member, can be null."
         },
         "phone": {
           "type": "string",
-          "description": "Phone number of the member. Used for authentication and as document ID."
+          "description": "Phone number of the member."
         },
         "photoURL": {
           "type": "string",
@@ -28,7 +28,7 @@
         },
         "qrCode": {
           "type": "string",
-          "description": "The QR code value for the member. For new members, this is their phone number."
+          "description": "The QR code value for the member, typically their phone number."
         },
         "expirationDate": {
           "type": "string",
@@ -48,8 +48,7 @@
       "required": [
         "id",
         "name",
-        "phone",
-        "qrCode"
+        "phone"
       ]
     },
     "Subscription": {
@@ -202,17 +201,17 @@
   "firestore": {
     "structure": [
       {
-        "path": "/members/{phoneNumber}",
+        "path": "/members/{memberId}",
         "definition": {
           "entityName": "Member",
           "schema": {
             "$ref": "#/backend/entities/Member"
           },
-          "description": "Stores gym member data. The document ID is the member's phone number.",
+          "description": "Stores gym member data. The document ID is the user's UID from Firebase Auth.",
           "params": [
             {
-              "name": "phoneNumber",
-              "description": "The member's phone number, used as the document ID."
+              "name": "memberId",
+              "description": "The user's UID, used as the document ID."
             }
           ]
         }
@@ -298,6 +297,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to address the error encountered during user registration ('auth/configuration-not-found') and support the Techno Gym app's core features. The structure emphasizes Authorization Independence (CRITICAL) by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data with a direct relationship to subscriptions.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Stores customer feedback.\n\nThe structure facilitates secure `list` operations (QAPs) by ensuring that each collection contains data with similar access control requirements.  For example, member-specific data and general workout data are stored in separate collections."
+    "reasoning": "The Firestore data structure is designed to support the Techno Gym app's core features. The structure emphasizes Authorization Independence by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data, with the document ID being the user's UID for secure, direct access.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Stores customer feedback.\n\nThe structure facilitates secure `list` operations by ensuring that each collection contains data with similar access control requirements. For example, member-specific data and general workout data are stored in separate collections."
   }
 }
