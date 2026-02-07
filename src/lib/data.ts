@@ -25,6 +25,7 @@ export const subscriptions = [
     period: "/lună",
     durationDays: 30,
     benefits: [
+      "Acces în intervalul 08:00 - 16:00",
       "Acces la aparate și greutăți",
       "Vestiar cu dușuri inclus",
     ],
@@ -38,6 +39,7 @@ export const subscriptions = [
     period: "/lună",
     durationDays: 30,
     benefits: [
+      "Acces în intervalul 08:00 - 22:00",
       "Toate beneficiile Classic",
     ],
     cta: "Cumpără Acum",
@@ -359,4 +361,6 @@ export const transformations = [
     
 
     
+    
+
     
