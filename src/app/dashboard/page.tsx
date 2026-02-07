@@ -25,21 +25,13 @@ export default function DashboardHomePage() {
     return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
 
-  const { data: memberData, isLoading: memberLoading, error: memberError } = useDoc(memberDocRef);
+  const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
   useEffect(() => {
     if (!userLoading && !user) {
       router.push('/login');
     }
   }, [user, userLoading, router]);
-
-  useEffect(() => {
-    // Redirect to register only if loading is complete, user exists, but no member data is found AND there's no fetch error.
-    if (!userLoading && user && !memberLoading && !memberData && !memberError) {
-        router.push('/register');
-    }
-  }, [userLoading, user, memberLoading, memberData, memberError, router]);
-
 
   const handleInstallClick = () => {
     setShowInstallInstructions(true);
@@ -61,13 +53,21 @@ export default function DashboardHomePage() {
     );
   }
   
+  // If loading is finished, and we have a user, but no member data exists, prompt them to register.
   if (!memberData) {
-     // This can happen briefly between registration and the data being available,
-     // or if the registration redirect is happening.
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col items-center justify-center h-full text-center"
+        >
+            <h1 className="text-2xl font-headline mb-2">Finalizează-ți contul</h1>
+            <p className="text-muted-foreground mb-6 max-w-sm">Profilul tău de membru nu a fost găsit. Te rugăm să completezi înregistrarea pentru a accesa panoul de control.</p>
+            <Button asChild>
+                <Link href="/register">Finalizează Înregistrarea</Link>
+            </Button>
+        </motion.div>
     );
   }
 
@@ -77,18 +77,16 @@ export default function DashboardHomePage() {
   let daysRemaining = 0;
   if (expDate && isValid(expDate)) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize today's date to the beginning of the day
+    today.setHours(0, 0, 0, 0);
     
-    // The expiration date from the string is already at the beginning of the day
     const differenceInMs = expDate.getTime() - today.getTime();
     
-    // Calculate days and round up. Add 1 to be inclusive of the final day.
+    // Add 1 to be inclusive of the final day. If the result is negative, show 0.
     const daysCalculated = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24)) + 1;
-    
-    daysRemaining = daysCalculated > 0 ? daysCalculated : 0;
+    daysRemaining = Math.max(0, daysCalculated);
   }
   
-  if (daysRemaining > 36500) { // Safety check for initial date of 1970 (which results in a large negative number)
+  if (daysRemaining > 36500) { 
     daysRemaining = 0;
   }
 
