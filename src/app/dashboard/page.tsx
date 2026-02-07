@@ -42,7 +42,6 @@ export default function DashboardHomePage() {
     return subscriptions.find(sub => sub.title === memberData.subscriptionType);
   }, [memberData]);
 
-
   const loading = userLoading || memberLoading;
 
   if (loading || !user) {
@@ -53,7 +52,6 @@ export default function DashboardHomePage() {
     );
   }
   
-  // If loading is finished, and we have a user, but no member data exists, prompt them to register.
   if (!memberData) {
     return (
         <motion.div 
@@ -71,25 +69,22 @@ export default function DashboardHomePage() {
     );
   }
 
-
+  // IGNORĂ complet daysRemaining. Calculează dinamic pe baza expirationDate.
   const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : null;
-  
   let daysRemaining = 0;
+
   if (expDate && isValid(expDate)) {
     const today = new Date();
+    // Normalizează ambele date la miezul nopții pentru un calcul corect al zilelor calendaristice.
     today.setHours(0, 0, 0, 0);
-    
+    expDate.setHours(23, 59, 59, 999); // Asigură-te că data de expirare este inclusivă
+
     const differenceInMs = expDate.getTime() - today.getTime();
     
-    // Add 1 to be inclusive of the final day. If the result is negative, show 0.
-    const daysCalculated = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24)) + 1;
+    // Calculează zilele rămase. `Math.ceil` asigură că orice fracțiune de zi este rotunjită în sus.
+    const daysCalculated = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
     daysRemaining = Math.max(0, daysCalculated);
   }
-  
-  if (daysRemaining > 36500) { 
-    daysRemaining = 0;
-  }
-
 
   const status = daysRemaining > 0 ? "Activ" : "Expirat";
   const expirationDateDisplay = expDate && isValid(expDate) && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
