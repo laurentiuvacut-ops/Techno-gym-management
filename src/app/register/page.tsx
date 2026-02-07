@@ -51,7 +51,7 @@ export default function RegisterPage() {
                 photoURL: user.photoURL || null,
                 qrCode: user.phoneNumber,
                 status: 'Expired',
-                daysRemaining: 0,
+                expirationDate: new Date(0).toISOString(),
                 subscriptionId: null,
                 agreedToTermsAt: new Date(),
             });
@@ -137,3 +137,5 @@ export default function RegisterPage() {
         </div>
     );
 }
+
+    

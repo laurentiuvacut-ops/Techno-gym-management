@@ -12,6 +12,7 @@ import { useMemo, useState, useEffect, Suspense, useRef } from 'react';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
+import { addDays, isAfter } from 'date-fns';
 
 function PlansComponent() {
   const { user, loading: userLoading } = useUser();
@@ -54,15 +55,15 @@ function PlansComponent() {
             if (purchasedPlan) {
                 const memberDocRef = doc(firestore, 'members', user.uid);
                 
-                // Add purchased days to existing days, or set them if expired
-                const currentDaysRemaining = memberData?.daysRemaining || 0;
                 const daysToAdd = (purchasedPlan as any).durationDays || 30;
-                const newDaysRemaining = (currentDaysRemaining > 0 ? currentDaysRemaining : 0) + daysToAdd;
+                const currentExpirationDate = memberData?.expirationDate ? new Date(memberData.expirationDate) : new Date();
+                const startDate = isAfter(currentExpirationDate, new Date()) ? currentExpirationDate : new Date();
+                const newExpirationDate = addDays(startDate, daysToAdd);
 
                 await updateDoc(memberDocRef, {
                     subscriptionId: purchasedPlan.id,
                     status: "Active",
-                    daysRemaining: newDaysRemaining,
+                    expirationDate: newExpirationDate.toISOString(),
                 });
 
                 toast({
@@ -252,3 +253,5 @@ export default function PlansPage() {
     </Suspense>
   )
 }
+
+    

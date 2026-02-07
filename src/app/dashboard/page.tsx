@@ -8,7 +8,7 @@ import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { addDays, format } from 'date-fns';
+import { addDays, format, differenceInDays, isAfter } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
@@ -60,15 +60,23 @@ export default function DashboardHomePage() {
           // Legacy profile found. Now, check the user's current profile state.
           const currentUserDocRef = doc(firestore, 'members', user.uid);
           const currentUserDocSnap = await getDoc(currentUserDocRef);
+          
+          const currentExpiration = currentUserDocSnap.data()?.expirationDate;
+          const isExpired = !currentUserDocSnap.exists() || !currentExpiration || !isAfter(new Date(currentExpiration), new Date());
 
           // IMPORTANT: Only copy legacy data if the user does NOT have an active subscription.
           // This prevents overwriting a valid, paid membership with old data.
-          if (!currentUserDocSnap.exists() || (currentUserDocSnap.data()?.daysRemaining || 0) <= 0) {
+          if (isExpired) {
+             const legacyData = legacyDocSnap.data();
+             const { daysRemaining, ...restOfLegacyData } = legacyData;
+             const daysFromLegacy = daysRemaining || 0;
+
             await setDoc(currentUserDocRef, {
-              ...legacyDocSnap.data(), // Copy data from the old profile
+              ...restOfLegacyData,
               id: user.uid, // Overwrite with the correct new UID
               phone: userPhoneNumber, // Ensure phone is the new E.164 format
               qrCode: userPhoneNumber, // Update QR code to the new standard
+              expirationDate: addDays(new Date(), daysFromLegacy).toISOString(),
             });
           }
         }
@@ -99,7 +107,10 @@ export default function DashboardHomePage() {
     );
   }
 
-  const expirationDate = format(addDays(new Date(), memberData.daysRemaining), 'dd MMM yyyy');
+  const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : new Date(0);
+  const daysRemaining = isAfter(expDate, new Date()) ? differenceInDays(expDate, new Date()) : 0;
+  const status = daysRemaining > 0 ? "Active" : "Expired";
+  const expirationDateDisplay = format(expDate, 'dd MMM yyyy');
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
 
@@ -136,13 +147,13 @@ export default function DashboardHomePage() {
             </div>
             <div>
               <h2 className="font-bold">{subscriptionTitle}</h2>
-              <p className="text-sm text-primary">{memberData.status}</p>
+              <p className="text-sm text-primary">{status}</p>
             </div>
           </div>
           <div className="text-center my-8">
-            <p className="text-8xl md:text-9xl font-headline text-gradient leading-none">{memberData.daysRemaining}</p>
+            <p className="text-8xl md:text-9xl font-headline text-gradient leading-none">{daysRemaining}</p>
             <p className="font-bold tracking-widest">Zile Rămase</p>
-            <p className="text-sm text-muted-foreground">Expiră pe {expirationDate}</p>
+            <p className="text-sm text-muted-foreground">Expiră pe {expirationDateDisplay}</p>
           </div>
           <div/>
         </div>
@@ -195,3 +206,5 @@ export default function DashboardHomePage() {
     </>
   );
 }
+
+    
