@@ -73,18 +73,6 @@
       "imageHint": "fit man"
     },
     {
-      "id": "transformation-before-6",
-      "description": "Member before transformation",
-      "imageUrl": "https://i.imgur.com/BXjienu.jpg",
-      "imageHint": "man standing"
-    },
-    {
-      "id": "transformation-after-6",
-      "description": "Member after transformation",
-      "imageUrl": "https://i.imgur.com/SkZu8lu.jpg",
-      "imageHint": "fit man"
-    },
-    {
       "id": "transformation-before-7",
       "description": "Member before transformation",
       "imageUrl": "https://i.imgur.com/m0Jckgg.jpg",
@@ -214,6 +202,18 @@
       "id": "transformation-after-17",
       "description": "Member after transformation",
       "imageUrl": "https://i.imgur.com/sAtzfsP.jpg",
+      "imageHint": "fit man"
+    },
+    {
+      "id": "transformation-before-18",
+      "description": "Member before transformation",
+      "imageUrl": "https://i.imgur.com/pFazuaf.jpg",
+      "imageHint": "man standing"
+    },
+    {
+      "id": "transformation-after-18",
+      "description": "Member after transformation",
+      "imageUrl": "https://i.imgur.com/L11rh2R.jpg",
       "imageHint": "fit man"
     }
   ]
