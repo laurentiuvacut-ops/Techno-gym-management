@@ -32,6 +32,11 @@ function PlansComponent() {
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
+  const currentSubscription = useMemo(() => {
+    if (!memberData || !memberData.subscriptionType) return null;
+    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
+  }, [memberData]);
+
   useEffect(() => {
     if (!userLoading && !user) {
       router.push('/login');
@@ -122,11 +127,6 @@ function PlansComponent() {
     }
   };
   
-  const currentSubscription = useMemo(() => {
-    if (!memberData || !memberData.subscriptionType) return null;
-    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
-  }, [memberData]);
-
   const loading = userLoading || memberLoading;
 
   if (loading || !user) {
