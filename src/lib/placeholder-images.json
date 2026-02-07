@@ -287,6 +287,18 @@
       "description": "Member after transformation",
       "imageUrl": "https://i.imgur.com/n71m4oM.jpg",
       "imageHint": "fit man"
+    },
+    {
+      "id": "transformation-before-27",
+      "description": "Member before transformation",
+      "imageUrl": "https://i.imgur.com/1iA4bWV.jpg",
+      "imageHint": "man standing"
+    },
+    {
+      "id": "transformation-after-27",
+      "description": "Member after transformation",
+      "imageUrl": "https://i.imgur.com/uRC4ALy.jpg",
+      "imageHint": "fit man"
     }
   ]
 }

@@ -295,6 +295,13 @@ export const transformations = [
     story: 'O nouă transformare de succes!',
     before: getImage('transformation-before-26'),
     after: getImage('transformation-after-26'),
+  },
+  {
+    id: 27,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-27'),
+    after: getImage('transformation-after-27'),
   }
 ];
 
@@ -304,5 +311,6 @@ export const transformations = [
 
 
     
+
 
 
