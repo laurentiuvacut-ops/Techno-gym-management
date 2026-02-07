@@ -164,20 +164,6 @@ export const shopItems = [
 
 export const transformations = [
   {
-    id: 5,
-    name: 'Mihai C.',
-    story: '"De la zero la erou. Transformarea este reală și merită tot efortul."',
-    before: getImage('transformation-before-5'),
-    after: getImage('transformation-after-5'),
-  },
-  {
-    id: 7,
-    name: 'Membru Nou',
-    story: 'O nouă transformare de succes!',
-    before: getImage('transformation-before-7'),
-    after: getImage('transformation-after-7'),
-  },
-  {
     id: 8,
     name: 'Membru Nou',
     story: 'O nouă transformare de succes!',

@@ -61,30 +61,6 @@
       "imageHint": "gym weights"
     },
     {
-      "id": "transformation-before-5",
-      "description": "Member before transformation",
-      "imageUrl": "https://i.imgur.com/cJGfAUK.jpg",
-      "imageHint": "man standing"
-    },
-    {
-      "id": "transformation-after-5",
-      "description": "Member after transformation",
-      "imageUrl": "https://i.imgur.com/os7ex51.jpg",
-      "imageHint": "fit man"
-    },
-    {
-      "id": "transformation-before-7",
-      "description": "Member before transformation",
-      "imageUrl": "https://i.imgur.com/m0Jckgg.jpg",
-      "imageHint": "man standing"
-    },
-    {
-      "id": "transformation-after-7",
-      "description": "Member after transformation",
-      "imageUrl": "https://i.imgur.com/2j1eAwR.jpg",
-      "imageHint": "fit man"
-    },
-    {
       "id": "transformation-before-8",
       "description": "Member before transformation",
       "imageUrl": "https://i.imgur.com/fws8TFv.jpg",
