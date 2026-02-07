@@ -63,7 +63,11 @@ export default function TrainersPage() {
                 <h2 className="text-xl font-bold">{trainer.name}</h2>
                 <Badge variant="secondary" className="mt-1">{trainer.specialty}</Badge>
               </div>
-              <Button className="w-full sm:w-auto">Rezervă o ședință</Button>
+              <Button asChild className="w-full sm:w-auto">
+                <a href={trainer.instagramUrl} target="_blank" rel="noopener noreferrer">
+                  Rezervă o ședință
+                </a>
+              </Button>
             </Card>
           </motion.div>
         ))}
