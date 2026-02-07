@@ -69,24 +69,36 @@ export default function DashboardHomePage() {
     );
   }
 
-  // IGNORĂ complet daysRemaining. Calculează dinamic pe baza expirationDate.
-  const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : null;
-  let daysRemaining = 0;
-
-  if (expDate && isValid(expDate)) {
-    const today = new Date();
-    // Normalizează ambele date la miezul nopții pentru un calcul corect al zilelor calendaristice.
-    today.setHours(0, 0, 0, 0);
-    expDate.setHours(23, 59, 59, 999); // Asigură-te că data de expirare este inclusivă
-
-    const differenceInMs = expDate.getTime() - today.getTime();
+  const calculateDaysLeft = (user: any) => {
+    // 1. Prioritate maximă: Dacă avem dată de expirare, calculăm!
+    if (user.expirationDate && isValid(new Date(user.expirationDate))) {
+      const today = new Date();
+      const expDate = new Date(user.expirationDate);
+      
+      // Setăm ambele date la miezul nopții ca să fie calculul curat
+      today.setHours(0, 0, 0, 0);
+      expDate.setHours(0, 0, 0, 0);
+      
+      const diffTime = expDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Returnăm zilele calculate, chiar dacă sunt 100 sau -5
+      return diffDays; 
+    }
     
-    // Calculează zilele rămase. `Math.ceil` asigură că orice fracțiune de zi este rotunjită în sus.
-    const daysCalculated = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
-    daysRemaining = Math.max(0, daysCalculated);
-  }
+    // 2. Doar dacă NU avem dată, ne uităm la câmpul vechi
+    if (user.daysRemaining !== undefined) {
+      return parseInt(user.daysRemaining, 10);
+    }
+    
+    return 0;
+  };
+
+  const daysRemaining = calculateDaysLeft(memberData);
+  const daysForDisplay = Math.max(0, daysRemaining);
 
   const status = daysRemaining > 0 ? "Activ" : "Expirat";
+  const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : null;
   const expirationDateDisplay = expDate && isValid(expDate) && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
@@ -128,7 +140,7 @@ export default function DashboardHomePage() {
             </div>
           </div>
           <div className="text-center my-8">
-            <p className="text-8xl md:text-9xl font-headline text-gradient leading-none">{daysRemaining}</p>
+            <p className="text-8xl md:text-9xl font-headline text-gradient leading-none">{daysForDisplay}</p>
             <p className="font-bold tracking-widest">Zile Rămase</p>
             <p className="text-sm text-muted-foreground">Expiră pe {expirationDateDisplay}</p>
           </div>
