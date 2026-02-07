@@ -8,7 +8,7 @@ import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { format, differenceInDays, isAfter, isValid } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
@@ -30,7 +30,7 @@ export default function DashboardHomePage() {
     return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
 
-  const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
+  const { data: memberData, isLoading: memberLoading, error: memberError } = useDoc(memberDocRef);
 
   const currentSubscription = useMemo(() => {
     if (!memberData || !memberData.subscriptionType) return null;
@@ -44,10 +44,11 @@ export default function DashboardHomePage() {
   }, [user, userLoading, router]);
 
   useEffect(() => {
-    if (!userLoading && user && !memberLoading && !memberData) {
+    // Redirect to register only if loading is complete, user exists, but no member data is found AND there's no fetch error.
+    if (!userLoading && user && !memberLoading && !memberData && !memberError) {
         router.push('/register');
     }
-  }, [userLoading, user, memberLoading, memberData, router]);
+  }, [userLoading, user, memberLoading, memberData, memberError, router]);
 
   const loading = userLoading || memberLoading;
 
@@ -60,9 +61,22 @@ export default function DashboardHomePage() {
   }
 
   const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : null;
-  const daysRemaining = expDate && isValid(expDate) && isAfter(expDate, new Date()) ? differenceInDays(expDate, new Date()) : 0;
+  
+  let daysRemaining = 0;
+  if (expDate && isValid(expDate)) {
+    // This formula calculates the difference in milliseconds and converts to days, rounding up.
+    const differenceInMs = expDate.getTime() - new Date().getTime();
+    // We add 1 to include the expiration day itself in the count
+    const daysCalculated = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24)) + 1;
+    daysRemaining = daysCalculated > 0 ? daysCalculated : 0;
+  }
+  
+  if (daysRemaining > 3650) { // Safety check for initial date of 1970
+    daysRemaining = 0;
+  }
+
   const status = daysRemaining > 0 ? "Activ" : "Expirat";
-  const expirationDateDisplay = expDate && isValid(expDate) ? format(expDate, 'dd MMM yyyy') : "N/A";
+  const expirationDateDisplay = expDate && isValid(expDate) && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
 
@@ -112,23 +126,29 @@ export default function DashboardHomePage() {
 
         {/* QR Code */}
         <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4">
-            <div className="p-2 bg-white rounded-xl">
-                {memberData.qrCode ? (
-                    <Image
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${memberData.qrCode}&bgcolor=255-255-255`}
-                        alt="QR Code pentru acces"
-                        width={128}
-                        height={128}
-                        className="rounded-md"
-                    />
-                ) : (
-                    <div className="w-32 h-32 bg-muted rounded-md flex items-center justify-center">
-                        <p className="text-xs text-muted-foreground">QR indisponibil</p>
-                    </div>
-                )}
-            </div>
-          <h3 className="font-bold">Scanează pentru acces</h3>
-          <p className="text-sm text-muted-foreground">Prezintă acest cod la recepție pentru a intra în sală.</p>
+          {daysRemaining > 0 && memberData.qrCode ? (
+            <>
+              <div className="p-2 bg-white rounded-xl">
+                  <Image
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${memberData.qrCode}&bgcolor=255-255-255`}
+                      alt="QR Code pentru acces"
+                      width={128}
+                      height={128}
+                      className="rounded-md"
+                  />
+              </div>
+              <h3 className="font-bold">Scanează pentru acces</h3>
+              <p className="text-sm text-muted-foreground">Prezintă acest cod la recepție pentru a intra în sală.</p>
+            </>
+          ) : (
+            <>
+              <div className="w-36 h-36 bg-muted rounded-xl flex items-center justify-center p-4 text-center">
+                  <p className="text-sm text-muted-foreground">Codul QR este afișat doar pentru abonamentele active.</p>
+              </div>
+              <h3 className="font-bold">Abonament Expirat</h3>
+              <p className="text-sm text-muted-foreground">Reînnoiește-ți abonamentul pentru a genera codul de acces.</p>
+            </>
+          )}
         </div>
       </div>
 

@@ -17,15 +17,11 @@ service cloud.firestore {
     // =================================
 
     match /members/{memberId} {
-      // A user can read, update, or delete their own member document.
-      // Ownership is determined by matching the requester's UID with the document ID.
-      allow get, update, delete: if request.auth.uid == memberId;
-
-      // A user can create their own member document.
-      // This rule ensures the document ID matches the user's UID.
-      allow create: if request.auth.uid == memberId;
+      // A user can read, create, update, or delete their own member document.
+      // Ownership is strictly verified by matching the requester's UID with the document ID.
+      allow read, write: if request.auth != null && request.auth.uid == memberId;
       
-      // For privacy, disallow listing all members.
+      // Explicitly disallow listing all members for privacy.
       allow list: if false;
     }
 
