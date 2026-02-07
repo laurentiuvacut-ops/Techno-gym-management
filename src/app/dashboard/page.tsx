@@ -20,54 +20,12 @@ export default function DashboardHomePage() {
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
-  // --- Logic to check both UID-keyed and Phone-keyed documents ---
-
-  // 1. Document based on Firebase Auth UID (the standard)
-  const uidDocRef = useMemo(() => {
+  // Document based on Firebase Auth UID (the only secure way)
+  const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
     return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
-  const { data: uidMemberData, isLoading: uidMemberLoading } = useDoc(uidDocRef);
-
-  // 2. Document based on Phone Number (for legacy/external software compatibility)
-  const phoneDocId = useMemo(() => {
-    if (!user?.phoneNumber) return null;
-    // Normalize phone number: Firebase stores it as +407..., legacy might use 07...
-    return user.phoneNumber.replace(/^\+40/, '0');
-  }, [user?.phoneNumber]);
-
-  const phoneMemberDocRef = useMemo(() => {
-    if (!firestore || !phoneDocId) return null;
-    return doc(firestore, 'members', phoneDocId);
-  }, [firestore, phoneDocId]);
-  const { data: phoneMemberData, isLoading: phoneMemberLoading } = useDoc(phoneMemberDocRef);
-  
-  // 3. Merge data, prioritizing the most recent subscription
-  const memberData = useMemo(() => {
-    // If the primary (UID) document doesn't exist, use the legacy phone document if it exists.
-    if (!uidMemberData) return phoneMemberData;
-    
-    // Start with the UID-based data as the source of truth.
-    const merged = { ...uidMemberData };
-
-    // Check if the legacy document has a more recent subscription.
-    if (phoneMemberData?.expirationDate) {
-      const uidExp = uidMemberData.expirationDate ? new Date(uidMemberData.expirationDate) : new Date(0);
-      const phoneExp = new Date(phoneMemberData.expirationDate);
-
-      // If the legacy subscription expires later, overwrite the relevant fields.
-      if (phoneExp > uidExp) {
-        merged.expirationDate = phoneMemberData.expirationDate;
-        merged.subscriptionType = phoneMemberData.subscriptionType;
-        merged.status = phoneMemberData.status;
-      }
-    }
-    
-    return merged;
-  }, [uidMemberData, phoneMemberData]);
-
-  // --- End of data merging logic ---
-
+  const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
   useEffect(() => {
     if (!userLoading && !user) {
@@ -83,6 +41,7 @@ export default function DashboardHomePage() {
       if (memberData?.expirationDate) {
           const expDateString = memberData.expirationDate;
           if (typeof expDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(expDateString)) {
+              // Create date in UTC to avoid timezone issues
               const [year, month, day] = expDateString.split('-').map(Number);
               return new Date(Date.UTC(year, month - 1, day));
           }
@@ -96,13 +55,15 @@ export default function DashboardHomePage() {
       return 0;
     }
     const today = new Date();
+    // Get today's date in UTC at midnight
     const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     const diffTime = expirationDate.getTime() - todayUTC.getTime();
+    // Use Math.ceil to correctly handle the day difference
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
 
-  const loading = userLoading || uidMemberLoading || phoneMemberLoading;
+  const loading = userLoading || memberLoading;
 
   if (loading || !user) {
     return (
