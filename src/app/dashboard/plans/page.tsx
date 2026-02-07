@@ -205,7 +205,14 @@ function PlansComponent() {
               </div>
 
               <div className="mt-8">
-                {isProcessingThisPlan && checkoutUrl ? (
+                {plan.id === 'nonstop' ? (
+                    <Button 
+                        disabled
+                        className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary" : "bg-primary/20 text-primary")}
+                    >
+                        {plan.cta}
+                    </Button>
+                 ) : isProcessingThisPlan && checkoutUrl ? (
                   <Button asChild className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "")}>
                     <a href={checkoutUrl}>
                       <LinkIcon className="mr-2 h-4 w-4" />

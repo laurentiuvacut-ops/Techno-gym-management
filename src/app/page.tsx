@@ -207,9 +207,15 @@ export default function LandingPage() {
                             </ul>
                         </CardContent>
                         <CardFooter className="pb-6">
-                             <Button asChild className="w-full" variant={plan.id === 'pro' ? "secondary" : "default"}>
-                                <Link href="/dashboard/plans">{plan.cta}</Link>
-                            </Button>
+                            {plan.id === 'nonstop' ? (
+                                <Button className="w-full" variant={plan.id === 'pro' ? "secondary" : "default"} disabled>
+                                    {plan.cta}
+                                </Button>
+                            ) : (
+                                <Button asChild className="w-full" variant={plan.id === 'pro' ? "secondary" : "default"}>
+                                   <Link href="/dashboard/plans">{plan.cta}</Link>
+                               </Button>
+                            )}
                         </CardFooter>
                     </Card>
                     ))}

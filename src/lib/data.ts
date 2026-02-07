@@ -39,8 +39,6 @@ export const subscriptions = [
     durationDays: 30,
     benefits: [
       "Toate beneficiile Classic",
-      "Acces la clasele de grup",
-      "O sesiune gratuită cu antrenor",
     ],
     cta: "Cumpără Acum",
     popular: true,
@@ -55,7 +53,6 @@ export const subscriptions = [
     benefits: [
       "Acces în intervalul 08:00 - 22:00",
       "Toate beneficiile Pro",
-      "Reducere 10% la magazin",
     ],
     cta: "Cumpără Acum",
   },
@@ -71,7 +68,7 @@ export const subscriptions = [
       "Toate beneficiile Pro",
       "Invitați un prieten în weekend",
     ],
-    cta: "Cumpără Acum",
+    cta: "Se cumpără în locație",
   },
 ];
 
