@@ -233,4 +233,11 @@ export const transformations = [
     before: getImage('transformation-before-14'),
     after: getImage('transformation-after-14'),
   },
+  {
+    id: 15,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-15'),
+    after: getImage('transformation-after-15'),
+  },
 ];
