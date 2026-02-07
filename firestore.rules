@@ -23,12 +23,12 @@ service cloud.firestore {
     /**
      * @description Enforces that only the authenticated member can access their own data, using phone number as document ID.
      * @path /members/{phoneNumber}
-     * @allow A signed-in user can (get) their own document at `/members/+40712345678` if the document's `id` field matches their auth UID.
+     * @allow A signed-in user can (get) their own document at `/members/+40712345678` if their auth token's phone number matches.
      * @deny A signed-in user cannot (get) another user's document.
-     * @principle Restricts access to a user's own data, identified by phone number but authorized by UID.
+     * @principle Restricts access to a user's own data by matching their token's phone number with the document ID.
      */
     match /members/{phoneNumber} {
-      allow get: if isSignedIn() && get(/databases/$(database)/documents/members/$(phoneNumber)).data.id == request.auth.uid;
+      allow get: if isSignedIn() && request.auth.token.phone_number == phoneNumber;
       allow list: if false; // Disallow listing all members for privacy.
       allow create: if isSignedIn() && request.auth.token.phone_number == phoneNumber && request.resource.data.id == request.auth.uid;
       allow update: if isSignedIn() && resource.data.id == request.auth.uid && request.resource.data.id == resource.data.id;
