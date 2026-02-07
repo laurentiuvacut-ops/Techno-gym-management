@@ -20,22 +20,12 @@ export default function DashboardHomePage() {
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
-  const handleInstallClick = () => {
-    setShowInstallInstructions(true);
-  };
-
   const memberDocRef = useMemo(() => {
     if (!firestore || !user) return null;
-    // Use UID for document ID
     return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading, error: memberError } = useDoc(memberDocRef);
-
-  const currentSubscription = useMemo(() => {
-    if (!memberData || !memberData.subscriptionType) return null;
-    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
-  }, [memberData]);
 
   useEffect(() => {
     if (!userLoading && !user) {
@@ -50,9 +40,30 @@ export default function DashboardHomePage() {
     }
   }, [userLoading, user, memberLoading, memberData, memberError, router]);
 
+
+  const handleInstallClick = () => {
+    setShowInstallInstructions(true);
+  };
+
+  const currentSubscription = useMemo(() => {
+    if (!memberData || !memberData.subscriptionType) return null;
+    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
+  }, [memberData]);
+
+
   const loading = userLoading || memberLoading;
 
-  if (loading || !user || !memberData) {
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+  
+  if (!memberData) {
+     // This can happen briefly between registration and the data being available,
+     // or if the registration redirect is happening.
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -60,20 +71,27 @@ export default function DashboardHomePage() {
     );
   }
 
+
   const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : null;
   
   let daysRemaining = 0;
   if (expDate && isValid(expDate)) {
-    // This formula calculates the difference in milliseconds and converts to days, rounding up.
-    const differenceInMs = expDate.getTime() - new Date().getTime();
-    // We add 1 to include the expiration day itself in the count
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize today's date to the beginning of the day
+    
+    // The expiration date from the string is already at the beginning of the day
+    const differenceInMs = expDate.getTime() - today.getTime();
+    
+    // Calculate days and round up. Add 1 to be inclusive of the final day.
     const daysCalculated = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24)) + 1;
+    
     daysRemaining = daysCalculated > 0 ? daysCalculated : 0;
   }
   
-  if (daysRemaining > 3650) { // Safety check for initial date of 1970
+  if (daysRemaining > 36500) { // Safety check for initial date of 1970 (which results in a large negative number)
     daysRemaining = 0;
   }
+
 
   const status = daysRemaining > 0 ? "Activ" : "Expirat";
   const expirationDateDisplay = expDate && isValid(expDate) && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
