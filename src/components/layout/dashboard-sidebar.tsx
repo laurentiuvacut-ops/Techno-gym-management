@@ -56,7 +56,7 @@ export default function DashboardSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
            <div className="relative w-8 h-8">
             <Image 
               src="https://i.imgur.com/9W1ye1w.png" 
