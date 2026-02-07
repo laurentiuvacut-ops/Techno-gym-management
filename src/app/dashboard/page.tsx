@@ -20,11 +20,13 @@ export default function DashboardHomePage() {
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
-  // Document based on Firebase Auth UID (the only secure way)
+  // Document ID is now the phone number for a single source of truth.
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'members', user.uid);
+    if (!firestore || !user || !user.phoneNumber) return null;
+    const nationalPhoneNumber = user.phoneNumber.replace('+40', '0');
+    return doc(firestore, 'members', nationalPhoneNumber);
   }, [firestore, user]);
+  
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
   useEffect(() => {
@@ -41,7 +43,6 @@ export default function DashboardHomePage() {
       if (memberData?.expirationDate) {
           const expDateString = memberData.expirationDate;
           if (typeof expDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(expDateString)) {
-              // Create date in UTC to avoid timezone issues
               const [year, month, day] = expDateString.split('-').map(Number);
               return new Date(Date.UTC(year, month - 1, day));
           }
@@ -55,10 +56,8 @@ export default function DashboardHomePage() {
       return 0;
     }
     const today = new Date();
-    // Get today's date in UTC at midnight
     const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
     const diffTime = expirationDate.getTime() - todayUTC.getTime();
-    // Use Math.ceil to correctly handle the day difference
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
@@ -73,7 +72,7 @@ export default function DashboardHomePage() {
     );
   }
   
-  if (!memberData) {
+  if (!memberLoading && !memberData) {
     return (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -90,13 +89,13 @@ export default function DashboardHomePage() {
     );
   }
   
-  const currentSubscription = subscriptions.find(sub => sub.title === memberData.subscriptionType);
+  const currentSubscription = subscriptions.find(sub => sub.title === memberData?.subscriptionType);
   
   const daysRemaining = calculateDaysLeft(expDate);
   const daysForDisplay = Math.max(0, daysRemaining);
   const status = daysRemaining > 0 ? "Activ" : "Expirat";
   
-  const expirationDateDisplay = expDate && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
+  const expirationDateDisplay = expDate && memberData?.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
   
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';

@@ -30,21 +30,25 @@ export default function RegisterPage() {
 
     const handleCreateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim() || !agreed || !user || !firestore) return;
+        if (!name.trim() || !agreed || !user || !firestore || !user.phoneNumber) return;
 
         setIsSubmitting(true);
-        // Use user's UID as the document ID
-        const memberDocRef = doc(firestore, 'members', user.uid);
+        
+        // Use the phone number (national format) as the document ID for a single source of truth.
+        const nationalPhoneNumber = user.phoneNumber.replace('+40', '0');
+        const memberDocRef = doc(firestore, 'members', nationalPhoneNumber);
+        
         try {
             await setDoc(memberDocRef, {
-                id: user.uid,
+                id: user.uid, // Store the Firebase Auth UID for security rules.
                 name: name,
                 email: user.email || null,
-                phone: user.phoneNumber, // Keep phone number as a field
+                phone: nationalPhoneNumber,
                 photoURL: user.photoURL || null,
-                qrCode: user.phoneNumber, // QR Code can still be phone number for scanning
-                expirationDate: format(new Date(0), 'yyyy-MM-dd'), // Indicates no active subscription
+                qrCode: nationalPhoneNumber,
+                expirationDate: format(new Date(0), 'yyyy-MM-dd'), // No active subscription
                 subscriptionType: null,
+                status: "Inactive",
                 agreedToTermsAt: new Date().toISOString(),
             });
             router.push('/dashboard');

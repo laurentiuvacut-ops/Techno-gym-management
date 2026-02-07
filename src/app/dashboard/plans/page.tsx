@@ -26,8 +26,10 @@ function PlansComponent() {
   const paymentProcessedRef = useRef(false);
 
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'members', user.uid);
+    if (!firestore || !user || !user.phoneNumber) return null;
+    // Use phone number as the document ID for a single source of truth.
+    const nationalPhoneNumber = user.phoneNumber.replace('+40', '0');
+    return doc(firestore, 'members', nationalPhoneNumber);
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -48,14 +50,12 @@ function PlansComponent() {
         const planId = searchParams.get('plan_id');
         const paymentSuccess = searchParams.get('payment_success') === 'true';
 
-        if (paymentSuccess && user && firestore && planId && !paymentProcessedRef.current) {
+        if (paymentSuccess && user && firestore && planId && memberDocRef && !paymentProcessedRef.current) {
             paymentProcessedRef.current = true; 
             
             const purchasedPlan = subscriptions.find(s => s.id === planId);
 
             if (purchasedPlan) {
-                const memberDocRef = doc(firestore, 'members', user.uid);
-                
                 const daysToAdd = purchasedPlan.durationDays || 30;
                 
                 const currentExpirationDate = memberData?.expirationDate ? new Date(memberData.expirationDate) : new Date(0);
@@ -101,7 +101,7 @@ function PlansComponent() {
       handleSuccessfulPayment();
     }
 
-  }, [searchParams, user, firestore, router, toast, memberData, userLoading, memberLoading]);
+  }, [searchParams, user, firestore, router, toast, memberData, userLoading, memberLoading, memberDocRef]);
 
 
   const handlePurchase = async (plan: any) => {
@@ -120,7 +120,7 @@ function PlansComponent() {
     try {
         const baseUrl = window.location.origin;
         const { url, error: stripeError } = await createCheckoutSession({
-            userId: user.uid,
+            userId: user.uid, // Stripe still needs a reference, UID is good.
             baseUrl: baseUrl,
             planId: plan.id,
             planTitle: plan.title,

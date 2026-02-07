@@ -20,9 +20,10 @@ export default function ProfilePage() {
     const firestore = useFirestore();
 
     const memberDocRef = useMemo(() => {
-        if (!firestore || !user) return null;
-        // Use UID for document ID
-        return doc(firestore, 'members', user.uid);
+        if (!firestore || !user || !user.phoneNumber) return null;
+        // Use phone number as the document ID for a single source of truth.
+        const nationalPhoneNumber = user.phoneNumber.replace('+40', '0');
+        return doc(firestore, 'members', nationalPhoneNumber);
     }, [firestore, user]);
 
     const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -46,7 +47,7 @@ export default function ProfilePage() {
 
     const loading = userLoading || memberLoading;
 
-    if (loading || !user || !memberData) {
+    if (loading || !user || (!memberLoading && !memberData)) {
         return (
             <div className="flex items-center justify-center h-full">
                 <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
