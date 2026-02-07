@@ -7,7 +7,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Clock } from "lucide-react";
+import { Check, Star, Clock, ArrowLeft, ArrowRight } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import Header from "@/components/layout/header";
@@ -159,6 +159,11 @@ export default function LandingPage() {
                   <CarouselPrevious className="hidden md:inline-flex" />
                   <CarouselNext className="hidden md:inline-flex" />
                 </Carousel>
+                <div className="mt-4 flex items-center justify-center gap-2 text-muted-foreground md:hidden">
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="text-sm font-light">Glisează</span>
+                  <ArrowRight className="h-4 w-4" />
+                </div>
             </div>
         </section>
         
