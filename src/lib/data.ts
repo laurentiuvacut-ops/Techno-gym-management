@@ -125,7 +125,7 @@ export const trainers = [
     name: "Ana Oprescu",
     specialty: "Personal Trainer",
     image: getImage('trainer-4'),
-    instagramUrl: "https://www.instagram.com/anaoprescu/",
+    instagramUrl: "https://www.instagram.com/__a176__/",
   },
 ];
 
