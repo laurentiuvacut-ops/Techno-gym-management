@@ -3,12 +3,12 @@
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
-import { doc, setDoc, collection, query, where, getDocs, getDoc } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { addDays, format, differenceInDays, isAfter } from 'date-fns';
+import { format, differenceInDays, isAfter } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
@@ -18,7 +18,6 @@ export default function DashboardHomePage() {
   const router = useRouter();
   const firestore = useFirestore();
 
-  const [migrationAttempted, setMigrationAttempted] = useState(false);
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
   const handleInstallClick = () => {
@@ -43,59 +42,17 @@ export default function DashboardHomePage() {
     }
   }, [user, userLoading, router]);
 
-  // This effect handles the one-time migration check for legacy accounts.
-  useEffect(() => {
-    const attemptMigration = async () => {
-      // Run only once per session after user and firestore are available.
-      if (user && firestore && user.phoneNumber && !migrationAttempted) {
-        setMigrationAttempted(true); // Mark that we are attempting migration.
 
-        const userPhoneNumber = user.phoneNumber;
-        
-        // Search for a legacy profile with the same phone number.
-        const phoneVariants = [userPhoneNumber, userPhoneNumber.substring(3), `0${userPhoneNumber.substring(3)}`];
-        const q = query(collection(firestore, 'members'), where("phone", "in", phoneVariants));
-        const querySnapshot = await getDocs(q);
-        
-        const legacyDocSnap = querySnapshot.docs.find(d => d.id !== user.uid && d.id !== user.phoneNumber);
-
-        if (legacyDocSnap) {
-          // Legacy profile found. Now, check the user's current profile state.
-          const currentUserDocRef = doc(firestore, 'members', userPhoneNumber);
-          const currentUserDocSnap = await getDoc(currentUserDocRef);
-          
-          const currentExpiration = currentUserDocSnap.data()?.expirationDate;
-          const isExpired = !currentUserDocSnap.exists() || !currentExpiration || !isAfter(new Date(currentExpiration), new Date());
-
-          if (isExpired) {
-             const legacyData = legacyDocSnap.data();
-             const { daysRemaining, subscriptionId, status, ...restOfLegacyData } = legacyData;
-             const daysFromLegacy = daysRemaining || 0;
-             const sub = subscriptions.find(s => s.id === subscriptionId);
-
-            await setDoc(currentUserDocRef, {
-              ...restOfLegacyData,
-              id: user.uid,
-              phone: userPhoneNumber,
-              qrCode: userPhoneNumber,
-              expirationDate: format(addDays(new Date(), daysFromLegacy), 'yyyy-MM-dd'),
-              subscriptionType: sub ? sub.title : null,
-            });
-          }
-        }
-      }
-    };
-    attemptMigration();
-  }, [user, firestore, migrationAttempted]);
-
-
-  const loading = userLoading || memberLoading || !migrationAttempted;
+  const loading = userLoading || memberLoading;
 
   useEffect(() => {
-    if (!loading && user && !memberData) {
+    // If the initial user load is complete, and we have a user,
+    // but the member data is not loading and is confirmed to not exist,
+    // then it's a new user who needs to register.
+    if (!userLoading && user && !memberLoading && !memberData) {
         router.push('/register');
     }
-  }, [loading, user, memberData, router]);
+  }, [userLoading, user, memberLoading, memberData, router]);
 
   if (loading || !memberData) {
     return (
