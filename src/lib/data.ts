@@ -104,7 +104,7 @@ export const trainers = [
     name: "Laurentiu Vacut",
     specialty: "Personal Trainer & Nutritionist",
     image: getImage('trainer-1'),
-    instagramUrl: "https://www.instagram.com/laurentiu_vacut/",
+    instagramUrl: "https://www.instagram.com/laurentiuvacut/",
   },
   {
     id: "2",
