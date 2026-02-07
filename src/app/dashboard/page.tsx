@@ -45,25 +45,31 @@ export default function DashboardHomePage() {
   const loading = userLoading || memberLoading;
 
   const calculateDaysLeft = (user: any) => {
-    // 1. Prioritate maximă: Dacă avem dată de expirare, calculăm!
     if (user && user.expirationDate) {
-      const expDate = new Date(user.expirationDate);
+      const expDateString = user.expirationDate; // "YYYY-MM-DD"
       
-      // Verificăm dacă data este validă.
-      if (!isNaN(expDate.getTime())) {
+      // Verificăm formatul string-ului pentru a evita erori
+      if (typeof expDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(expDateString)) {
+        // Parsăm manual pentru a evita problemele de fus orar cu `new Date(string)`
+        const [year, month, day] = expDateString.split('-').map(Number);
+        
+        // `new Date(year, month - 1, day)` creează data la miezul nopții în fusul orar local
+        const expDate = new Date(year, month - 1, day);
+        
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        expDate.setHours(0, 0, 0, 0);
-        
-        const diffTime = expDate.getTime() - today.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        return diffDays;
+        today.setHours(0, 0, 0, 0); // Data de azi la miezul nopții
+
+        // Verificăm dacă data este validă (ex: luna este 1-12)
+        if (!isNaN(expDate.getTime())) {
+            const diffTime = expDate.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            return diffDays;
+        }
       }
     }
     
     // Dacă nu există dată de expirare sau e invalidă, returnăm 0.
-    // Logica veche cu 'daysRemaining' este ignorată complet.
     return 0;
   };
 
@@ -97,7 +103,7 @@ export default function DashboardHomePage() {
   const daysForDisplay = Math.max(0, daysRemaining);
 
   const status = daysRemaining > 0 ? "Activ" : "Expirat";
-  const expDate = memberData.expirationDate ? new Date(memberData.expirationDate) : null;
+  const expDate = memberData.expirationDate ? new Date(memberData.expirationDate.replace(/-/g, '/')) : null;
   const expirationDateDisplay = expDate && !isNaN(expDate.getTime()) && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
