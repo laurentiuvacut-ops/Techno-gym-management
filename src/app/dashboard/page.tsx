@@ -32,6 +32,11 @@ export default function DashboardHomePage() {
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
+  const currentSubscription = useMemo(() => {
+    if (!memberData || !memberData.subscriptionType) return null;
+    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
+  }, [memberData]);
+
   useEffect(() => {
     if (!userLoading && !user) {
       router.push('/login');
@@ -92,11 +97,6 @@ export default function DashboardHomePage() {
     }
   }, [loading, user, memberData, router]);
 
-  const currentSubscription = useMemo(() => {
-    if (!memberData || !memberData.subscriptionType) return null;
-    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
-  }, [memberData]);
-  
   if (loading || !memberData) {
     return (
       <div className="flex items-center justify-center h-full">
