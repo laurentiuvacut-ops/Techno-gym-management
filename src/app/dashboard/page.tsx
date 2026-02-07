@@ -20,12 +20,54 @@ export default function DashboardHomePage() {
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
-  const memberDocRef = useMemo(() => {
+  // --- Logic to check both UID-keyed and Phone-keyed documents ---
+
+  // 1. Document based on Firebase Auth UID (the standard)
+  const uidDocRef = useMemo(() => {
     if (!firestore || !user) return null;
     return doc(firestore, 'members', user.uid);
   }, [firestore, user]);
+  const { data: uidMemberData, isLoading: uidMemberLoading } = useDoc(uidDocRef);
 
-  const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
+  // 2. Document based on Phone Number (for legacy/external software compatibility)
+  const phoneDocId = useMemo(() => {
+    if (!user?.phoneNumber) return null;
+    // Normalize phone number: Firebase stores it as +407..., legacy might use 07...
+    return user.phoneNumber.replace(/^\+40/, '0');
+  }, [user?.phoneNumber]);
+
+  const phoneMemberDocRef = useMemo(() => {
+    if (!firestore || !phoneDocId) return null;
+    return doc(firestore, 'members', phoneDocId);
+  }, [firestore, phoneDocId]);
+  const { data: phoneMemberData, isLoading: phoneMemberLoading } = useDoc(phoneMemberDocRef);
+  
+  // 3. Merge data, prioritizing the most recent subscription
+  const memberData = useMemo(() => {
+    // If the primary (UID) document doesn't exist, use the legacy phone document if it exists.
+    if (!uidMemberData) return phoneMemberData;
+    
+    // Start with the UID-based data as the source of truth.
+    const merged = { ...uidMemberData };
+
+    // Check if the legacy document has a more recent subscription.
+    if (phoneMemberData?.expirationDate) {
+      const uidExp = uidMemberData.expirationDate ? new Date(uidMemberData.expirationDate) : new Date(0);
+      const phoneExp = new Date(phoneMemberData.expirationDate);
+
+      // If the legacy subscription expires later, overwrite the relevant fields.
+      if (phoneExp > uidExp) {
+        merged.expirationDate = phoneMemberData.expirationDate;
+        merged.subscriptionType = phoneMemberData.subscriptionType;
+        merged.status = phoneMemberData.status;
+      }
+    }
+    
+    return merged;
+  }, [uidMemberData, phoneMemberData]);
+
+  // --- End of data merging logic ---
+
 
   useEffect(() => {
     if (!userLoading && !user) {
@@ -37,13 +79,11 @@ export default function DashboardHomePage() {
     setShowInstallInstructions(true);
   };
   
-  // Create a single, robust Date object from the string using UTC.
   const expDate = useMemo(() => {
       if (memberData?.expirationDate) {
           const expDateString = memberData.expirationDate;
           if (typeof expDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(expDateString)) {
               const [year, month, day] = expDateString.split('-').map(Number);
-              // Use Date.UTC to create a timezone-independent date.
               return new Date(Date.UTC(year, month - 1, day));
           }
       }
@@ -55,18 +95,16 @@ export default function DashboardHomePage() {
     if (!expirationDate || isNaN(expirationDate.getTime())) {
       return 0;
     }
-
-    // Create today's date in UTC at midnight.
     const today = new Date();
     const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-
     const diffTime = expirationDate.getTime() - todayUTC.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
     return diffDays;
   };
 
-  if (userLoading || memberLoading || !user) {
+  const loading = userLoading || uidMemberLoading || phoneMemberLoading;
+
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -97,7 +135,6 @@ export default function DashboardHomePage() {
   const daysForDisplay = Math.max(0, daysRemaining);
   const status = daysRemaining > 0 ? "Activ" : "Expirat";
   
-  // Use the robust `expDate` object for formatting.
   const expirationDateDisplay = expDate && memberData.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
   
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
