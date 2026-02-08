@@ -42,19 +42,17 @@ export default function DashboardHomePage() {
     if (memberData?.expirationDate && typeof memberData.expirationDate === 'string') {
         const dateString = memberData.expirationDate; // "YYYY-MM-DD"
         
-        // Robust parsing to avoid timezone issues by manually creating a local date.
-        // new Date(year, monthIndex, day) creates a date in the local timezone.
-        const parts = dateString.split('-').map(Number);
-        if (parts.length === 3) {
+        const parts = dateString.split('-').map(part => parseInt(part, 10));
+        if (parts.length === 3 && !parts.some(isNaN)) {
             // parts[1] - 1 because months are 0-indexed in JS Dates.
-            const expDate = new Date(parts[0], parts[1] - 1, parts[2]);
+            const expDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
 
             if (isValid(expDate)) {
                 const today = new Date();
-                // Ensure calculation is based on calendar days, ignoring time.
-                today.setHours(0, 0, 0, 0);
+                // We also need to treat "today" as UTC to get a clean calendar day difference.
+                const todayUtc = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
                 
-                const diff = differenceInCalendarDays(expDate, today);
+                const diff = differenceInCalendarDays(expDate, todayUtc);
 
                 return {
                     daysRemaining: diff,
@@ -156,11 +154,11 @@ export default function DashboardHomePage() {
 
         {/* QR Code */}
         <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4">
-          {daysRemaining >= 0 && memberData.qrCode ? (
+          {daysRemaining >= 0 && user.phoneNumber ? (
             <>
               <div className="p-2 bg-white rounded-xl">
                   <Image
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${memberData.qrCode}&bgcolor=255-255-255`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${user.phoneNumber}&bgcolor=255-255-255`}
                       alt="QR Code pentru acces"
                       width={128}
                       height={128}
