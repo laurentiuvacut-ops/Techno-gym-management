@@ -25,10 +25,10 @@ function PlansComponent() {
   
   const paymentProcessedRef = useRef(false);
 
-  // The document ID is now the user's UID.
+  // The document ID is now the user's E.164 phone number.
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'members', user.uid);
+    if (!firestore || !user?.phoneNumber) return null;
+    return doc(firestore, 'members', user.phoneNumber);
   }, [firestore, user]);
 
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -105,7 +105,7 @@ function PlansComponent() {
 
   const handlePurchase = async (plan: any) => {
     setCheckoutUrl(null);
-    if (!user) {
+    if (!user?.phoneNumber) {
       toast({
         variant: "destructive",
         title: "Eroare",

@@ -20,10 +20,10 @@ export default function DashboardHomePage() {
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
-  // The document ID is now the user's UID. This is the secure, standard way.
+  // The document ID is now the user's E.164 phone number.
   const memberDocRef = useMemo(() => {
-    if (!firestore || !user) return null;
-    return doc(firestore, 'members', user.uid);
+    if (!firestore || !user?.phoneNumber) return null;
+    return doc(firestore, 'members', user.phoneNumber);
   }, [firestore, user]);
   
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
@@ -51,6 +51,9 @@ export default function DashboardHomePage() {
 
             if (isValid(expDate)) {
                 const today = new Date();
+                // Ensure calculation is based on calendar days, ignoring time.
+                today.setHours(0, 0, 0, 0);
+                
                 const diff = differenceInCalendarDays(expDate, today);
 
                 return {

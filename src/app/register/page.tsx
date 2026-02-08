@@ -30,16 +30,23 @@ export default function RegisterPage() {
 
     const handleCreateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name.trim() || !agreed || !user || !firestore || !user.phoneNumber) return;
+        if (!name.trim() || !agreed || !user || !firestore || !user.phoneNumber) {
+            toast({
+                variant: "destructive",
+                title: "Informații Lipsă",
+                description: "Vă rugăm să completați numele și să fiți de acord cu regulamentul.",
+            });
+            return;
+        };
 
         setIsSubmitting(true);
         
-        // The document ID is the user's UID, which is secure and standard.
-        const memberDocRef = doc(firestore, 'members', user.uid);
+        // The document ID is now the user's phone number in E.164 format.
+        const memberDocRef = doc(firestore, 'members', user.phoneNumber);
 
         try {
             await setDoc(memberDocRef, {
-                id: user.uid, // The user's UID is the primary identifier for security rules
+                id: user.uid, // The user's UID is still stored inside for security rule checks
                 name: name,
                 email: user.email || null,
                 phone: user.phoneNumber, // E.164 format (e.g., +407...)
@@ -49,7 +56,8 @@ export default function RegisterPage() {
                 subscriptionType: null,
                 status: "Inactive",
                 agreedToTermsAt: new Date().toISOString(),
-            });
+            }, { merge: true }); // Use merge: true to avoid overwriting data from the gym software if it exists
+            
             router.push('/dashboard');
         } catch (error) {
             console.error("Error creating profile:", error);
