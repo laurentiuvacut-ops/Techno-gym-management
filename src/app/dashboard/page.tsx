@@ -8,7 +8,7 @@ import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { format } from 'date-fns';
+import { format, differenceInCalendarDays, parse, isValid } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
@@ -38,30 +38,31 @@ export default function DashboardHomePage() {
     setShowInstallInstructions(true);
   };
   
-  const expDate = useMemo(() => {
-      if (memberData?.expirationDate) {
-          const expDateString = memberData.expirationDate;
-          // Handle 'YYYY-MM-DD' strings safely across timezones by parsing into UTC.
-          if (typeof expDateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(expDateString)) {
-              const [year, month, day] = expDateString.split('-').map(Number);
-              return new Date(Date.UTC(year, month - 1, day));
-          }
-      }
-      return null;
+  const { daysRemaining, status, expirationDateDisplay } = useMemo(() => {
+    if (memberData?.expirationDate && typeof memberData.expirationDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(memberData.expirationDate)) {
+        
+        const expDate = parse(memberData.expirationDate, 'yyyy-MM-dd', new Date());
+
+        if (isValid(expDate)) {
+            const today = new Date();
+            const diff = differenceInCalendarDays(expDate, today);
+
+            return {
+                daysRemaining: diff,
+                status: diff >= 0 ? "Activ" : "Expirat",
+                expirationDateDisplay: format(expDate, 'dd MMM yyyy')
+            };
+        }
+    }
+
+    // Default values
+    return {
+        daysRemaining: 0,
+        status: "Expirat",
+        expirationDateDisplay: "N/A"
+    };
   }, [memberData]);
 
-
-  const calculateDaysLeft = (expirationDate: Date | null) => {
-    if (!expirationDate || isNaN(expirationDate.getTime())) {
-      return 0;
-    }
-    const today = new Date();
-    // Compare dates at UTC midnight to avoid timezone issues.
-    const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-    const diffTime = expirationDate.getTime() - todayUTC.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
 
   const loading = userLoading || memberLoading;
 
@@ -94,11 +95,7 @@ export default function DashboardHomePage() {
   
   const currentSubscription = subscriptions.find(sub => sub.title === memberData?.subscriptionType);
   
-  const daysRemaining = calculateDaysLeft(expDate);
   const daysForDisplay = Math.max(0, daysRemaining);
-  const status = daysRemaining > 0 ? "Activ" : "Expirat";
-  
-  const expirationDateDisplay = expDate && memberData?.subscriptionType ? format(expDate, 'dd MMM yyyy') : "N/A";
   
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
@@ -149,7 +146,7 @@ export default function DashboardHomePage() {
 
         {/* QR Code */}
         <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4">
-          {daysRemaining > 0 && memberData.qrCode ? (
+          {daysRemaining >= 0 && memberData.qrCode ? (
             <>
               <div className="p-2 bg-white rounded-xl">
                   <Image
