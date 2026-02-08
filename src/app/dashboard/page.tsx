@@ -8,7 +8,7 @@ import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { format, differenceInCalendarDays, parse, isValid } from 'date-fns';
+import { format, differenceInCalendarDays, isValid } from 'date-fns';
 import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
@@ -39,23 +39,30 @@ export default function DashboardHomePage() {
   };
   
   const { daysRemaining, status, expirationDateDisplay } = useMemo(() => {
-    if (memberData?.expirationDate && typeof memberData.expirationDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(memberData.expirationDate)) {
+    if (memberData?.expirationDate && typeof memberData.expirationDate === 'string') {
+        const dateString = memberData.expirationDate; // "YYYY-MM-DD"
         
-        const expDate = parse(memberData.expirationDate, 'yyyy-MM-dd', new Date());
+        // Robust parsing to avoid timezone issues by manually creating a local date.
+        // new Date(year, monthIndex, day) creates a date in the local timezone.
+        const parts = dateString.split('-').map(Number);
+        if (parts.length === 3) {
+            // parts[1] - 1 because months are 0-indexed in JS Dates.
+            const expDate = new Date(parts[0], parts[1] - 1, parts[2]);
 
-        if (isValid(expDate)) {
-            const today = new Date();
-            const diff = differenceInCalendarDays(expDate, today);
+            if (isValid(expDate)) {
+                const today = new Date();
+                const diff = differenceInCalendarDays(expDate, today);
 
-            return {
-                daysRemaining: diff,
-                status: diff >= 0 ? "Activ" : "Expirat",
-                expirationDateDisplay: format(expDate, 'dd MMM yyyy')
-            };
+                return {
+                    daysRemaining: diff,
+                    status: diff >= 0 ? "Activ" : "Expirat",
+                    expirationDateDisplay: format(expDate, 'dd MMM yyyy')
+                };
+            }
         }
     }
 
-    // Default values
+    // Default values if expirationDate is not valid or not present
     return {
         daysRemaining: 0,
         status: "Expirat",
