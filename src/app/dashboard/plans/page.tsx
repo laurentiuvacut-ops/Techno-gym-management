@@ -118,6 +118,8 @@ function PlansComponent() {
       };
 
       try {
+        console.log("🔥 Attempting Firestore update:", updatedData);
+        console.log("🔥 Document path:", memberDocRef.path);
         await updateDoc(memberDocRef, updatedData);
         toast({
           title: "Plată reușită!",
@@ -125,7 +127,7 @@ function PlansComponent() {
           className: "bg-success text-success-foreground",
         });
       } catch (error) {
-        console.error("Failed to update member document:", error);
+        console.error("🔥 Firestore update FAILED:", error);
         const permissionError = new FirestorePermissionError({
             path: memberDocRef.path,
             operation: 'update',

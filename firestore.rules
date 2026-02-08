@@ -17,12 +17,22 @@ service cloud.firestore {
     // =================================
 
     match /members/{memberId} {
-      // A user can read and write to their own document.
-      // The document ID ({memberId}) must match the authenticated user's E.164 phone number.
-      allow read, write: if request.auth != null && request.auth.token.phone_number == memberId;
+      // A user can read their own document. The document ID must match their phone number.
+      allow read: if request.auth != null && request.auth.token.phone_number == memberId;
       
-      // Explicitly disallow listing all members for privacy.
-      allow list: if false;
+      // A user can create their own document during registration.
+      allow create: if request.auth != null && 
+                       request.auth.token.phone_number == memberId &&
+                       request.resource.data.id == request.auth.uid;
+
+      // A user can update ONLY the subscription-related fields on their own document.
+      allow update: if request.auth != null && 
+                       request.auth.token.phone_number == memberId &&
+                       request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['expirationDate', 'subscriptionType', 'status']);
+      
+      // Explicitly disallow listing members and deleting.
+      allow list, delete: if false;
     }
 
     /**

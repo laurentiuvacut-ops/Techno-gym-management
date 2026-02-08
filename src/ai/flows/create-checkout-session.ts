@@ -59,7 +59,7 @@ const createCheckoutSessionFlow = ai.defineFlow(
           },
         ],
         mode: 'payment',
-        success_url: `${baseUrl}/dashboard/plans?payment_success=true&session_id={CHECKOUT_SESSION_ID}&plan_id=${planId}`,
+        success_url: `${baseUrl}/dashboard/plans?plan_id=${planId}&payment_success=true`,
         cancel_url: `${baseUrl}/dashboard/plans`,
         client_reference_id: userId,
       });
