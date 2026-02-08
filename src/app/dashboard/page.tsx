@@ -50,7 +50,7 @@ export default function DashboardHomePage() {
             if (isValid(expDate)) {
                 const today = new Date();
                 // We also need to treat "today" as UTC to get a clean calendar day difference.
-                const todayUtc = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+                const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
                 
                 const diff = differenceInCalendarDays(expDate, todayUtc);
 

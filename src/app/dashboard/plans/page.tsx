@@ -12,7 +12,7 @@ import { useMemo, useState, useEffect, Suspense, useRef } from 'react';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
-import { addDays, isAfter, format, isValid } from 'date-fns';
+import { addDays, isAfter, format, isValid, differenceInCalendarDays } from 'date-fns';
 
 function PlansComponent() {
   const { user, loading: userLoading } = useUser();
@@ -57,8 +57,26 @@ function PlansComponent() {
             if (purchasedPlan) {
                 const daysToAdd = purchasedPlan.durationDays || 30;
                 
-                const currentExpirationDate = memberData?.expirationDate ? new Date(memberData.expirationDate) : new Date(0);
-                const startDate = isValid(currentExpirationDate) && isAfter(currentExpirationDate, new Date()) ? currentExpirationDate : new Date();
+                let startDate = new Date(); // Default to starting from today
+                const expDateString = memberData?.expirationDate;
+
+                if (expDateString && typeof expDateString === 'string') {
+                    const parts = expDateString.split('-').map(part => parseInt(part, 10));
+                    if (parts.length === 3 && !parts.some(isNaN)) {
+                        // Expiration date, parsed as UTC
+                        const currentExpirationDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+                        
+                        // Today's date, also in UTC, with time zeroed out
+                        const today = new Date();
+                        const todayUtc = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+                        // If the subscription is still valid (expires today or in the future), extend it from the expiration date.
+                        if (isValid(currentExpirationDate) && differenceInCalendarDays(currentExpirationDate, todayUtc) >= 0) {
+                            startDate = currentExpirationDate;
+                        }
+                    }
+                }
+
                 const newExpirationDate = addDays(startDate, daysToAdd);
 
                 const updatedData = {
