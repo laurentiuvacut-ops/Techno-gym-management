@@ -12,7 +12,7 @@ import { useMemo, useState, useEffect, Suspense, useRef } from 'react';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
-import { addDays, isAfter, format, isValid, differenceInCalendarDays } from 'date-fns';
+import { addDays, format, isValid, differenceInCalendarDays } from 'date-fns';
 
 function PlansComponent() {
   const { user, loading: userLoading } = useUser();
@@ -22,7 +22,9 @@ function PlansComponent() {
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const searchParams = useSearchParams();
-  
+
+  // State and ref to manage the payment processing flow robustly
+  const [processingPlanId, setProcessingPlanId] = useState<string | null>(null);
   const paymentProcessedRef = useRef(false);
 
   // The document ID is now the user's E.164 phone number.
@@ -38,88 +40,110 @@ function PlansComponent() {
     return subscriptions.find(sub => sub.title === memberData.subscriptionType);
   }, [memberData]);
 
+  // Effect 1: Capture the successful payment from URL params.
+  // This runs immediately on page load after redirect.
+  useEffect(() => {
+    const planId = searchParams.get('plan_id');
+    const paymentSuccess = searchParams.get('payment_success') === 'true';
+
+    // If payment was successful and we haven't started processing, capture the planId.
+    if (paymentSuccess && planId && !paymentProcessedRef.current) {
+        setProcessingPlanId(planId);
+        // Clean the URL to prevent re-processing on refresh or back navigation.
+        router.replace('/dashboard/plans', { scroll: false });
+    }
+  // This effect should ONLY run when searchParams change.
+  }, [searchParams, router]);
+
+
+  // Effect 2: Process the payment once the intent is captured and all data is loaded.
+  useEffect(() => {
+    // Exit if we're not processing a plan, or if essential data is still loading.
+    if (!processingPlanId || userLoading || memberLoading || !memberData || !memberDocRef) {
+        return;
+    }
+    
+    // Ensure we process this payment only once.
+    if (paymentProcessedRef.current) {
+        return;
+    }
+    paymentProcessedRef.current = true;
+
+    const processPaymentUpdate = async () => {
+        const purchasedPlan = subscriptions.find(s => s.id === processingPlanId);
+
+        if (!purchasedPlan) {
+            console.error("Plan not found during processing:", processingPlanId);
+            toast({
+              variant: "destructive",
+              title: "Eroare la procesare",
+              description: "Planul achiziționat nu a fost găsit. Vă rugăm contactați suportul.",
+            });
+            setProcessingPlanId(null); // Reset state
+            return;
+        }
+
+        const daysToAdd = purchasedPlan.durationDays || 30;
+        let startDate = new Date();
+        const expDateString = memberData.expirationDate;
+
+        if (expDateString && typeof expDateString === 'string') {
+            const parts = expDateString.split('-').map(part => parseInt(part, 10));
+            if (parts.length === 3 && !parts.some(isNaN)) {
+                const currentExpirationDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+                const today = new Date();
+                const todayUtc = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+                if (isValid(currentExpirationDate) && differenceInCalendarDays(currentExpirationDate, todayUtc) >= 0) {
+                    startDate = currentExpirationDate;
+                }
+            }
+        }
+
+        const newExpirationDate = addDays(startDate, daysToAdd);
+
+        const updatedData = {
+            expirationDate: format(newExpirationDate, 'yyyy-MM-dd'),
+            subscriptionType: purchasedPlan.title,
+            status: "Activ", // Use correct Romanian status
+        };
+
+        try {
+            await updateDoc(memberDocRef, updatedData);
+            toast({
+                title: "Plată reușită!",
+                description: `Abonamentul tău ${purchasedPlan.title} a fost activat.`,
+                className: "bg-success text-success-foreground",
+            });
+        } catch (error) {
+            console.error("Failed to update member document:", error);
+            const permissionError = new FirestorePermissionError({
+                path: memberDocRef.path,
+                operation: 'update',
+                requestResourceData: updatedData
+            });
+            errorEmitter.emit('permission-error', permissionError);
+
+            toast({
+                variant: "destructive",
+                title: "Eroare la actualizarea abonamentului",
+                description: "Nu am putut salva datele abonamentului. Vă rugăm contactați suportul.",
+            });
+        } finally {
+            // Reset processing state after completion
+            setProcessingPlanId(null);
+        }
+    };
+    
+    processPaymentUpdate();
+    
+  }, [processingPlanId, userLoading, memberLoading, memberData, memberDocRef, firestore, toast]);
+
   useEffect(() => {
     if (!userLoading && !user) {
       router.push('/login');
     }
   }, [user, userLoading, router]);
-
-  useEffect(() => {
-    const handleSuccessfulPayment = () => {
-        const planId = searchParams.get('plan_id');
-        const paymentSuccess = searchParams.get('payment_success') === 'true';
-
-        if (paymentSuccess && user && firestore && planId && memberDocRef && !paymentProcessedRef.current) {
-            paymentProcessedRef.current = true; 
-            
-            const purchasedPlan = subscriptions.find(s => s.id === planId);
-
-            if (purchasedPlan) {
-                const daysToAdd = purchasedPlan.durationDays || 30;
-                
-                let startDate = new Date(); // Default to starting from today
-                const expDateString = memberData?.expirationDate;
-
-                if (expDateString && typeof expDateString === 'string') {
-                    const parts = expDateString.split('-').map(part => parseInt(part, 10));
-                    if (parts.length === 3 && !parts.some(isNaN)) {
-                        // Expiration date, parsed as UTC
-                        const currentExpirationDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
-                        
-                        // Today's date, also in UTC, with time zeroed out
-                        const today = new Date();
-                        const todayUtc = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
-
-                        // If the subscription is still valid (expires today or in the future), extend it from the expiration date.
-                        if (isValid(currentExpirationDate) && differenceInCalendarDays(currentExpirationDate, todayUtc) >= 0) {
-                            startDate = currentExpirationDate;
-                        }
-                    }
-                }
-
-                const newExpirationDate = addDays(startDate, daysToAdd);
-
-                const updatedData = {
-                    expirationDate: format(newExpirationDate, 'yyyy-MM-dd'),
-                    subscriptionType: purchasedPlan.title,
-                    status: "Active",
-                };
-
-                updateDoc(memberDocRef, updatedData)
-                  .then(() => {
-                      toast({
-                          title: "Plată reușită!",
-                          description: `Abonamentul tău ${purchasedPlan.title} a fost activat.`,
-                          className: "bg-success text-success-foreground",
-                      });
-                  })
-                  .catch(error => {
-                      console.error("Failed to update member document:", error);
-                      const permissionError = new FirestorePermissionError({
-                          path: memberDocRef.path,
-                          operation: 'update',
-                          requestResourceData: updatedData
-                      });
-                      errorEmitter.emit('permission-error', permissionError);
-
-                      toast({
-                          variant: "destructive",
-                          title: "Eroare la actualizarea abonamentului",
-                          description: "Nu am putut salva datele abonamentului. Vă rugăm contactați suportul.",
-                      });
-                  });
-            }
-
-            router.replace('/dashboard/plans', { scroll: false });
-        }
-    };
-    
-    if(!userLoading && !memberLoading && memberData) {
-      handleSuccessfulPayment();
-    }
-
-  }, [searchParams, user, firestore, router, toast, memberData, userLoading, memberLoading, memberDocRef]);
-
 
   const handlePurchase = async (plan: any) => {
     setCheckoutUrl(null);
@@ -137,7 +161,7 @@ function PlansComponent() {
     try {
         const baseUrl = window.location.origin;
         const { url, error: stripeError } = await createCheckoutSession({
-            userId: user.uid, // Stripe needs a reference, UID is good.
+            userId: user.uid,
             baseUrl: baseUrl,
             planId: plan.id,
             planTitle: plan.title,
