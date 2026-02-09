@@ -11,13 +11,16 @@ import { cn } from '@/lib/utils';
 export default function Header() {
   const { user, loading } = useUser();
   const [visible, setVisible] = useState(true);
-  const [isClient, setIsClient] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
     // This effect runs only on the client, after the initial render.
-    setIsClient(true);
+    // It signals that the component has "hydrated".
+    setIsMounted(true);
+  }, []);
 
+  useEffect(() => {
     const controlHeader = () => {
       const currentScrollY = window.scrollY;
 
@@ -60,14 +63,14 @@ export default function Header() {
          </span>
       </Link>
       
-      {/* Auth logic: Use a container to prevent layout shift and ensure client/server match */}
-      <div className="flex justify-end items-center h-9 w-28">
-        {!isClient || loading ? (
-          // Skeleton loader for server-side rendering and initial client-side loading.
-          // This ensures the initial UI is identical on both client and server.
-          <div className="h-full w-full rounded-lg bg-muted/50 animate-pulse" />
+      {/* Auth logic */}
+      <div className="flex justify-end items-center min-h-[40px] w-28">
+        {!isMounted || loading ? (
+          // On the server, and on the initial client render before hydration and auth check,
+          // ALWAYS render the skeleton. This guarantees a match.
+          <div className="h-9 w-full rounded-lg bg-muted/50 animate-pulse" />
         ) : user ? (
-          // Avatar for logged-in user, rendered only on the client after hydration
+          // Render the avatar only on the client after hydration and if the user exists.
           <Link href="/dashboard/profile">
             <Avatar className='h-9 w-9'>
               <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
@@ -75,8 +78,8 @@ export default function Header() {
             </Avatar>
           </Link>
         ) : (
-          // Login button for logged-out user, rendered only on the client after hydration
-          <Button asChild size="lg" className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
+          // Render the login button only on the client after hydration if there's no user.
+          <Button asChild className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
              <Link href="/login">
                  Intră în Cont
              </Link>
