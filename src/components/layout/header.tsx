@@ -11,27 +11,14 @@ import { cn } from '@/lib/utils';
 export default function Header() {
   const { user, loading } = useUser();
   const [isClient, setIsClient] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    // Clean up the event listener
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
   }, []);
 
   return (
     <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-all duration-300",
-        scrolled ? "bg-black/95 backdrop-blur-xl border-b border-border" : "bg-transparent border-b border-transparent"
+        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-all duration-300 bg-transparent border-b border-transparent"
     )}>
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
