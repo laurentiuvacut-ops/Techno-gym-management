@@ -205,17 +205,17 @@
   "firestore": {
     "structure": [
       {
-        "path": "/members/{memberId}",
+        "path": "/members/{phoneNumber}",
         "definition": {
           "entityName": "Member",
           "schema": {
             "$ref": "#/backend/entities/Member"
           },
-          "description": "Stores gym member data. The document ID is the user's UID from Firebase Auth.",
+          "description": "Stores gym member data. The document ID is the user's E.164 phone number from Firebase Auth.",
           "params": [
             {
-              "name": "memberId",
-              "description": "The user's UID, used as the document ID."
+              "name": "phoneNumber",
+              "description": "The user's E.164 phone number, used as the document ID."
             }
           ]
         }
@@ -301,6 +301,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to support the Techno Gym app's core features. The structure emphasizes Authorization Independence by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data, with the document ID being the user's UID for secure, direct access.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Stores customer feedback.\n\nThe structure facilitates secure `list` operations by ensuring that each collection contains data with similar access control requirements. For example, member-specific data and general workout data are stored in separate collections."
+    "reasoning": "The Firestore data structure is designed to support the Techno Gym app's core features. The structure emphasizes Authorization Independence by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data, with the document ID being the user's E.164 phone number for secure, direct access.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Stores customer feedback.\n\nThe structure facilitates secure `list` operations by ensuring that each collection contains data with similar access control requirements. For example, member-specific data and general workout data are stored in separate collections."
   }
 }

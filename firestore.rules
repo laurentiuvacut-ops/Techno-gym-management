@@ -1,7 +1,7 @@
 /**
  * Core Philosophy: This ruleset establishes a clear boundary between public, read-only application data and private, user-owned data. Public content like workouts, products, and trainer info is globally readable to support the app's features for all users. Private data, such as a member's personal information, is strictly protected, ensuring a user can only access and manage their own documents.
  *
- * Data Structure: The data is organized into a flat hierarchy of top-level collections. For /members/{memberId}, the document ID {memberId} MUST match the authenticated user's phone number in E.164 format. This provides a direct, secure link between the authenticated user and their data.
+ * Data Structure: The data is organized into a flat hierarchy of top-level collections. For /members/{phoneNumber}, the document ID {phoneNumber} MUST match the authenticated user's phone number in E.164 format. This provides a direct, secure link between the authenticated user and their data.
  *
  * Key Security Decisions:
  * - Phone Number as Primary Key: Each member's data is stored in a document where the ID is the user's E.164 phone number from Firebase Authentication. This provides a direct, secure link between the authenticated user and their data, preventing one user from accessing another's information.
@@ -16,18 +16,18 @@ service cloud.firestore {
     // Collection Rules
     // =================================
 
-    match /members/{memberId} {
+    match /members/{phoneNumber} {
       // A user can read their own document. The document ID must match their phone number.
-      allow read: if request.auth != null && request.auth.token.phone_number == memberId;
+      allow read: if request.auth != null && request.auth.token.phone_number == phoneNumber;
       
-      // A user can create their own document during registration.
+      // A user can create their own document during registration. The doc ID must be their phone number.
       allow create: if request.auth != null && 
-                       request.auth.token.phone_number == memberId &&
+                       request.auth.token.phone_number == phoneNumber &&
                        request.resource.data.id == request.auth.uid;
 
       // A user can update ONLY the subscription-related fields on their own document.
       allow update: if request.auth != null && 
-                       request.auth.token.phone_number == memberId &&
+                       request.auth.token.phone_number == phoneNumber &&
                        request.resource.data.diff(resource.data).affectedKeys()
                          .hasOnly(['expirationDate', 'subscriptionType', 'status']);
       
