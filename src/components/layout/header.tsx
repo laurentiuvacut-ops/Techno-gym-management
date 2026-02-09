@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Button } from '../ui/button';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import Image from 'next/image';
+import { Dumbbell } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -17,7 +17,7 @@ export default function Header() {
     setIsClient(true);
     
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
+      setScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -30,43 +30,40 @@ export default function Header() {
 
   return (
     <header className={cn(
-        "fixed top-0 left-0 right-0 h-16 z-50 flex items-center transition-all duration-300",
-        scrolled ? "glass-strong" : "bg-transparent"
+        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-all duration-300",
+        scrolled ? "bg-black/95 backdrop-blur-xl border-b border-border" : "bg-transparent border-b border-transparent"
     )}>
-      <div className="container mx-auto px-4 w-full flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2">
-           <div className="relative w-8 h-8">
-            <Image 
-              src="https://i.imgur.com/9W1ye1w.png" 
-              alt="Techno Gym Logo" 
-              fill
-              className="object-contain"
-            />
-           </div>
-           <span className="text-xl font-bold tracking-tight"><span className="text-primary">TECHNO</span><span className="text-foreground">GYM</span></span>
+      {/* Logo */}
+      <Link href="/" className="flex items-center gap-2">
+         <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-600">
+          <Dumbbell className="w-5 h-5 text-white" />
+         </div>
+         <span className="text-lg font-bold">
+            <span className="bg-gradient-to-r from-cyan-400 to-cyan-600 bg-clip-text text-transparent">TECHNO</span>
+            <span className="text-white">GYM</span>
+         </span>
+      </Link>
+      
+      {/* Auth logic */}
+      {(!isClient || loading) ? (
+        // Skeleton loader for the button
+        <div className="h-9 w-28 rounded-lg bg-muted/50 animate-pulse" />
+      ) : user ? (
+        // Avatar for logged-in user
+        <Link href="/dashboard/profile">
+          <Avatar className='w-9 h-9'>
+            <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
+            <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
+          </Avatar>
         </Link>
-        
-        {(!isClient || loading) ? (
-          <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
-        ) : user ? (
-          <Link href="/dashboard/profile">
-            <Avatar className='w-8 h-8'>
-              <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
-              <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
-            </Avatar>
-          </Link>
-        ) : (
-            <div className="flex items-center gap-2">
-                 <Button asChild>
-                    <Link href="/login">
-                        Intră în Cont
-                    </Link>
-                </Button>
-            </div>
-        )}
-
-      </div>
+      ) : (
+        // Login button for logged-out user
+        <Button asChild className="h-auto px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-lg shadow-cyan-500/30 transition-all hover:from-cyan-600 hover:to-cyan-700">
+           <Link href="/login">
+               Intră în Cont
+           </Link>
+       </Button>
+      )}
     </header>
   );
 }
-    
