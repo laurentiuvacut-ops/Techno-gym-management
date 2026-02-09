@@ -41,7 +41,7 @@
     --gradient-start: 174 72% 55%;
     --gradient-end: 186 80% 42%;
     
-    --sidebar-background: 220 10% 10%;
+    --sidebar-background: 220 10% 10% / 0.85;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 174 72% 50%;
     --sidebar-primary-foreground: 220 10% 6%;
@@ -80,7 +80,7 @@
     --chart-3: 180 80% 40%;
     --chart-4: 180 70% 60%;
     --chart-5: 180 90% 70%;
-    --sidebar-background: 220 10% 10%;
+    --sidebar-background: 220 10% 10% / 0.85;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 174 72% 50%;
     --sidebar-primary-foreground: 220 10% 6%;
