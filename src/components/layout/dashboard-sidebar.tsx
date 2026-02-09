@@ -10,25 +10,24 @@ import {
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import {
-  Award,
   Home,
-  LogOut,
-  MessageSquare,
   ShoppingBag,
+  CreditCard,
   Dumbbell,
   Users,
+  MessageSquare,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Button } from '../ui/button';
-import { getAuth, signOut } from 'firebase/auth';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useUser } from '@/firebase';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Acasă', icon: Home },
   { href: '/dashboard/shop', label: 'Shop & Stoc', icon: ShoppingBag },
-  { href: '/dashboard/plans', label: 'Abonamente', icon: Award },
+  { href: '/dashboard/plans', label: 'Abonamente', icon: CreditCard },
   { href: '/dashboard/workouts', label: 'Antrenamente', icon: Dumbbell },
   { href: '/dashboard/trainers', label: 'Antrenori', icon: Users },
   { href: '/dashboard/feedback', label: 'Feedback', icon: MessageSquare },
@@ -36,50 +35,43 @@ const navItems = [
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  // We need to make sure the active path is only calculated on the client
-  // to avoid hydration mismatches.
   const [activePath, setActivePath] = useState('');
+  const { user } = useUser();
 
   useEffect(() => {
-    // On client-side mount, set the active path.
     setActivePath(pathname);
   }, [pathname]);
 
-
-  const handleSignOut = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-    router.push('/');
-  };
-
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <Link href="/" className="flex items-center gap-2">
-           <div className="relative w-8 h-8">
-            <Image 
-              src="https://i.imgur.com/9W1ye1w.png" 
-              alt="Techno Gym Logo" 
-              fill
-              className="object-contain"
-            />
-           </div>
-           <span className="text-xl font-bold tracking-tight text-gradient">TECHNO GYM</span>
-        </Link>
+      <SidebarHeader className="p-6 border-b border-[#1f2937]">
+          <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-600">
+                  <Dumbbell className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-600">
+                TECHNO GYM
+              </span>
+          </div>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu>
+
+      <SidebarContent className="p-4">
+        <SidebarMenu className="space-y-1">
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
                 isActive={activePath === item.href}
-                className="data-[active=true]:bg-primary/20 data-[active=true]:text-primary text-muted-foreground hover:text-foreground hover:bg-muted/50 h-11 text-base"
+                className={cn(
+                  "w-full justify-start h-auto px-4 py-3 rounded-xl transition-all duration-200 text-base gap-4",
+                  activePath === item.href
+                    ? "bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 text-cyan-400 shadow-sm shadow-cyan-500/20"
+                    : "text-gray-400 hover:bg-white/5 hover:text-white"
+                )}
                 tooltip={item.label}
               >
                 <Link href={item.href}>
-                  <item.icon className="h-6 w-6" />
+                  <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>
                 </Link>
               </SidebarMenuButton>
@@ -87,11 +79,22 @@ export default function DashboardSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter>
-        <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 h-11 text-base" onClick={handleSignOut}>
-            <LogOut className="h-6 w-6" />
-            <span className="group-data-[collapsible=icon]:hidden">Deconectare</span>
-        </Button>
+
+      <SidebarFooter className="p-6 mt-auto border-t border-[#1f2937]">
+        {user && (
+          <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ''} />
+                <AvatarFallback className="font-medium bg-gradient-to-br from-cyan-400 to-cyan-600 text-white">
+                  {user.displayName?.charAt(0) || user.email?.charAt(0) || 'L'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="overflow-hidden">
+                <p className="font-medium text-white truncate">{user.displayName || 'Membru'}</p>
+                <p className="text-xs text-gray-400">Membru Premium</p>
+              </div>
+          </div>
+        )}
       </SidebarFooter>
     </Sidebar>
   );
