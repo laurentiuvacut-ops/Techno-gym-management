@@ -11,9 +11,13 @@ import { cn } from '@/lib/utils';
 export default function Header() {
   const { user, loading } = useUser();
   const [visible, setVisible] = useState(true);
+  const [isClient, setIsClient] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
+    // This effect runs only on the client, after the initial render.
+    setIsClient(true);
+
     const controlHeader = () => {
       const currentScrollY = window.scrollY;
 
@@ -33,7 +37,7 @@ export default function Header() {
     return () => {
       window.removeEventListener('scroll', controlHeader);
     };
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
   return (
     <header className={cn(
@@ -56,26 +60,29 @@ export default function Header() {
          </span>
       </Link>
       
-      {/* Auth logic */}
-      {loading ? (
-        // Skeleton loader for the button
-        <div className="h-9 w-28 rounded-lg bg-muted/50 animate-pulse" />
-      ) : user ? (
-        // Avatar for logged-in user
-        <Link href="/dashboard/profile">
-          <Avatar className='w-9 h-9'>
-            <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
-            <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
-          </Avatar>
-        </Link>
-      ) : (
-        // Login button for logged-out user
-        <Button asChild size="lg" className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
-           <Link href="/login">
-               Intră în Cont
-           </Link>
-       </Button>
-      )}
+      {/* Auth logic: Use a container to prevent layout shift and ensure client/server match */}
+      <div className="flex justify-end items-center h-9 w-28">
+        {!isClient || loading ? (
+          // Skeleton loader for server-side rendering and initial client-side loading.
+          // This ensures the initial UI is identical on both client and server.
+          <div className="h-full w-full rounded-lg bg-muted/50 animate-pulse" />
+        ) : user ? (
+          // Avatar for logged-in user, rendered only on the client after hydration
+          <Link href="/dashboard/profile">
+            <Avatar className='h-9 w-9'>
+              <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
+              <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
+            </Avatar>
+          </Link>
+        ) : (
+          // Login button for logged-out user, rendered only on the client after hydration
+          <Button asChild size="lg" className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
+             <Link href="/login">
+                 Intră în Cont
+             </Link>
+         </Button>
+        )}
+      </div>
     </header>
   );
 }
