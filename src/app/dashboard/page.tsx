@@ -39,36 +39,44 @@ export default function DashboardHomePage() {
   };
   
   const { daysRemaining, status, expirationDateDisplay } = useMemo(() => {
-    if (memberData?.expirationDate && typeof memberData.expirationDate === 'string') {
-        const dateString = memberData.expirationDate; // "YYYY-MM-DD"
-        
-        const parts = dateString.split('-').map(part => parseInt(part, 10));
+    if (!memberData?.expirationDate) {
+        return { daysRemaining: 0, status: "Expirat", expirationDateDisplay: "N/A" };
+    }
+
+    let expDate;
+    const expirationValue = memberData.expirationDate;
+
+    // Case 1: It's a Firestore Timestamp object (e.g., from the gym's native software)
+    if (typeof expirationValue === 'object' && expirationValue !== null && typeof (expirationValue as any).toDate === 'function') {
+        expDate = (expirationValue as any).toDate();
+    }
+    // Case 2: It's a date string in "YYYY-MM-DD" format (e.g., from the web app)
+    else if (typeof expirationValue === 'string') {
+        const parts = expirationValue.split('-').map(part => parseInt(part, 10));
         if (parts.length === 3 && !parts.some(isNaN)) {
-            // parts[1] - 1 because months are 0-indexed in JS Dates.
-            const expDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
-
-            if (isValid(expDate)) {
-                const today = new Date();
-                // We also need to treat "today" as UTC to get a clean calendar day difference.
-                const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-                
-                const diff = differenceInCalendarDays(expDate, todayUtc);
-
-                return {
-                    daysRemaining: diff,
-                    status: diff >= 0 ? "Activ" : "Expirat",
-                    expirationDateDisplay: format(expDate, 'dd MMM yyyy')
-                };
-            }
+            // new Date('YYYY-MM-DD') can be off by a day due to timezone.
+            // new Date(YYYY, MM-1, DD) is more reliable for local timezone.
+            // To be completely safe and avoid timezone issues, use UTC.
+            expDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
         }
     }
 
-    // Default values if expirationDate is not valid or not present
-    return {
-        daysRemaining: 0,
-        status: "Expirat",
-        expirationDateDisplay: "N/A"
-    };
+    if (expDate && isValid(expDate)) {
+        const today = new Date();
+        // Compare dates by creating UTC dates for both to get a clean calendar day difference.
+        const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+        
+        const diff = differenceInCalendarDays(expDate, todayUtc);
+
+        return {
+            daysRemaining: diff,
+            status: diff >= 0 ? "Activ" : "Expirat",
+            expirationDateDisplay: format(expDate, 'dd MMM yyyy')
+        };
+    }
+
+    // Fallback for any other unexpected format
+    return { daysRemaining: 0, status: "Expirat", expirationDateDisplay: "N/A" };
   }, [memberData]);
 
 

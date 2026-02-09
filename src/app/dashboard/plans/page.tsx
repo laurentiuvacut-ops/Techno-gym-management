@@ -42,40 +42,31 @@ function PlansComponent() {
 
   // This is the main effect that handles payment processing
   useEffect(() => {
-    // Check URL for success params. This runs on component mount.
     const planId = searchParams.get('plan_id');
     const paymentSuccess = searchParams.get('payment_success') === 'true';
 
-    // If payment was successful, store intent in sessionStorage.
-    // This makes the process resilient to re-renders.
     if (paymentSuccess && planId) {
       sessionStorage.setItem('payment_processing_plan_id', planId);
-      // Clean the URL to prevent re-processing on refresh and re-trigger this effect.
       router.replace('/dashboard/plans', { scroll: false });
-      return; // Return early, the effect will re-run with clean params.
+      return; 
     }
 
-    // After potential URL clean-up, check sessionStorage for a pending payment.
     const pendingPlanId = sessionStorage.getItem('payment_processing_plan_id');
 
-    // --- Exit Conditions ---
-    // 1. No pending plan to process
     if (!pendingPlanId) {
       setIsProcessingPayment(false);
       return;
     }
-    // 2. Essential data is still loading
+    
     if (userLoading || memberLoading || !memberData || !memberDocRef) {
-      return; // Wait for data to be loaded
+      return; 
     }
-    // 3. Payment has already been processed in this component's lifecycle
+    
     if (paymentProcessedRef.current) {
-      setIsProcessingPayment(false); // Stop processing state if already done
+      setIsProcessingPayment(false);
       return;
     }
 
-    // --- Process Payment ---
-    // Mark as processed to prevent re-runs within this lifecycle
     paymentProcessedRef.current = true;
     
     const processPaymentUpdate = async () => {
@@ -95,19 +86,25 @@ function PlansComponent() {
 
       const daysToAdd = purchasedPlan.durationDays || 30;
       let startDate = new Date();
-      const expDateString = memberData.expirationDate;
+      const expirationValue = memberData.expirationDate;
+      let currentExpirationDate;
 
-      if (expDateString && typeof expDateString === 'string') {
-        const parts = expDateString.split('-').map(part => parseInt(part, 10));
-        if (parts.length === 3 && !parts.some(isNaN)) {
-          const currentExpirationDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
-          const today = new Date();
-          const todayUtc = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
-
-          if (isValid(currentExpirationDate) && differenceInCalendarDays(currentExpirationDate, todayUtc) >= 0) {
-            startDate = currentExpirationDate;
+      if (expirationValue) {
+        if (typeof expirationValue === 'object' && expirationValue !== null && typeof (expirationValue as any).toDate === 'function') {
+          currentExpirationDate = (expirationValue as any).toDate();
+        } else if (typeof expirationValue === 'string') {
+          const parts = expirationValue.split('-').map(part => parseInt(part, 10));
+          if (parts.length === 3 && !parts.some(isNaN)) {
+            currentExpirationDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
           }
         }
+      }
+
+      const today = new Date();
+      const todayUtc = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+      if (currentExpirationDate && isValid(currentExpirationDate) && differenceInCalendarDays(currentExpirationDate, todayUtc) >= 0) {
+        startDate = currentExpirationDate;
       }
 
       const newExpirationDate = addDays(startDate, daysToAdd);
