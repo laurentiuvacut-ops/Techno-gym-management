@@ -3,6 +3,7 @@ import { Inter, Bebas_Neue } from 'next/font/google'
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
+import ServiceWorkerRegister from '@/components/service-worker-register';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -19,6 +20,12 @@ const bebas_neue = Bebas_Neue({
 export const metadata: Metadata = {
   title: 'Techno Gym',
   description: 'Your futuristic gym companion.',
+  manifest: '/manifest.ts',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Techno Gym',
+  },
   icons: {
     apple: 'https://i.imgur.com/9W1ye1w.png',
   }
@@ -40,6 +47,7 @@ export default function RootLayout({
           {children}
           <Toaster />
         </FirebaseClientProvider>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

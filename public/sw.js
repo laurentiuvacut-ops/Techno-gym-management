@@ -1,21 +1,69 @@
-// A minimal service worker to meet the PWA installability criteria.
-// It includes a fetch handler, which is required by most browsers.
+const CACHE_NAME = 'technogym-cache-v1';
 
+// On install, cache the core assets.
 self.addEventListener('install', (event) => {
   console.log('Service Worker: Installing...');
-  // Instantly activate the new service worker
-  event.waitUntil(self.skipWaiting());
+  // No pre-caching, will cache on fetch.
 });
 
+// On activate, clean up old caches.
 self.addEventListener('activate', (event) => {
   console.log('Service Worker: Activating...');
-  // Take control of all open pages as soon as the service worker is activated
-  event.waitUntil(self.clients.claim());
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('Service Worker: Deleting old cache', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  return self.clients.claim();
 });
 
+// On fetch, use a cache-first strategy.
 self.addEventListener('fetch', (event) => {
-  // This is the crucial part. The browser needs to see a fetch event
-  // listener to consider the app installable.
-  // This basic strategy just passes the request through to the network.
-  event.respondWith(fetch(event.request));
+  // Ignore non-GET requests.
+  if (event.request.method !== 'GET') {
+    return;
+  }
+  
+  // For navigation requests, use network-first to get the latest page.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+
+  // For all other static assets, use cache-first.
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      if (response) {
+        return response; // Return from cache.
+      }
+
+      // Not in cache, so fetch from network.
+      return fetch(event.request).then((response) => {
+        // Check for a valid response.
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+          return response;
+        }
+
+        // Clone the response and add it to the cache.
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
+
+        return response;
+      });
+    })
+  );
 });
