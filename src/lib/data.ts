@@ -163,6 +163,13 @@ export const shopItems = [
 
 export const transformations = [
   {
+    id: 34,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-34'),
+    after: getImage('transformation-after-34'),
+  },
+  {
     id: 8,
     name: 'Membru Nou',
     story: 'O nouă transformare de succes!',
