@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '../ui/button';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Dumbbell } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -35,8 +35,13 @@ export default function Header() {
     )}>
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
-         <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-600">
-          <Dumbbell className="w-5 h-5 text-white" />
+         <div className="relative w-9 h-9">
+            <Image 
+              src="https://i.imgur.com/9W1ye1w.png" 
+              alt="Techno Gym Logo" 
+              fill
+              className="object-contain"
+            />
          </div>
          <span className="text-lg font-bold">
             <span className="bg-gradient-to-r from-cyan-400 to-cyan-600 bg-clip-text text-transparent">TECHNO</span>
