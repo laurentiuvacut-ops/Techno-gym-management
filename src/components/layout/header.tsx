@@ -63,7 +63,7 @@ export default function Header() {
         </Link>
       ) : (
         // Login button for logged-out user
-        <Button asChild className="h-auto px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-lg shadow-cyan-500/30 transition-all hover:from-cyan-600 hover:to-cyan-700">
+        <Button asChild className="h-auto px-4 py-2 text-sm font-semibold rounded-lg glow-primary">
            <Link href="/login">
                Intră în Cont
            </Link>
