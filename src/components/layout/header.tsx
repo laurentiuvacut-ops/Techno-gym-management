@@ -6,17 +6,33 @@ import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 export default function Header() {
   const { user, loading } = useUser();
   const [isClient, setIsClient] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+    
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Clean up the event listener
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 z-50 flex items-center glass-strong">
+    <header className={cn(
+        "fixed top-0 left-0 right-0 h-16 z-50 flex items-center transition-all duration-300",
+        scrolled ? "glass-strong" : "bg-transparent"
+    )}>
       <div className="container mx-auto px-4 w-full flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2">
            <div className="relative w-8 h-8">
