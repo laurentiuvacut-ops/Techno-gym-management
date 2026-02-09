@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 const navItems = [
   { href: '/dashboard', label: 'Acasă', icon: Home },
@@ -45,14 +46,19 @@ export default function DashboardSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-6 border-b border-[#1f2937]">
-          <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-600">
-                  <Dumbbell className="w-6 h-6 text-white" />
+          <Link href="/dashboard" className="flex items-center gap-4">
+              <div className="relative w-10 h-10">
+                <Image 
+                  src="https://i.imgur.com/9W1ye1w.png" 
+                  alt="Techno Gym Logo" 
+                  fill
+                  className="object-contain"
+                />
               </div>
               <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-600">
                 TECHNO GYM
               </span>
-          </div>
+          </Link>
       </SidebarHeader>
 
       <SidebarContent className="p-4">
