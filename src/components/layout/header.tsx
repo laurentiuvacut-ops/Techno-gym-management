@@ -11,14 +11,37 @@ import { cn } from '@/lib/utils';
 export default function Header() {
   const { user, loading } = useUser();
   const [isClient, setIsClient] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+
+    const controlHeader = () => {
+      const currentScrollY = window.scrollY;
+
+      // Hide header if scrolling down, show if scrolling up
+      // A threshold (e.g., > 10) prevents hiding at the very top
+      if (currentScrollY > lastScrollY && currentScrollY > 10) {
+        setVisible(false);
+      } else {
+        setVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', controlHeader);
+
+    return () => {
+      window.removeEventListener('scroll', controlHeader);
+    };
+  }, [lastScrollY]);
 
   return (
     <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-all duration-300 bg-transparent border-b border-transparent"
+        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-all duration-300 bg-transparent border-b border-transparent",
+        visible ? 'translate-y-0' : '-translate-y-full'
     )}>
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
@@ -50,7 +73,7 @@ export default function Header() {
         </Link>
       ) : (
         // Login button for logged-out user
-        <Button asChild className="h-auto px-4 py-2 text-sm font-semibold rounded-lg glow-primary">
+        <Button asChild size="lg" className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
            <Link href="/login">
                Intră în Cont
            </Link>
