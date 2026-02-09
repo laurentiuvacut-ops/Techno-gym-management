@@ -11,13 +11,13 @@ import { cn } from '@/lib/utils';
 export default function Header() {
   const { user, loading } = useUser();
   const [visible, setVisible] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
   const lastScrollY = useRef(0);
 
+  // This state is crucial for preventing hydration errors.
+  // It ensures that we only render client-specific UI after the component has mounted.
+  const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
-    // This effect runs only on the client, after the initial render.
-    // It signals that the component has "hydrated".
-    setIsMounted(true);
+    setHasMounted(true);
   }, []);
 
   useEffect(() => {
@@ -41,6 +41,33 @@ export default function Header() {
       window.removeEventListener('scroll', controlHeader);
     };
   }, []);
+  
+  const renderAuthContent = () => {
+    // If the component hasn't mounted yet, or if auth state is loading,
+    // render the placeholder. This is key to ensuring server and client match.
+    if (!hasMounted || loading) {
+      return <div className="h-9 w-full rounded-lg bg-muted/50 animate-pulse" />;
+    }
+
+    if (user) {
+      return (
+        <Link href="/dashboard/profile">
+          <Avatar className='h-9 w-9'>
+            <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
+            <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
+          </Avatar>
+        </Link>
+      );
+    }
+
+    return (
+      <Button asChild className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
+         <Link href="/login">
+             Intră în Cont
+         </Link>
+     </Button>
+    );
+  };
 
   return (
     <header className={cn(
@@ -50,9 +77,9 @@ export default function Header() {
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
          <div className="relative w-9 h-9">
-            <Image 
-              src="https://i.imgur.com/9W1ye1w.png" 
-              alt="Techno Gym Logo" 
+            <Image
+              src="https://i.imgur.com/9W1ye1w.png"
+              alt="Techno Gym Logo"
               fill
               className="object-contain"
             />
@@ -65,26 +92,7 @@ export default function Header() {
       
       {/* Auth logic */}
       <div className="flex justify-end items-center min-h-[40px] w-28">
-        {!isMounted || loading ? (
-          // On the server, and on the initial client render before hydration and auth check,
-          // ALWAYS render the skeleton. This guarantees a match.
-          <div className="h-9 w-full rounded-lg bg-muted/50 animate-pulse" />
-        ) : user ? (
-          // Render the avatar only on the client after hydration and if the user exists.
-          <Link href="/dashboard/profile">
-            <Avatar className='h-9 w-9'>
-              <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
-              <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
-            </Avatar>
-          </Link>
-        ) : (
-          // Render the login button only on the client after hydration if there's no user.
-          <Button asChild className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
-             <Link href="/login">
-                 Intră în Cont
-             </Link>
-         </Button>
-        )}
+        {renderAuthContent()}
       </div>
     </header>
   );
