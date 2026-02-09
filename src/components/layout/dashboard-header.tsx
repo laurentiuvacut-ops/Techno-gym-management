@@ -1,4 +1,6 @@
 'use client';
+import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useUser } from '@/firebase';
 import Link from 'next/link';
@@ -6,9 +8,36 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function DashboardHeader() {
   const { user, loading } = useUser();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    // The main content area in the dashboard is the scrollable container.
+    // We need to listen to its scroll events, not the window's.
+    const mainContent = document.querySelector('main');
+    
+    const handleScroll = () => {
+      if (mainContent) {
+        setScrolled(mainContent.scrollTop > 10);
+      }
+    };
+
+    if (mainContent) {
+      mainContent.addEventListener('scroll', handleScroll);
+    }
+    
+    // Clean up the event listener
+    return () => {
+      if (mainContent) {
+        mainContent.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
+    <header className={cn(
+        "sticky top-0 z-10 flex h-16 items-center gap-4 px-4 md:px-6 transition-all duration-300",
+        scrolled ? "glass" : "bg-transparent"
+    )}>
       <div className="md:hidden">
         <SidebarTrigger />
       </div>
