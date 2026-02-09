@@ -12,62 +12,28 @@ export default function Header() {
   const { user, loading } = useUser();
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
-
-  // This state is crucial for preventing hydration errors.
-  // It ensures that we only render client-specific UI after the component has mounted.
   const [hasMounted, setHasMounted] = useState(false);
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
 
   useEffect(() => {
+    // Component has mounted, safe to use browser APIs
+    setHasMounted(true);
+
     const controlHeader = () => {
       const currentScrollY = window.scrollY;
 
-      // Hide header if scrolling down, show if scrolling up
       if (currentScrollY > lastScrollY.current && currentScrollY > 10) {
         setVisible(false);
       } else {
         setVisible(true);
       }
-
-      // Update the ref's value without causing a re-render
       lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener('scroll', controlHeader);
-
     return () => {
       window.removeEventListener('scroll', controlHeader);
     };
   }, []);
-  
-  const renderAuthContent = () => {
-    // If the component hasn't mounted yet, or if auth state is loading,
-    // render the placeholder. This is key to ensuring server and client match.
-    if (!hasMounted || loading) {
-      return <div className="h-9 w-full rounded-lg bg-muted/50 animate-pulse" />;
-    }
-
-    if (user) {
-      return (
-        <Link href="/dashboard/profile">
-          <Avatar className='h-9 w-9'>
-            <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
-            <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
-          </Avatar>
-        </Link>
-      );
-    }
-
-    return (
-      <Button asChild className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
-         <Link href="/login">
-             Intră în Cont
-         </Link>
-     </Button>
-    );
-  };
 
   return (
     <header className={cn(
@@ -92,7 +58,22 @@ export default function Header() {
       
       {/* Auth logic */}
       <div className="flex justify-end items-center min-h-[40px] w-28">
-        {renderAuthContent()}
+        {(!hasMounted || loading) ? (
+            <div className="h-9 w-full rounded-lg bg-muted/50 animate-pulse" />
+        ) : user ? (
+            <Link href="/dashboard/profile">
+              <Avatar className='h-9 w-9'>
+                <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
+                <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
+              </Avatar>
+            </Link>
+        ) : (
+            <Button asChild className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
+               <Link href="/login">
+                   Intră în Cont
+               </Link>
+           </Button>
+        )}
       </div>
     </header>
   );
