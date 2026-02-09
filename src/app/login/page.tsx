@@ -65,8 +65,6 @@ export default function LoginPage() {
             setStep('otp');
             setError(null);
         } catch (err: any) {
-            console.error("Firebase signInWithPhoneNumber Error:", err);
-            
              if (err.code === 'auth/requests-from-referer' || (err.message && err.message.includes('are-blocked'))) {
                  setError(
                     <Alert variant="destructive">
@@ -74,7 +72,6 @@ export default function LoginPage() {
                         <AlertDescription>
                             <div className="space-y-2 text-sm">
                                 <p>Mulțumim pentru confirmare. Faptul că eroarea persistă chiar și cu domeniile adăugate indică problema cea mai frecventă: modificați <strong>cheia reCAPTCHA greșită</strong>.</p>
-                                <p>Proiectul dumneavoastră probabil are mai multe chei. Urmați acești pași pentru a o găsi și modifica pe cea corectă:</p>
                                 <ol className="list-decimal list-inside space-y-1 pl-2">
                                     <li>În <strong>Consola Firebase</strong>, navigați la <strong>Authentication</strong> &rarr; tab-ul <strong>Settings</strong>.</li>
                                     <li>Găsiți <strong>Phone</strong> în lista de provideri și dați click.</li>
@@ -91,7 +88,22 @@ export default function LoginPage() {
             } else if (err.code === 'auth/invalid-phone-number') {
                 setError("Numărul de telefon introdus nu este valid.");
             } else if (err.code === 'auth/too-many-requests') {
-                 setError("Prea multe încercări. Vă rugăm să încercați mai târziu.");
+                 setError(
+                    <Alert variant="destructive">
+                        <AlertTitle>Prea multe încercări</AlertTitle>
+                        <AlertDescription>
+                            <div className="space-y-2 text-sm">
+                                <p>Firebase a blocat temporar solicitările de pe acest dispozitiv din cauza unui număr prea mare de încercări de autentificare într-un timp scurt. Aceasta este o măsură de securitate pentru a preveni abuzul.</p>
+                                <p className="font-medium pt-2">Ce puteți face:</p>
+                                <ul className="list-disc list-inside space-y-1 pl-2">
+                                    <li>Așteptați câteva minute înainte de a încerca din nou.</li>
+                                    <li>Asigurați-vă că numărul de telefon este corect.</li>
+                                    <li>Pentru testare în timpul dezvoltării, puteți adăuga numere de test în consola Firebase (Authentication &rarr; Settings &rarr; Phone numbers for testing).</li>
+                                </ul>
+                            </div>
+                        </AlertDescription>
+                    </Alert>
+                 );
             } else {
                 const errorMessage = err.message || 'A apărut o eroare neașteptată.';
                 setError(`Eroare: ${errorMessage}`);
@@ -122,11 +134,20 @@ export default function LoginPage() {
                 router.push('/dashboard');
             }
         } catch (err: any) {
-            console.error(err);
             if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {
                 setError('Codul introdus este invalid sau a expirat.');
             } else if (err.code === 'auth/too-many-requests') {
-                 setError("Prea multe încercări eșuate. Vă rugăm să solicitați un cod nou.");
+                 setError(
+                    <Alert variant="destructive">
+                        <AlertTitle>Prea multe încercări eșuate</AlertTitle>
+                        <AlertDescription>
+                            <div className="space-y-2 text-sm">
+                                <p>Ați introdus coduri greșite de prea multe ori. Din motive de securitate, va trebui să solicitați un cod nou.</p>
+                                <p className="font-medium pt-2">Vă rugăm să vă întoarceți la pasul anterior pentru a trimite un nou cod de verificare pe telefonul dumneavoastră.</p>
+                            </div>
+                        </AlertDescription>
+                    </Alert>
+                 );
             } else {
                 const errorCode = err.code || 'UNKNOWN_ERROR';
                 const errorMessage = err.message || 'A apărut o eroare la verificarea codului.';
