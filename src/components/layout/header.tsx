@@ -5,30 +5,32 @@ import Image from 'next/image';
 import { Button } from '../ui/button';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 export default function Header() {
   const { user, loading } = useUser();
   const [isClient, setIsClient] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
 
+  useEffect(() => {
     const controlHeader = () => {
       const currentScrollY = window.scrollY;
 
       // Hide header if scrolling down, show if scrolling up
-      // A threshold (e.g., > 10) prevents hiding at the very top
-      if (currentScrollY > lastScrollY && currentScrollY > 10) {
+      if (currentScrollY > lastScrollY.current && currentScrollY > 10) {
         setVisible(false);
       } else {
         setVisible(true);
       }
 
-      setLastScrollY(currentScrollY);
+      // Update the ref's value without causing a re-render
+      lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener('scroll', controlHeader);
@@ -36,11 +38,11 @@ export default function Header() {
     return () => {
       window.removeEventListener('scroll', controlHeader);
     };
-  }, [lastScrollY]);
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   return (
     <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-all duration-300 bg-transparent border-b border-transparent",
+        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-transform duration-300 bg-transparent",
         visible ? 'translate-y-0' : '-translate-y-full'
     )}>
       {/* Logo */}
