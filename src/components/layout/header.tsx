@@ -10,13 +10,8 @@ import { cn } from '@/lib/utils';
 
 export default function Header() {
   const { user, loading } = useUser();
-  const [isClient, setIsClient] = useState(false);
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   useEffect(() => {
     const controlHeader = () => {
@@ -62,7 +57,7 @@ export default function Header() {
       </Link>
       
       {/* Auth logic */}
-      {(!isClient || loading) ? (
+      {loading ? (
         // Skeleton loader for the button
         <div className="h-9 w-28 rounded-lg bg-muted/50 animate-pulse" />
       ) : user ? (
