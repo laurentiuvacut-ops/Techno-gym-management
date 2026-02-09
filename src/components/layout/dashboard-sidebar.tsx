@@ -75,11 +75,11 @@ export default function DashboardSidebar() {
               <SidebarMenuButton
                 asChild
                 isActive={activePath === item.href}
-                className="data-[active=true]:bg-primary/20 data-[active=true]:text-primary text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                className="data-[active=true]:bg-primary/20 data-[active=true]:text-primary text-muted-foreground hover:text-foreground hover:bg-muted/50 h-11 text-base"
                 tooltip={item.label}
               >
                 <Link href={item.href}>
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="h-6 w-6" />
                   <span>{item.label}</span>
                 </Link>
               </SidebarMenuButton>
@@ -88,8 +88,8 @@ export default function DashboardSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10" onClick={handleSignOut}>
-            <LogOut className="h-5 w-5" />
+        <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 h-11 text-base" onClick={handleSignOut}>
+            <LogOut className="h-6 w-6" />
             <span className="group-data-[collapsible=icon]:hidden">Deconectare</span>
         </Button>
       </SidebarFooter>
