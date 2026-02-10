@@ -14,9 +14,12 @@ export default function Header() {
   const lastScrollY = useRef(0);
   const [hasMounted, setHasMounted] = useState(false);
 
-  // This effect runs only on the client, after the component has mounted.
   useEffect(() => {
     setHasMounted(true);
+  }, []);
+  
+  useEffect(() => {
+    if (!hasMounted) return;
 
     const controlHeader = () => {
       const currentScrollY = window.scrollY;
@@ -34,24 +37,14 @@ export default function Header() {
     return () => {
       window.removeEventListener('scroll', controlHeader);
     };
-  }, []);
+  }, [hasMounted]);
 
-  // On the server, and on the initial client render, hasMounted is false.
-  // We render a static placeholder to prevent hydration mismatch.
-  // This ensures the server HTML and initial client HTML are identical.
-  if (!hasMounted) {
-    return (
-      <header className="fixed top-0 left-0 right-0 z-50 flex h-[64px] items-center justify-between w-full py-3 px-4 bg-transparent" />
-    );
-  }
-
-  // After mounting on the client, we render the actual header with all its client-side logic.
   return (
     <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-transform duration-300 bg-transparent",
-        visible ? 'translate-y-0' : '-translate-y-full'
+        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-transform duration-300",
+        hasMounted && !visible ? '-translate-y-full' : 'translate-y-0'
     )}>
-      <Link href="/" className="flex items-center gap-2">
+       <Link href="/" className="flex items-center gap-2">
          <div className="relative w-9 h-9">
             <Image
               src="https://i.imgur.com/9W1ye1w.png"
@@ -67,7 +60,7 @@ export default function Header() {
       </Link>
       
       <div className="flex justify-end items-center min-h-[40px] w-28">
-        {loading ? (
+        {(!hasMounted || loading) ? (
             <div className="h-9 w-full rounded-lg bg-muted/50 animate-pulse" />
         ) : user ? (
             <Link href="/dashboard/profile">
@@ -77,7 +70,7 @@ export default function Header() {
               </Avatar>
             </Link>
         ) : (
-            <Button asChild className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
+           <Button asChild className="glow-primary h-auto px-4 py-2 text-sm font-semibold rounded-lg">
                <Link href="/login">
                    Intră în Cont
                </Link>
