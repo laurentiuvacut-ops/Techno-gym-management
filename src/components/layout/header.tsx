@@ -12,37 +12,26 @@ export default function Header() {
   const { user, loading } = useUser();
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
-  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    setHasMounted(true);
-  }, []);
-  
-  useEffect(() => {
-    if (!hasMounted) return;
-
-    const controlHeader = () => {
+    const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
-      // Hide header if scrolling down, show if scrolling up
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
+      // Show header if scrolling up or near the top
+      setVisible(currentScrollY < lastScrollY.current || currentScrollY < 50);
       lastScrollY.current = currentScrollY;
     };
 
-    window.addEventListener('scroll', controlHeader);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     return () => {
-      window.removeEventListener('scroll', controlHeader);
+      window.removeEventListener('scroll', handleScroll);
     };
-  }, [hasMounted]);
+  }, []);
 
   return (
     <header className={cn(
         "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-transform duration-300",
-        hasMounted && !visible ? '-translate-y-full' : 'translate-y-0'
+        visible ? 'translate-y-0' : '-translate-y-full'
     )}>
        <Link href="/" className="flex items-center gap-2">
          <div className="relative w-9 h-9">
@@ -60,7 +49,7 @@ export default function Header() {
       </Link>
       
       <div className="flex justify-end items-center min-h-[40px] w-28">
-        {(!hasMounted || loading) ? (
+        {loading ? (
             <div className="h-9 w-full rounded-lg bg-muted/50 animate-pulse" />
         ) : user ? (
             <Link href="/dashboard/profile">
