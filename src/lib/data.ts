@@ -408,24 +408,3 @@ export const transformations = [
     after: getImage('transformation-after-35'),
   }
 ];
-
-    
-
-
-
-
-    
-
-
-
-
-
-
-    
-
-    
-    
-
-    
-
-    
