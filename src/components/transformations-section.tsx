@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -11,7 +12,6 @@ import { transformations } from "@/lib/data";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-
 
 export default function TransformationsSection() {
     return (
@@ -72,3 +72,5 @@ export default function TransformationsSection() {
         </section>
     )
 }
+
+    

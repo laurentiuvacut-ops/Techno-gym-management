@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -12,39 +13,8 @@ import { Check, Star, Clock } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
-
-const Header = dynamic(() => import('@/components/layout/header'), {
-  ssr: false,
-  loading: () => (
-    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4">
-      <div className="h-9 w-9 rounded bg-muted/50 animate-pulse" />
-      <div className="h-9 w-28 rounded-lg bg-muted/50 animate-pulse" />
-    </header>
-  ),
-});
-
-const TransformationsSection = dynamic(() => import('@/components/transformations-section'), {
-  ssr: false,
-  loading: () => (
-    <section className="w-full py-12 md:py-24 lg:py-32">
-      <div className="container px-4 md:px-6">
-        <div className="space-y-3 text-center">
-            <div className="h-10 w-3/4 mx-auto rounded-lg bg-muted/50 animate-pulse" />
-            <div className="h-6 w-1/2 mx-auto rounded-lg bg-muted/50 animate-pulse" />
-        </div>
-        <div className="w-full max-w-5xl mx-auto mt-12 hidden md:flex gap-8">
-            <div className="h-96 w-1/3 rounded-lg bg-muted/50 animate-pulse" />
-            <div className="h-96 w-1/3 rounded-lg bg-muted/50 animate-pulse" />
-            <div className="h-96 w-1/3 rounded-lg bg-muted/50 animate-pulse" />
-        </div>
-         <div className="w-full max-w-sm mx-auto mt-12 md:hidden">
-            <div className="h-96 w-full rounded-lg bg-muted/50 animate-pulse" />
-        </div>
-      </div>
-    </section>
-  ),
-});
-
+import TransformationsSection from '@/components/transformations-section';
+import Header from '@/components/layout/header';
 
 const getImage = (id: string) => {
     const img = PlaceHolderImages.find(p => p.id === id);
@@ -59,7 +29,6 @@ const getImage = (id: string) => {
     }
     return img;
 };
-
 
 export default function LandingPage() {
 
@@ -225,3 +194,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    

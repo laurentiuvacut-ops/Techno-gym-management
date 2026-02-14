@@ -1,3 +1,4 @@
+
 import type { ImagePlaceholder } from './placeholder-images';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -7,7 +8,7 @@ const getImage = (id: string): ImagePlaceholder => {
         return {
             id: 'not-found',
             description: 'Image not found',
-            imageUrl: 'https://picsum.photos/seed/notfound/600/400',
+            imageUrl: 'https://i.imgur.com/1N2R4A6.png', // Generic fallback
             imageHint: 'placeholder',
         };
     }
@@ -161,40 +162,12 @@ export const shopItems = [
     }
 ];
 
-export const transformations = [
-  { id: 1, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-1'), after: getImage('transformation-after-1') },
-  { id: 2, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-2'), after: getImage('transformation-after-2') },
-  { id: 3, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-3'), after: getImage('transformation-after-3') },
-  { id: 4, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-4'), after: getImage('transformation-after-4') },
-  { id: 5, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-5'), after: getImage('transformation-after-5') },
-  { id: 6, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-6'), after: getImage('transformation-after-6') },
-  { id: 7, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-7'), after: getImage('transformation-after-7') },
-  { id: 8, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-8'), after: getImage('transformation-after-8') },
-  { id: 9, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-9'), after: getImage('transformation-after-9') },
-  { id: 10, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-10'), after: getImage('transformation-after-10') },
-  { id: 11, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-11'), after: getImage('transformation-after-11') },
-  { id: 12, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-12'), after: getImage('transformation-after-12') },
-  { id: 13, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-13'), after: getImage('transformation-after-13') },
-  { id: 14, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-14'), after: getImage('transformation-after-14') },
-  { id: 15, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-15'), after: getImage('transformation-after-15') },
-  { id: 16, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-16'), after: getImage('transformation-after-16') },
-  { id: 17, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-17'), after: getImage('transformation-after-17') },
-  { id: 18, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-18'), after: getImage('transformation-after-18') },
-  { id: 19, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-19'), after: getImage('transformation-after-19') },
-  { id: 20, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-20'), after: getImage('transformation-after-20') },
-  { id: 21, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-21'), after: getImage('transformation-after-21') },
-  { id: 22, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-22'), after: getImage('transformation-after-22') },
-  { id: 23, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-23'), after: getImage('transformation-after-23') },
-  { id: 24, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-24'), after: getImage('transformation-after-24') },
-  { id: 25, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-25'), after: getImage('transformation-after-25') },
-  { id: 26, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-26'), after: getImage('transformation-after-26') },
-  { id: 27, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-27'), after: getImage('transformation-after-27') },
-  { id: 28, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-28'), after: getImage('transformation-after-28') },
-  { id: 29, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-29'), after: getImage('transformation-after-29') },
-  { id: 30, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-30'), after: getImage('transformation-after-30') },
-  { id: 31, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-31'), after: getImage('transformation-after-31') },
-  { id: 32, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-32'), after: getImage('transformation-after-32') },
-  { id: 33, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-33'), after: getImage('transformation-after-33') },
-  { id: 34, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-34'), after: getImage('transformation-after-34') },
-  { id: 35, name: 'Membru Nou', story: 'O nouă transformare de succes!', before: getImage('transformation-before-35'), after: getImage('transformation-after-35') },
-];
+export const transformations = Array.from({ length: 35 }, (_, i) => ({
+  id: i + 1,
+  name: 'Membru Nou',
+  story: 'O nouă transformare de succes!',
+  before: getImage(`transformation-before-${i + 1}`),
+  after: getImage(`transformation-after-${i + 1}`),
+}));
+
+    
