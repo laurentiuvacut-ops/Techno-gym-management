@@ -266,7 +266,7 @@ export default function LandingPage() {
                 </div>
                 <span className="text-lg font-bold tracking-tight"><span className="text-primary">TECHNO</span><span className="text-foreground">GYM</span></span>
             </Link>
-            <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+            <p className="text-center text-sm leading-loose text-muted-foreground md:text-left" suppressHydrationWarning>
               © {new Date().getFullYear()} Techno Gym. Toate drepturile rezervate.
             </p>
           </div>
