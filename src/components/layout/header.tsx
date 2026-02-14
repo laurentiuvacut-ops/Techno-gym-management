@@ -11,21 +11,22 @@ import { cn } from '@/lib/utils';
 export default function Header() {
   const { user, loading } = useUser();
   const [visible, setVisible] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      // Show header if scrolling up or near the top
       setVisible(currentScrollY < lastScrollY.current || currentScrollY < 50);
       lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -49,7 +50,7 @@ export default function Header() {
       </Link>
       
       <div className="flex justify-end items-center min-h-[40px] w-28">
-        {loading ? (
+        {!mounted || loading ? (
             <div className="h-9 w-full rounded-lg bg-muted/50 animate-pulse" />
         ) : user ? (
             <Link href="/dashboard/profile">
