@@ -169,5 +169,3 @@ export const transformations = Array.from({ length: 28 }, (_, i) => ({
   before: getImage(`transformation-before-${i + 1}`),
   after: getImage(`transformation-after-${i + 1}`),
 }));
-
-    
