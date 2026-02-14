@@ -163,18 +163,53 @@ export const shopItems = [
 
 export const transformations = [
   {
-    id: 34,
+    id: 1,
     name: 'Membru Nou',
     story: 'O nouă transformare de succes!',
-    before: getImage('transformation-before-34'),
-    after: getImage('transformation-after-34'),
+    before: getImage('transformation-before-1'),
+    after: getImage('transformation-after-1'),
   },
   {
-    id: 35,
+    id: 2,
     name: 'Membru Nou',
     story: 'O nouă transformare de succes!',
-    before: getImage('transformation-before-35'),
-    after: getImage('transformation-after-35'),
+    before: getImage('transformation-before-2'),
+    after: getImage('transformation-after-2'),
+  },
+  {
+    id: 3,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-3'),
+    after: getImage('transformation-after-3'),
+  },
+  {
+    id: 4,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-4'),
+    after: getImage('transformation-after-4'),
+  },
+  {
+    id: 5,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-5'),
+    after: getImage('transformation-after-5'),
+  },
+  {
+    id: 6,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-6'),
+    after: getImage('transformation-after-6'),
+  },
+  {
+    id: 7,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-7'),
+    after: getImage('transformation-after-7'),
   },
   {
     id: 8,
@@ -357,6 +392,20 @@ export const transformations = [
     story: 'O nouă transformare de succes!',
     before: getImage('transformation-before-33'),
     after: getImage('transformation-after-33'),
+  },
+  {
+    id: 34,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-34'),
+    after: getImage('transformation-after-34'),
+  },
+  {
+    id: 35,
+    name: 'Membru Nou',
+    story: 'O nouă transformare de succes!',
+    before: getImage('transformation-before-35'),
+    after: getImage('transformation-after-35'),
   }
 ];
 
