@@ -3,22 +3,15 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { trainers, transformations } from "@/lib/data";
+import { trainers } from "@/lib/data";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Clock, ArrowLeft, ArrowRight } from "lucide-react";
+import { Check, Star, Clock } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 
 const Header = dynamic(() => import('@/components/layout/header'), {
   ssr: false,
@@ -29,6 +22,29 @@ const Header = dynamic(() => import('@/components/layout/header'), {
     </header>
   ),
 });
+
+const TransformationsSection = dynamic(() => import('@/components/transformations-section'), {
+  ssr: false,
+  loading: () => (
+    <section className="w-full py-12 md:py-24 lg:py-32">
+      <div className="container px-4 md:px-6">
+        <div className="space-y-3 text-center">
+            <div className="h-10 w-3/4 mx-auto rounded-lg bg-muted/50 animate-pulse" />
+            <div className="h-6 w-1/2 mx-auto rounded-lg bg-muted/50 animate-pulse" />
+        </div>
+        <div className="w-full max-w-5xl mx-auto mt-12 hidden md:flex gap-8">
+            <div className="h-96 w-1/3 rounded-lg bg-muted/50 animate-pulse" />
+            <div className="h-96 w-1/3 rounded-lg bg-muted/50 animate-pulse" />
+            <div className="h-96 w-1/3 rounded-lg bg-muted/50 animate-pulse" />
+        </div>
+         <div className="w-full max-w-sm mx-auto mt-12 md:hidden">
+            <div className="h-96 w-full rounded-lg bg-muted/50 animate-pulse" />
+        </div>
+      </div>
+    </section>
+  ),
+});
+
 
 const getImage = (id: string) => {
     const img = PlaceHolderImages.find(p => p.id === id);
@@ -46,6 +62,7 @@ const getImage = (id: string) => {
 
 
 export default function LandingPage() {
+
   return (
     <div className="flex flex-col min-h-dvh">
       <Header />
@@ -121,61 +138,7 @@ export default function LandingPage() {
         </section>
         
         {/* Transformations Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6">
-                <div className="space-y-3 text-center">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Transformări Reale</h2>
-                    <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed">
-                        Inspiră-te din poveștile de succes ale membrilor noștri.
-                    </p>
-                </div>
-                <Carousel
-                  opts={{
-                    align: "start",
-                    loop: true,
-                  }}
-                  className="w-full max-w-5xl mx-auto mt-12"
-                >
-                  <CarouselContent>
-                    {transformations.map((transform) => (
-                      <CarouselItem key={transform.id} className="md:basis-1/2 lg:basis-1/3">
-                        <div className="p-4">
-                          <div className="grid grid-cols-2 overflow-hidden rounded-lg shadow-lg">
-                            <div className="relative aspect-[3/4]">
-                              <Image
-                                src={transform.before.imageUrl}
-                                alt="Before"
-                                fill
-                                data-ai-hint={transform.before.imageHint}
-                                className="object-cover"
-                              />
-                              <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">Înainte</Badge>
-                            </div>
-                            <div className="relative aspect-[3/4]">
-                              <Image
-                                src={transform.after.imageUrl}
-                                alt="After"
-                                fill
-                                data-ai-hint={transform.after.imageHint}
-                                className="object-cover"
-                              />
-                              <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">După</Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="hidden md:inline-flex" />
-                  <CarouselNext className="hidden md:inline-flex" />
-                </Carousel>
-                <div className="mt-4 flex items-center justify-center gap-2 text-muted-foreground md:hidden">
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="text-sm font-light">Glisează</span>
-                  <ArrowRight className="h-4 w-4" />
-                </div>
-            </div>
-        </section>
+        <TransformationsSection />
         
         {/* Subscriptions Preview */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card/50">
