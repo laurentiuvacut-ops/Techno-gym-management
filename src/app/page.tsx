@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Star, Clock, ArrowLeft, ArrowRight } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import Header from "@/components/layout/header";
+import dynamic from 'next/dynamic';
 import {
   Carousel,
   CarouselContent,
@@ -18,6 +18,16 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+
+const Header = dynamic(() => import('@/components/layout/header'), {
+  ssr: false,
+  loading: () => (
+    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4">
+      <div className="h-9 w-9 rounded bg-muted/50 animate-pulse" />
+      <div className="h-9 w-28 rounded-lg bg-muted/50 animate-pulse" />
+    </header>
+  ),
+});
 
 const getImage = (id: string) => {
     const img = PlaceHolderImages.find(p => p.id === id);
