@@ -162,7 +162,7 @@ export const shopItems = [
     }
 ];
 
-export const transformations = Array.from({ length: 21 }, (_, i) => ({
+export const transformations = Array.from({ length: 35 }, (_, i) => ({
   id: i + 1,
   name: 'Membru Nou',
   story: 'O nouă transformare de succes!',
