@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Star, Clock } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import dynamic from 'next/dynamic';
 import TransformationsSection from '@/components/transformations-section';
 import Header from '@/components/layout/header';
 
