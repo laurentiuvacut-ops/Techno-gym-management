@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { trainers, transformations } from "@/lib/data";
@@ -46,19 +46,6 @@ const getImage = (id: string) => {
 
 
 export default function LandingPage() {
-  const [shuffledTransformations, setShuffledTransformations] = useState(transformations);
-
-  useEffect(() => {
-    // Shuffle transformations on the client-side after mounting
-    // to prevent hydration mismatch.
-    const array = [...transformations];
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    setShuffledTransformations(array);
-  }, []); // Empty dependency array ensures this runs only once on mount
-
   return (
     <div className="flex flex-col min-h-dvh">
       <Header />
@@ -150,7 +137,7 @@ export default function LandingPage() {
                   className="w-full max-w-5xl mx-auto mt-12"
                 >
                   <CarouselContent>
-                    {shuffledTransformations.map((transform) => (
+                    {transformations.map((transform) => (
                       <CarouselItem key={transform.id} className="md:basis-1/2 lg:basis-1/3">
                         <div className="p-4">
                           <div className="grid grid-cols-2 overflow-hidden rounded-lg shadow-lg">
@@ -237,7 +224,7 @@ export default function LandingPage() {
                             ) : (
                                 <Button asChild className="w-full" variant={plan.id === 'pro' ? "secondary" : "default"}>
                                    <Link href="/dashboard/plans">{plan.cta}</Link>
-                               </Button>
+                                </Button>
                             )}
                         </CardFooter>
                     </Card>
