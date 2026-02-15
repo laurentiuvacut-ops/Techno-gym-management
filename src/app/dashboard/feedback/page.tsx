@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
@@ -11,9 +11,9 @@ import { Shield, CheckCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import StarRating from '@/components/star-rating';
+import { sendFeedbackEmail } from '@/ai/flows/send-feedback-email';
 
 export default function FeedbackPage() {
-  const { user } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
@@ -35,12 +35,24 @@ export default function FeedbackPage() {
     
     setIsSubmitting(true);
     try {
-        const feedbackCollection = collection(firestore, 'feedback');
-        await addDoc(feedbackCollection, {
+        const feedbackData = {
             rating: rating,
             comment,
             createdAt: serverTimestamp(),
+        };
+
+        const feedbackCollection = collection(firestore, 'feedback');
+        await addDoc(feedbackCollection, feedbackData);
+        
+        // The feedback is saved, now try to send the email notification.
+        // This is a non-blocking call in the background.
+        sendFeedbackEmail({ rating, comment }).then(result => {
+          if (!result.success) {
+            // Log the error for debugging, but don't bother the user since their feedback was submitted.
+            console.error("Failed to send feedback email:", result.error);
+          }
         });
+
         setIsSubmitted(true);
     } catch (error) {
         console.error("Error submitting feedback:", error);
