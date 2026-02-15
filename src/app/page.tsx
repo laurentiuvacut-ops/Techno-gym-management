@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { trainers } from "@/lib/data";
@@ -44,12 +44,6 @@ const TransformationsSection = dynamic(
 );
 
 export default function LandingPage() {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   const heroImage = getImage('gym-interior-1');
 
   return (
@@ -58,18 +52,14 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full h-[90vh] flex items-center justify-center">
-            {isMounted ? (
-              <Image
-                  src={heroImage.imageUrl}
-                  alt="Modern gym with equipment"
-                  data-ai-hint={heroImage.imageHint}
-                  fill
-                  priority
-                  className="object-cover z-0 blur-sm"
-              />
-            ) : (
-              <Skeleton className="absolute inset-0 object-cover z-0 blur-sm" />
-            )}
+            <Image
+                src={heroImage.imageUrl}
+                alt="Modern gym with equipment"
+                data-ai-hint={heroImage.imageHint}
+                fill
+                priority
+                className="object-cover z-0 blur-sm"
+            />
             <div className="absolute inset-0 bg-black/70 z-10" />
             <div className="container relative z-20 px-4 md:px-6 text-center">
                 <div className="space-y-6">
@@ -219,3 +209,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
