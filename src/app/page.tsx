@@ -44,58 +44,45 @@ const TransformationsSection = dynamic(
 );
 
 export default function LandingPage() {
-  const heroImage = getImage('gym-interior-1');
-  const [isMounted, setIsMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   return (
     <div className="flex flex-col min-h-dvh">
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full h-[90vh] flex items-center justify-center">
-          {!isMounted ? (
-            <Skeleton className="absolute inset-0" />
-          ) : (
-            <>
-              <Image
-                  src={heroImage.imageUrl}
-                  alt="Modern gym with equipment"
-                  data-ai-hint={heroImage.imageHint}
-                  fill
-                  priority
-                  className="object-cover z-0 blur-sm"
-              />
-              <div className="absolute inset-0 bg-black/70 z-10" />
-              <div className="container relative z-20 px-4 md:px-6 text-center">
-                  <div className="space-y-6">
-                  <h1 className="text-4xl font-bold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl text-gradient">
-                      TRANSFORMĂ-ȚI CORPUL
-                  </h1>
-                  <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                      Eliberează-ți potențialul la Techno Gym. Antrenori de top, vibe-ul potrivit și o comunitate care te susține.
-                  </p>
-                  <div className="flex flex-col items-center gap-6">
-                      <Button asChild size="lg" className="glow-primary">
-                          <Link href="/login">Alătură-te Acum</Link>
-                      </Button>
-                      
-                      <div className="inline-flex items-center gap-4 rounded-2xl p-4 glass">
-                          <Clock className="w-10 h-10 text-primary" />
-                          <div>
-                              <p className="text-3xl font-bold leading-none">24/7</p>
-                              <p className="text-base text-muted-foreground">Non-Stop</p>
-                          </div>
-                      </div>
-                  </div>
+            <Image
+                src={getImage('gym-interior-1').imageUrl}
+                alt="Modern gym with equipment"
+                data-ai-hint={getImage('gym-interior-1').imageHint}
+                fill
+                priority
+                className="object-cover z-0 blur-sm"
+            />
+            <div className="absolute inset-0 bg-black/70 z-10" />
+            <div className="container relative z-20 px-4 md:px-6 text-center">
+                <div className="space-y-6">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl text-gradient">
+                    TRANSFORMĂ-ȚI CORPUL
+                </h1>
+                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                    Eliberează-ți potențialul la Techno Gym. Antrenori de top, vibe-ul potrivit și o comunitate care te susține.
+                </p>
+                <div className="flex flex-col items-center gap-6">
+                    <Button asChild size="lg" className="glow-primary">
+                        <Link href="/login">Alătură-te Acum</Link>
+                    </Button>
+                    
+                    <div className="inline-flex items-center gap-4 rounded-2xl p-4 glass">
+                        <Clock className="w-10 h-10 text-primary" />
+                        <div>
+                            <p className="text-3xl font-bold leading-none">24/7</p>
+                            <p className="text-base text-muted-foreground">Non-Stop</p>
+                        </div>
+                    </div>
+                </div>
 
-                  </div>
-              </div>
-            </>
-          )}
+                </div>
+            </div>
         </section>
 
         {/* Trainers Section */}
