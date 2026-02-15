@@ -2,14 +2,14 @@
 import type { ImagePlaceholder } from './placeholder-images';
 import { PlaceHolderImages } from './placeholder-images';
 
-const getImage = (id: string): ImagePlaceholder => {
+export const getImage = (id: string): ImagePlaceholder => {
     const img = PlaceHolderImages.find(p => p.id === id);
     if (!img) {
         return {
             id: 'not-found',
             description: 'Image not found',
-            imageUrl: 'https://i.imgur.com/1N2R4A6.png', // Generic fallback
-            imageHint: 'placeholder',
+            imageUrl: 'https://i.imgur.com/6N8o2LA.jpg', // Use the last known good URL as a fallback
+            imageHint: 'dark gym',
         };
     }
     return img;

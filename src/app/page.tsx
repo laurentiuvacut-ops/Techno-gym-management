@@ -1,11 +1,11 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { trainers } from "@/lib/data";
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getImage } from '@/lib/data';
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -44,21 +44,14 @@ const TransformationsSection = dynamic(
   }
 );
 
-const getImage = (id: string) => {
-    const img = PlaceHolderImages.find(p => p.id === id);
-    if (!img) {
-        // Return a default placeholder if the image is not found
-        return {
-            id: 'not-found',
-            description: 'Placeholder image',
-            imageUrl: 'https://picsum.photos/seed/placeholder/600/400',
-            imageHint: 'placeholder',
-        };
-    }
-    return img;
-};
-
 export default function LandingPage() {
+  const [heroImage, setHeroImage] = useState<{imageUrl: string, imageHint: string} | null>(null);
+
+  useEffect(() => {
+    // This runs only on the client, after hydration, to prevent mismatch
+    setHeroImage(getImage('gym-interior-1'));
+  }, []);
+
 
   return (
     <div className="flex flex-col min-h-dvh">
@@ -66,13 +59,18 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full h-[90vh] flex items-center justify-center">
-            <Image
-                src={getImage('gym-interior-1').imageUrl}
-                alt="Modern gym with equipment"
-                data-ai-hint={getImage('gym-interior-1').imageHint}
-                fill
-                className="object-cover z-0 blur-sm"
-            />
+            {heroImage ? (
+                <Image
+                    src={heroImage.imageUrl}
+                    alt="Modern gym with equipment"
+                    data-ai-hint={heroImage.imageHint}
+                    fill
+                    priority
+                    className="object-cover z-0 blur-sm"
+                />
+            ) : (
+                <Skeleton className="absolute inset-0" />
+            )}
             <div className="absolute inset-0 bg-black/70 z-10" />
             <div className="container relative z-20 px-4 md:px-6 text-center">
                 <div className="space-y-6">
