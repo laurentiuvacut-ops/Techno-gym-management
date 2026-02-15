@@ -56,8 +56,8 @@ export default function LandingPage() {
                 alt="Modern gym with equipment"
                 data-ai-hint={heroImage.imageHint}
                 fill
-                priority
-                loading="eager"
+                priority={true}
+                suppressHydrationWarning
                 className="object-cover z-0 blur-sm"
             />
             <div className="absolute inset-0 bg-black/70 z-10" />
