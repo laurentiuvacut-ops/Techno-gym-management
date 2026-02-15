@@ -20,7 +20,6 @@ export default function DashboardHomePage() {
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
-  // The document ID is now the user's E.164 phone number.
   const memberDocRef = useMemo(() => {
     if (!firestore || !user?.phoneNumber) return null;
     return doc(firestore, 'members', user.phoneNumber);
@@ -28,58 +27,72 @@ export default function DashboardHomePage() {
   
   const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
+  const [subscriptionInfo, setSubscriptionInfo] = useState({
+    daysRemaining: 0,
+    status: "Expirat",
+    expirationDateDisplay: "N/A",
+    daysForDisplay: 0,
+  });
+
   useEffect(() => {
     if (!userLoading && !user) {
       router.push('/login');
     }
   }, [user, userLoading, router]);
 
-  const handleInstallClick = () => {
-    setShowInstallInstructions(true);
-  };
-  
-  const { daysRemaining, status, expirationDateDisplay } = useMemo(() => {
-    if (!memberData?.expirationDate) {
-        return { daysRemaining: 0, status: "Expirat", expirationDateDisplay: "N/A" };
-    }
+  useEffect(() => {
+    if (!memberData) return;
 
     let expDate;
     const expirationValue = memberData.expirationDate;
 
-    // Case 1: It's a Firestore Timestamp object (e.g., from the gym's native software)
+    if (!expirationValue) {
+      setSubscriptionInfo({
+        daysRemaining: 0,
+        status: "Expirat",
+        expirationDateDisplay: "N/A",
+        daysForDisplay: 0,
+      });
+      return;
+    }
+
     if (typeof expirationValue === 'object' && expirationValue !== null && typeof (expirationValue as any).toDate === 'function') {
         expDate = (expirationValue as any).toDate();
     }
-    // Case 2: It's a date string in "YYYY-MM-DD" format (e.g., from the web app)
     else if (typeof expirationValue === 'string') {
         const parts = expirationValue.split('-').map(part => parseInt(part, 10));
         if (parts.length === 3 && !parts.some(isNaN)) {
-            // new Date('YYYY-MM-DD') can be off by a day due to timezone.
-            // new Date(YYYY, MM-1, DD) is more reliable for local timezone.
-            // To be completely safe and avoid timezone issues, use UTC.
             expDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
         }
     }
 
     if (expDate && isValid(expDate)) {
         const today = new Date();
-        // Compare dates by creating UTC dates for both to get a clean calendar day difference.
         const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
         
         const diff = differenceInCalendarDays(expDate, todayUtc);
 
-        return {
+        setSubscriptionInfo({
             daysRemaining: diff,
             status: diff >= 0 ? "Activ" : "Expirat",
-            expirationDateDisplay: format(expDate, 'dd MMM yyyy')
-        };
+            expirationDateDisplay: format(expDate, 'dd MMM yyyy'),
+            daysForDisplay: Math.max(0, diff),
+        });
+    } else {
+      setSubscriptionInfo({
+        daysRemaining: 0,
+        status: "Expirat",
+        expirationDateDisplay: "N/A",
+        daysForDisplay: 0,
+      });
     }
-
-    // Fallback for any other unexpected format
-    return { daysRemaining: 0, status: "Expirat", expirationDateDisplay: "N/A" };
   }, [memberData]);
 
 
+  const handleInstallClick = () => {
+    setShowInstallInstructions(true);
+  };
+  
   const loading = userLoading || memberLoading;
 
   if (loading || !user) {
@@ -90,8 +103,6 @@ export default function DashboardHomePage() {
     );
   }
   
-  // This now correctly waits for the loading to finish before deciding
-  // whether to show the registration prompt.
   if (!memberLoading && !memberData) {
     return (
         <motion.div 
@@ -110,9 +121,6 @@ export default function DashboardHomePage() {
   }
   
   const currentSubscription = subscriptions.find(sub => sub.title === memberData?.subscriptionType);
-  
-  const daysForDisplay = Math.max(0, daysRemaining);
-  
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
 
@@ -149,20 +157,20 @@ export default function DashboardHomePage() {
             </div>
             <div>
               <h2 className="font-bold">{subscriptionTitle}</h2>
-              <p className="text-sm text-primary">{status}</p>
+              <p className="text-sm text-primary">{subscriptionInfo.status}</p>
             </div>
           </div>
           <div className="text-center my-8">
-            <p className="text-8xl md:text-9xl font-headline text-gradient leading-none">{daysForDisplay}</p>
+            <p className="text-8xl md:text-9xl font-headline text-gradient leading-none">{subscriptionInfo.daysForDisplay}</p>
             <p className="font-bold tracking-widest">Zile Rămase</p>
-            <p className="text-sm text-muted-foreground">Expiră pe {expirationDateDisplay}</p>
+            <p className="text-sm text-muted-foreground">Expiră pe {subscriptionInfo.expirationDateDisplay}</p>
           </div>
           <div/>
         </div>
 
         {/* QR Code */}
         <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4">
-          {daysRemaining >= 0 && user.phoneNumber ? (
+          {subscriptionInfo.daysRemaining >= 0 && user.phoneNumber ? (
             <>
               <div className="p-2 bg-white rounded-xl">
                   <Image
