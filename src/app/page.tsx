@@ -44,6 +44,7 @@ const TransformationsSection = dynamic(
 );
 
 export default function LandingPage() {
+  const heroImage = getImage('gym-interior-1');
   return (
     <div className="flex flex-col min-h-dvh">
       <Header />
@@ -51,11 +52,12 @@ export default function LandingPage() {
         {/* Hero Section */}
         <section className="relative w-full h-[90vh] flex items-center justify-center">
             <Image
-                src={getImage('gym-interior-1').imageUrl}
+                src={heroImage.imageUrl}
                 alt="Modern gym with equipment"
-                data-ai-hint={getImage('gym-interior-1').imageHint}
+                data-ai-hint={heroImage.imageHint}
                 fill
                 priority
+                loading="eager"
                 className="object-cover z-0 blur-sm"
             />
             <div className="absolute inset-0 bg-black/70 z-10" />
