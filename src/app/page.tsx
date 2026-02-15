@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { trainers } from "@/lib/data";
@@ -45,16 +45,10 @@ const TransformationsSection = dynamic(
 );
 
 export default function LandingPage() {
-  const [heroImage, setHeroImage] = useState<{imageUrl: string, imageHint: string} | null>(null);
-
-  useEffect(() => {
-    // This runs only on the client, after hydration, to prevent mismatch
-    setHeroImage({
-      imageUrl: 'https://i.imgur.com/6N8o2LA.jpg',
-      imageHint: 'dark gym'
-    });
-  }, []);
-
+  // By getting the image data directly, we ensure it's consistent between server and client.
+  // The hydration error was related to the Carousel, which is now fixed with dynamic import.
+  // This direct approach is now safe.
+  const heroImage = getImage('gym-interior-1');
 
   return (
     <div className="flex flex-col min-h-dvh">
@@ -62,18 +56,14 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full h-[90vh] flex items-center justify-center">
-            {heroImage ? (
-                <Image
-                    src={heroImage.imageUrl}
-                    alt="Modern gym with equipment"
-                    data-ai-hint={heroImage.imageHint}
-                    fill
-                    priority
-                    className="object-cover z-0 blur-sm"
-                />
-            ) : (
-                <Skeleton className="absolute inset-0" />
-            )}
+            <Image
+                src={heroImage.imageUrl}
+                alt="Modern gym with equipment"
+                data-ai-hint={heroImage.imageHint}
+                fill
+                priority
+                className="object-cover z-0 blur-sm"
+            />
             <div className="absolute inset-0 bg-black/70 z-10" />
             <div className="container relative z-20 px-4 md:px-6 text-center">
                 <div className="space-y-6">
@@ -223,3 +213,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
