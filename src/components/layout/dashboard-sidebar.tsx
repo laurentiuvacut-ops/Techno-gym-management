@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import {
   Home,
@@ -17,6 +18,8 @@ import {
   Users,
   MessageSquare,
   Inbox,
+  Bug,
+  ShieldAlert,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -25,7 +28,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
-const navItems = [
+const mainNavItems = [
   { href: '/dashboard', label: 'Acasă', icon: Home },
   { href: '/dashboard/shop', label: 'Shop & Stoc', icon: ShoppingBag },
   { href: '/dashboard/plans', label: 'Abonamente', icon: CreditCard },
@@ -34,6 +37,12 @@ const navItems = [
   { href: '/dashboard/feedback', label: 'Trimite Feedback', icon: MessageSquare },
   { href: '/dashboard/view-feedback', label: 'Feedback Primit', icon: Inbox },
 ];
+
+const debugNavItems = [
+    { href: '/dashboard/debug-resend', label: 'Debug E-mail', icon: Bug },
+    { href: '/dashboard/debug-stripe', label: 'Debug Plăți', icon: ShieldAlert },
+];
+
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
@@ -58,28 +67,58 @@ export default function DashboardSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarMenu className="space-y-1">
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === item.href}
-                className={cn(
-                  "w-full justify-start h-auto px-4 py-3 rounded-xl transition-all duration-200 text-base gap-4",
-                  pathname === item.href
-                    ? "bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 text-cyan-400 shadow-sm shadow-cyan-500/20"
-                    : "text-gray-400 hover:bg-white/5 hover:text-white"
-                )}
-                tooltip={item.label}
-              >
-                <Link href={item.href}>
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+        <div className="flex-1 space-y-4 p-4">
+          <SidebarMenu className="space-y-1">
+            {mainNavItems.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === item.href}
+                  className={cn(
+                    "w-full justify-start h-auto px-4 py-3 rounded-xl transition-all duration-200 text-base gap-4",
+                    pathname === item.href
+                      ? "bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 text-cyan-400 shadow-sm shadow-cyan-500/20"
+                      : "text-gray-400 hover:bg-white/5 hover:text-white"
+                  )}
+                  tooltip={item.label}
+                >
+                  <Link href={item.href}>
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+          
+          <SidebarSeparator />
+          
+          <div>
+              <p className="px-4 pb-2 text-xs font-semibold text-muted-foreground/50 tracking-wider uppercase">Debug</p>
+              <SidebarMenu className="space-y-1">
+                  {debugNavItems.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.href}
+                      className={cn(
+                      "w-full justify-start h-auto px-4 py-3 rounded-xl transition-all duration-200 text-base gap-4",
+                      pathname === item.href
+                          ? "bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 text-yellow-400 shadow-sm shadow-yellow-500/20"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                      )}
+                      tooltip={item.label}
+                  >
+                      <Link href={item.href}>
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.label}</span>
+                      </Link>
+                  </SidebarMenuButton>
+                  </SidebarMenuItem>
+              ))}
+              </SidebarMenu>
+          </div>
+        </div>
       </SidebarContent>
 
       <SidebarFooter className="p-6 mt-auto border-t border-[#1f2937]">
