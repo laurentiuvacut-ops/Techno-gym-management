@@ -1,13 +1,9 @@
 'use client';
 
-import { workouts } from "@/lib/data";
-import { Card } from "@/components/ui/card";
-import Image from "next/image";
-import Link from "next/link";
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Dumbbell } from "lucide-react";
+import { Dumbbell, Construction } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function WorkoutsPage() {
@@ -43,34 +39,12 @@ export default function WorkoutsPage() {
         <p className="text-muted-foreground">Găsește-ți următoarea provocare. Răsfoiește biblioteca noastră de antrenamente ghidate.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {workouts.map((workout, index) => (
-          <motion.div
-            key={workout.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.05 }}
-          >
-            <Link href="#">
-              <Card className="relative overflow-hidden group h-64 glass">
-                <Image
-                  src={workout.image.imageUrl}
-                  alt={workout.image.description}
-                  data-ai-hint={workout.image.imageHint}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                <div className="absolute bottom-0 left-0 p-6">
-                  <h2 className="text-2xl font-bold text-white">
-                    {workout.category}
-                  </h2>
-                </div>
-              </Card>
-            </Link>
-          </motion.div>
-        ))}
+      <div className="flex flex-col items-center justify-center text-center p-8 glass rounded-3xl min-h-[300px]">
+        <Construction className="w-20 h-20 text-primary mb-4" />
+        <h2 className="text-3xl font-headline">Va Urma!</h2>
+        <p className="text-muted-foreground max-w-md">Lucrăm la o bibliotecă completă de antrenamente video. Reveniți în curând pentru a descoperi noi modalități de a vă atinge obiectivele!</p>
       </div>
+      
     </motion.div>
   );
 }
