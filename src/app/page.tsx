@@ -12,8 +12,37 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Star, Clock } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import TransformationsSection from '@/components/transformations-section';
 import Header from '@/components/layout/header';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const TransformationsSection = dynamic(
+  () => import('@/components/transformations-section'),
+  {
+    ssr: false,
+    loading: () => (
+      <section className="w-full py-12 md:py-24 lg:py-32">
+        <div className="container px-4 md:px-6">
+          <div className="space-y-3 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Transformări Reale</h2>
+            <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl/relaxed">
+              Inspiră-te din poveștile de succes ale membrilor noștri.
+            </p>
+          </div>
+          <div className="w-full max-w-5xl mx-auto mt-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 -ml-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="p-4">
+                  <Skeleton className="aspect-[0.93/1] w-full rounded-lg" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    ),
+  }
+);
 
 const getImage = (id: string) => {
     const img = PlaceHolderImages.find(p => p.id === id);

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import {
   Carousel,
   CarouselContent,
@@ -12,14 +11,8 @@ import { transformations } from "@/lib/data";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Skeleton } from './ui/skeleton';
 
 export default function TransformationsSection() {
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
 
     return (
         <section className="w-full py-12 md:py-24 lg:py-32">
@@ -32,15 +25,6 @@ export default function TransformationsSection() {
                 </div>
                 
                 <div className="w-full max-w-5xl mx-auto mt-12">
-                  {!isMounted ? (
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 -ml-4">
-                        {[...Array(3)].map((_, i) => (
-                           <div key={i} className="p-4">
-                              <Skeleton className="aspect-[0.93/1] w-full rounded-lg" />
-                           </div>
-                        ))}
-                     </div>
-                  ) : (
                     <Carousel
                       opts={{
                         align: "start",
@@ -81,16 +65,13 @@ export default function TransformationsSection() {
                       <CarouselPrevious className="hidden md:inline-flex" />
                       <CarouselNext className="hidden md:inline-flex" />
                     </Carousel>
-                  )}
                 </div>
 
-                {isMounted && (
                   <div className="mt-4 flex items-center justify-center gap-2 text-muted-foreground md:hidden">
                     <ArrowLeft className="h-4 w-4" />
                     <span className="text-sm font-light">Glisează</span>
                     <ArrowRight className="h-4 w-4" />
                   </div>
-                )}
             </div>
         </section>
     )
