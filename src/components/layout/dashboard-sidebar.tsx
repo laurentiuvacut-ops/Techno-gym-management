@@ -36,19 +36,7 @@ const navItems = [
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
-  const [activePath, setActivePath] = useState('');
   const { user } = useUser();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    setActivePath(pathname);
-  }, [pathname]);
-
-  if (!mounted) return null;
 
   return (
     <Sidebar collapsible="icon">
@@ -68,16 +56,16 @@ export default function DashboardSidebar() {
           </Link>
       </SidebarHeader>
 
-      <SidebarContent className="p-4">
+      <SidebarContent>
         <SidebarMenu className="space-y-1">
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={activePath === item.href}
+                isActive={pathname === item.href}
                 className={cn(
                   "w-full justify-start h-auto px-4 py-3 rounded-xl transition-all duration-200 text-base gap-4",
-                  activePath === item.href
+                  pathname === item.href
                     ? "bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 text-cyan-400 shadow-sm shadow-cyan-500/20"
                     : "text-gray-400 hover:bg-white/5 hover:text-white"
                 )}

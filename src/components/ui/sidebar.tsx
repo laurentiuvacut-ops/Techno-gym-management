@@ -176,6 +176,43 @@ const Sidebar = React.forwardRef<
     ref
   ) => {
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const [mounted, setMounted] = React.useState(false)
+
+    React.useEffect(() => {
+      setMounted(true)
+    }, [])
+
+    if (!mounted) {
+      const placeholder = (
+        <div
+          ref={ref}
+          className={cn(
+            "group peer hidden md:block text-sidebar-foreground",
+            className
+          )}
+          data-state="collapsed"
+          data-collapsible="icon"
+          data-variant={variant}
+          data-side={side}
+        >
+          <div className="duration-200 relative h-svh w-[--sidebar-width-icon] bg-transparent transition-[width] ease-linear" />
+        </div>
+      )
+
+      if (collapsible === "none") {
+        return (
+          <div
+            className={cn(
+              "flex h-full w-[--sidebar-width] flex-col bg-gradient-to-b from-[#1a1a1a] to-[#0f0f0f] text-sidebar-foreground",
+              className
+            )}
+            ref={ref}
+            {...props}
+          />
+        )
+      }
+      return placeholder;
+    }
 
     if (collapsible === "none") {
       return (
