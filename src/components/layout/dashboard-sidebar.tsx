@@ -16,6 +16,8 @@ import {
   Dumbbell,
   Users,
   MessageSquare,
+  Bug,
+  Wallet,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -33,6 +35,11 @@ const navItems = [
   { href: '/dashboard/trainers', label: 'Antrenori', icon: Users },
   { href: '/dashboard/feedback', label: 'Feedback', icon: MessageSquare },
 ];
+
+const debugItems = [
+    { href: '/dashboard/debug-resend', label: 'Debug E-mail', icon: Bug },
+    { href: '/dashboard/debug-stripe', label: 'Debug Plăți', icon: Wallet },
+]
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
@@ -61,7 +68,7 @@ export default function DashboardSidebar() {
           </Link>
       </SidebarHeader>
 
-      <SidebarContent className="p-4">
+      <SidebarContent className="p-4 flex flex-col">
         <SidebarMenu className="space-y-1">
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
@@ -84,6 +91,32 @@ export default function DashboardSidebar() {
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
+        
+        <div className="mt-auto">
+            <p className="px-4 text-xs text-muted-foreground/50 mb-2">Debug</p>
+             <SidebarMenu className="space-y-1">
+                {debugItems.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                        asChild
+                        isActive={activePath === item.href}
+                        className={cn(
+                        "w-full justify-start h-auto px-4 py-3 rounded-xl transition-all duration-200 text-base gap-4",
+                        activePath === item.href
+                            ? "bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 text-cyan-400 shadow-sm shadow-cyan-500/20"
+                            : "text-gray-400 hover:bg-white/5 hover:text-white"
+                        )}
+                        tooltip={item.label}
+                    >
+                        <Link href={item.href}>
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.label}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                    </SidebarMenuItem>
+                ))}
+             </SidebarMenu>
+        </div>
       </SidebarContent>
 
       <SidebarFooter className="p-6 mt-auto border-t border-[#1f2937]">
