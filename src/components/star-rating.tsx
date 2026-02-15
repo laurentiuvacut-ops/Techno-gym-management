@@ -11,8 +11,10 @@ interface StarRatingProps {
   onRatingChange?: (rating: number) => void;
 }
 
-export default function StarRating({ totalStars = 5, rating = 0, onRatingChange = () => {} }: StarRatingProps) {
+export default function StarRating({ totalStars = 5, rating = 0, onRatingChange }: StarRatingProps) {
   const [hover, setHover] = useState(0);
+
+  const isInteractive = !!onRatingChange;
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -25,11 +27,13 @@ export default function StarRating({ totalStars = 5, rating = 0, onRatingChange 
                 key={starValue}
                 className={cn(
                     "transition-colors",
-                    starValue <= (hover || rating) ? "text-primary" : "text-muted-foreground/50"
+                    starValue <= (hover || rating) ? "text-primary" : "text-muted-foreground/50",
+                    !isInteractive && "cursor-default"
                 )}
-                onClick={() => onRatingChange(starValue)}
-                onMouseEnter={() => setHover(starValue)}
-                onMouseLeave={() => setHover(0)}
+                onClick={() => isInteractive && onRatingChange(starValue)}
+                onMouseEnter={() => isInteractive && setHover(starValue)}
+                onMouseLeave={() => isInteractive && setHover(0)}
+                disabled={!isInteractive}
             >
                 <Star className="w-10 h-10 fill-current" />
                 <span className="sr-only">{starValue} Stars</span>
@@ -37,7 +41,7 @@ export default function StarRating({ totalStars = 5, rating = 0, onRatingChange 
             );
         })}
         </div>
-        {rating > 0 && <Button variant="outline" onClick={() => onRatingChange(0)}>Resetează Rating</Button>}
+        {rating > 0 && isInteractive && <Button variant="outline" onClick={() => onRatingChange(0)}>Resetează Rating</Button>}
     </div>
   );
 }
