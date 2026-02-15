@@ -50,7 +50,7 @@ export default function ViewFeedbackPage() {
       <div className="space-y-1">
         <h1 className="text-4xl font-headline tracking-wider flex items-center gap-3">
           <Inbox className="w-8 h-8" />
-          Feedback Primit
+          Mesaje Feedback
         </h1>
         <p className="text-muted-foreground">Iată ce spun membrii tăi.</p>
       </div>
