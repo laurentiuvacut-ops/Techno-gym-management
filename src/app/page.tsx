@@ -46,8 +46,8 @@ const TransformationsSection = dynamic(
 
 export default function LandingPage() {
   // By getting the image data directly, we ensure it's consistent between server and client.
-  // The hydration error was related to the Carousel, which is now fixed with dynamic import.
-  // This direct approach is now safe.
+  // This approach is now safe because the TransformationsSection (the other source of hydration errors)
+  // is dynamically imported and the getImage function has a consistent fallback.
   const heroImage = getImage('gym-interior-1');
 
   return (
@@ -213,5 +213,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    

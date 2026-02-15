@@ -5,10 +5,12 @@ import { PlaceHolderImages } from './placeholder-images';
 export const getImage = (id: string): ImagePlaceholder => {
     const img = PlaceHolderImages.find(p => p.id === id);
     if (!img) {
+        // This consistent fallback prevents hydration errors if an image is missing,
+        // but it's better to ensure all image IDs are correct.
         return {
             id: 'not-found',
             description: 'Image not found',
-            imageUrl: 'https://i.imgur.com/6N8o2LA.jpg', // Use the last known good URL as a fallback
+            imageUrl: 'https://i.imgur.com/6N8o2LA.jpg', // Use a consistent fallback URL
             imageHint: 'dark gym',
         };
     }
