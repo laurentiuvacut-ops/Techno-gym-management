@@ -9,10 +9,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 export default function DashboardHeader() {
   const { user, loading } = useUser();
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // The main content area in the dashboard is the scrollable container.
-    // We need to listen to its scroll events, not the window's.
+    setMounted(true);
     const mainContent = document.querySelector('main');
     
     const handleScroll = () => {
@@ -25,7 +25,6 @@ export default function DashboardHeader() {
       mainContent.addEventListener('scroll', handleScroll);
     }
     
-    // Clean up the event listener
     return () => {
       if (mainContent) {
         mainContent.removeEventListener('scroll', handleScroll);
@@ -42,7 +41,7 @@ export default function DashboardHeader() {
         <SidebarTrigger />
       </div>
       <div className="flex-1" />
-      {(!loading && user) && (
+      {mounted && !loading && user && (
         <Link href="/dashboard/profile">
           <Avatar className="h-9 w-9">
             <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
