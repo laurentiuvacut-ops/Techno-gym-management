@@ -7,10 +7,14 @@ export const getImage = (id: string): ImagePlaceholder => {
     if (!img) {
         // This consistent fallback prevents hydration errors. If an image ID is ever
         // invalid, both the server and client will fall back to the same known-good image.
+        const fallbackImg = PlaceHolderImages.find(p => p.id === 'gym-interior-1');
+        if (fallbackImg) return fallbackImg;
+
+        // Absolute last resort if even the hero image is missing from JSON.
         return {
             id: 'not-found',
             description: 'Image not found',
-            imageUrl: 'https://i.imgur.com/6N8o2LA.jpg',
+            imageUrl: 'https://i.imgur.com/6N8o2LA.jpg', // The correct URL hardcoded.
             imageHint: 'dark gym',
         };
     }
