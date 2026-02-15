@@ -61,7 +61,7 @@ export default function DashboardSidebar() {
           </Link>
       </SidebarHeader>
 
-      <SidebarContent className="p-4 flex flex-col">
+      <SidebarContent className="p-4">
         <SidebarMenu className="space-y-1">
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
