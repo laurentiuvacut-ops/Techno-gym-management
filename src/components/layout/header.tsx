@@ -5,29 +5,14 @@ import Image from 'next/image';
 import { Button } from '../ui/button';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 export default function Header() {
   const { user, loading } = useUser();
-  const [visible, setVisible] = useState(true);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setVisible(currentScrollY < lastScrollY.current || currentScrollY < 50);
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 transition-transform duration-300",
-        visible ? 'translate-y-0' : '-translate-y-full'
+        "fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full py-3 px-4 bg-background/80 backdrop-blur-md border-b border-border/50"
     )}>
        <Link href="/" className="flex items-center gap-2">
          <div className="relative w-9 h-9">
