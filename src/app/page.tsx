@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Star, Clock } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import Header from '@/components/layout/header';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const Header = dynamic(() => import('@/components/layout/header'), { ssr: false });
 
 const TransformationsSection = dynamic(
   () => import('@/components/transformations-section'),
