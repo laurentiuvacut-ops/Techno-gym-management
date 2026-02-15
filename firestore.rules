@@ -68,11 +68,15 @@ service cloud.firestore {
     }
 
     /**
-     * @description Enforces that only an authenticated user can submit feedback. The feedback is anonymous.
+     * @description Enforces that only an authenticated user can submit feedback.
+     * Reading is allowed for authenticated users to enable an admin view.
+     * NOTE: In a production app with multiple user roles, you would restrict
+     * read access to only admin users, for example: `if isAdmin();`
      */
     match /feedback/{feedbackId} {
       allow create: if request.auth != null;
-      allow get, list, update, delete: if false;
+      allow get, list: if request.auth != null;
+      allow update, delete: if false;
     }
   }
 }

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Shield, CheckCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import StarRating from '@/components/star-rating';
 
 export default function FeedbackPage() {
   const { user } = useUser();
@@ -18,11 +19,17 @@ export default function FeedbackPage() {
   const { toast } = useToast();
   
   const [comment, setComment] = useState('');
+  const [rating, setRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async () => {
-    if (!user || !firestore || !comment.trim()) {
+    if (!user || !firestore || !comment.trim() || rating === 0) {
+      toast({
+            variant: "destructive",
+            title: "Informații Incomplete",
+            description: "Vă rugăm să selectați un rating și să adăugați un comentariu.",
+        });
       return;
     };
     
@@ -30,10 +37,9 @@ export default function FeedbackPage() {
     try {
         const feedbackCollection = collection(firestore, 'feedback');
         await addDoc(feedbackCollection, {
-            rating: 5, // Default rating
+            rating: rating,
             comment,
             createdAt: serverTimestamp(),
-            userId: user.uid,
         });
         setIsSubmitted(true);
     } catch (error) {
@@ -90,6 +96,11 @@ export default function FeedbackPage() {
               </div>
             </div>
 
+            <div className="space-y-4 glass rounded-xl p-6">
+              <label className="text-center block font-medium">Cum evaluezi experiența ta?</label>
+              <StarRating rating={rating} onRatingChange={setRating} />
+            </div>
+
             <div>
               <Textarea
                 placeholder="Spune-ne cum ne descurcăm sau ce am putea îmbunătăți..."
@@ -102,7 +113,7 @@ export default function FeedbackPage() {
             
             <Button 
               onClick={handleSubmit} 
-              disabled={isSubmitting || !comment.trim()} 
+              disabled={isSubmitting || !comment.trim() || rating === 0} 
               className="w-full bg-gradient-primary text-primary-foreground text-base py-6"
             >
               {isSubmitting ? 'Se trimite...' : 'Trimite Feedback'}
