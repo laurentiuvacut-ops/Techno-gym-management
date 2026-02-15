@@ -1,6 +1,6 @@
-
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Carousel,
   CarouselContent,
@@ -12,8 +12,15 @@ import { transformations } from "@/lib/data";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Skeleton } from './ui/skeleton';
 
 export default function TransformationsSection() {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     return (
         <section className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
@@ -23,51 +30,67 @@ export default function TransformationsSection() {
                         Inspiră-te din poveștile de succes ale membrilor noștri.
                     </p>
                 </div>
-                <Carousel
-                  opts={{
-                    align: "start",
-                    loop: true,
-                  }}
-                  className="w-full max-w-5xl mx-auto mt-12"
-                >
-                  <CarouselContent>
-                    {transformations.map((transform) => (
-                      <CarouselItem key={transform.id} className="md:basis-1/2 lg:basis-1/3">
-                        <div className="p-4">
-                          <div className="grid grid-cols-2 overflow-hidden rounded-lg shadow-lg">
-                            <div className="relative aspect-[3/4]">
-                              <Image
-                                src={transform.before.imageUrl}
-                                alt="Before"
-                                fill
-                                data-ai-hint={transform.before.imageHint}
-                                className="object-cover"
-                              />
-                              <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">Înainte</Badge>
+                
+                <div className="w-full max-w-5xl mx-auto mt-12">
+                  {!isMounted ? (
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 -ml-4">
+                        {[...Array(3)].map((_, i) => (
+                           <div key={i} className="p-4">
+                              <Skeleton className="aspect-[0.93/1] w-full rounded-lg" />
+                           </div>
+                        ))}
+                     </div>
+                  ) : (
+                    <Carousel
+                      opts={{
+                        align: "start",
+                        loop: true,
+                      }}
+                      className="w-full"
+                    >
+                      <CarouselContent>
+                        {transformations.map((transform) => (
+                          <CarouselItem key={transform.id} className="md:basis-1/2 lg:basis-1/3">
+                            <div className="p-4">
+                              <div className="grid grid-cols-2 overflow-hidden rounded-lg shadow-lg">
+                                <div className="relative aspect-[3/4]">
+                                  <Image
+                                    src={transform.before.imageUrl}
+                                    alt="Before"
+                                    fill
+                                    data-ai-hint={transform.before.imageHint}
+                                    className="object-cover"
+                                  />
+                                  <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">Înainte</Badge>
+                                </div>
+                                <div className="relative aspect-[3/4]">
+                                  <Image
+                                    src={transform.after.imageUrl}
+                                    alt="After"
+                                    fill
+                                    data-ai-hint={transform.after.imageHint}
+                                    className="object-cover"
+                                  />
+                                  <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">După</Badge>
+                                </div>
+                              </div>
                             </div>
-                            <div className="relative aspect-[3/4]">
-                              <Image
-                                src={transform.after.imageUrl}
-                                alt="After"
-                                fill
-                                data-ai-hint={transform.after.imageHint}
-                                className="object-cover"
-                              />
-                              <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">După</Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="hidden md:inline-flex" />
-                  <CarouselNext className="hidden md:inline-flex" />
-                </Carousel>
-                <div className="mt-4 flex items-center justify-center gap-2 text-muted-foreground md:hidden">
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="text-sm font-light">Glisează</span>
-                  <ArrowRight className="h-4 w-4" />
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious className="hidden md:inline-flex" />
+                      <CarouselNext className="hidden md:inline-flex" />
+                    </Carousel>
+                  )}
                 </div>
+
+                {isMounted && (
+                  <div className="mt-4 flex items-center justify-center gap-2 text-muted-foreground md:hidden">
+                    <ArrowLeft className="h-4 w-4" />
+                    <span className="text-sm font-light">Glisează</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
+                )}
             </div>
         </section>
     )
