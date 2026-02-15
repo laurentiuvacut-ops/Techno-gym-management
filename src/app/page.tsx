@@ -49,7 +49,10 @@ export default function LandingPage() {
 
   useEffect(() => {
     // This runs only on the client, after hydration, to prevent mismatch
-    setHeroImage(getImage('gym-interior-1'));
+    setHeroImage({
+      imageUrl: 'https://i.imgur.com/6N8o2LA.jpg',
+      imageHint: 'dark gym'
+    });
   }, []);
 
 
