@@ -2,7 +2,7 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // Cache-busting comment to force server restart and clear stale data. v4
+  // Cache-busting comment to force server restart and clear stale data. v5
   typescript: {
     ignoreBuildErrors: true,
   },
