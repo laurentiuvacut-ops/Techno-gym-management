@@ -6,9 +6,15 @@ import { Button } from '../ui/button';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
 
 export default function Header() {
   const { user, loading } = useUser();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className={cn(
@@ -30,7 +36,7 @@ export default function Header() {
       </Link>
       
       <div className="flex justify-end items-center min-h-[40px] w-28">
-        {loading ? (
+        {!mounted || loading ? (
             <div className="h-9 w-full rounded-lg bg-muted/50 animate-pulse" />
         ) : user ? (
             <Link href="/dashboard/profile">
