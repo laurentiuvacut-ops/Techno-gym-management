@@ -31,7 +31,7 @@ const navItems = [
   { href: '/dashboard/plans', label: 'Abonamente', icon: CreditCard },
   { href: '/dashboard/workouts', label: 'Antrenamente', icon: Dumbbell },
   { href: '/dashboard/trainers', label: 'Antrenori', icon: Users },
-  { href: '/dashboard/feedback', label: 'Trimite Feedback', icon: MessageSquare },
+  { href: '/dashboard/feedback', label: 'Feedback', icon: MessageSquare },
 ];
 
 export default function DashboardSidebar() {

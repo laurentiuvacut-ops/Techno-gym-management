@@ -80,7 +80,7 @@ export default function FeedbackPage() {
           </Link>
       </Button>
       <div className="space-y-1 text-center">
-        <h1 className="text-4xl font-headline tracking-wider">Trimite Feedback</h1>
+        <h1 className="text-4xl font-headline tracking-wider">Feedback</h1>
         <p className="text-muted-foreground">Lăsați o recenzie despre experiența dumneavoastră.</p>
       </div>
 
