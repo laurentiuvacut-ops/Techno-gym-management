@@ -27,6 +27,7 @@ import { useUser } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
 const mainNavItems = [
   { href: '/dashboard', label: 'Acasă', icon: Home },
@@ -47,6 +48,15 @@ const debugNavItems = [
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useUser();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <Sidebar collapsible="icon">
