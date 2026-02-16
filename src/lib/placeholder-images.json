@@ -3,25 +3,25 @@
     {
       "id": "workout-strength",
       "description": "A person lifting heavy weights in a gym",
-      "imageUrl": "https://i.imgur.com/fws8TFv.jpg",
+      "imageUrl": "https://i.imgur.com/nChgD8s.jpg",
       "imageHint": "weight lifting"
     },
     {
       "id": "workout-hiit",
       "description": "A person doing high-intensity interval training",
-      "imageUrl": "https://i.imgur.com/BBEzY8J.jpg",
+      "imageUrl": "https://i.imgur.com/XgT5zrv.jpg",
       "imageHint": "intense workout"
     },
     {
       "id": "workout-cardio",
       "description": "A person running on a treadmill",
-      "imageUrl": "https://i.imgur.com/0a5HHpP.jpg",
+      "imageUrl": "https://i.imgur.com/L2a4pBT.jpg",
       "imageHint": "running machine"
     },
     {
       "id": "workout-recovery",
       "description": "A person stretching on a yoga mat",
-      "imageUrl": "https://i.imgur.com/OvAn0bM.jpg",
+      "imageUrl": "https://i.imgur.com/2pBvY7C.jpg",
       "imageHint": "stretching yoga"
     },
     {
