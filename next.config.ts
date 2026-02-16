@@ -1,7 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Cache-busting comment to force a dev server restart.
   typescript: {
     ignoreBuildErrors: true,
   },
