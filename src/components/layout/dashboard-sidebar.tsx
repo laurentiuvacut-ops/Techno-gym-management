@@ -8,7 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import {
   Home,
@@ -18,8 +17,6 @@ import {
   Users,
   MessageSquare,
   Inbox,
-  Bug,
-  ShieldAlert,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -36,11 +33,6 @@ const mainNavItems = [
   { href: '/dashboard/trainers', label: 'Antrenori', icon: Users },
   { href: '/dashboard/feedback', label: 'Trimite Feedback', icon: MessageSquare },
   { href: '/dashboard/view-feedback', label: 'Feedback Primit', icon: Inbox },
-];
-
-const debugNavItems = [
-    { href: '/dashboard/debug-resend', label: 'Debug E-mail', icon: Bug },
-    { href: '/dashboard/debug-stripe', label: 'Debug Plăți', icon: ShieldAlert },
 ];
 
 
@@ -90,34 +82,6 @@ export default function DashboardSidebar() {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
-          
-          <SidebarSeparator />
-          
-          <div>
-              <p className="px-4 pb-2 text-xs font-semibold text-muted-foreground/50 tracking-wider uppercase">Debug</p>
-              <SidebarMenu className="space-y-1">
-                  {debugNavItems.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                      asChild
-                      isActive={pathname === item.href}
-                      className={cn(
-                      "w-full justify-start h-auto px-4 py-3 rounded-xl transition-all duration-200 text-base gap-4",
-                      pathname === item.href
-                          ? "bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 text-yellow-400 shadow-sm shadow-yellow-500/20"
-                          : "text-gray-400 hover:bg-white/5 hover:text-white"
-                      )}
-                      tooltip={item.label}
-                  >
-                      <Link href={item.href}>
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.label}</span>
-                      </Link>
-                  </SidebarMenuButton>
-                  </SidebarMenuItem>
-              ))}
-              </SidebarMenu>
-          </div>
         </div>
       </SidebarContent>
 
