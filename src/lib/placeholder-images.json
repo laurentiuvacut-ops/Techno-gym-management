@@ -3,7 +3,7 @@
     {
       "id": "workout-strength",
       "description": "Athlete performing heavy deadlifts",
-      "imageUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&h=400&auto=format&fit=crop",
+      "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=600&h=400&auto=format&fit=crop",
       "imageHint": "gym strength"
     },
     {
@@ -15,7 +15,7 @@
     {
       "id": "workout-cardio",
       "description": "Person sprinting on curved manual treadmill",
-      "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=600&h=400&auto=format&fit=crop",
+      "imageUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&h=400&auto=format&fit=crop",
       "imageHint": "running treadmill"
     },
     {
