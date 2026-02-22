@@ -1,7 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  // Timestamp: 1740660000005 - Force clear cache and restart
+  // Timestamp: 1740660000006 - Restabilire transformări și navigare stabilă
   typescript: {
     ignoreBuildErrors: true,
   },
