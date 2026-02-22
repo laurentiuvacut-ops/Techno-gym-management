@@ -44,7 +44,7 @@ export default function RegisterPage() {
         const memberDocRef = doc(firestore, 'members', user.phoneNumber);
 
         try {
-            // Verifică dacă documentul există deja (client adăugat din soft)
+            // Verifică dacă documentul există deja (client adăugat din soft/recepție)
             const existingDoc = await getDoc(memberDocRef);
 
             const dataToSet: Record<string, any> = {
@@ -99,11 +99,11 @@ export default function RegisterPage() {
                 <form onSubmit={handleCreateProfile} className="space-y-6 p-8 glass rounded-3xl">
                     <div className="space-y-2 text-center">
                         <h1 className='text-3xl font-headline'>Finalizează Înregistrarea</h1>
-                        <p className="text-muted-foreground">Aproape gata! Completează-ți profilul pentru a avea acces la toate facilitățile.</p>
+                        <p className="text-muted-foreground text-sm">Aproape gata! Completează-ți profilul pentru a avea acces la facilități.</p>
                     </div>
                     
                     <div className="space-y-4">
-                        <div>
+                        <div className="space-y-2">
                             <Label htmlFor="name">Nume și Prenume</Label>
                             <Input
                                 id="name"
@@ -111,39 +111,40 @@ export default function RegisterPage() {
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="ex: Popescu Ion"
                                 required
-                                className="bg-input"
+                                className="bg-foreground/5 h-12"
                             />
                         </div>
-                        <div>
-                            <Label htmlFor="phone">Număr de Telefon (verificat)</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="phone">Număr de Telefon</Label>
                             <Input
                                 id="phone"
                                 value={user.phoneNumber || ''}
                                 disabled
                                 readOnly
-                                className="bg-input"
+                                className="bg-foreground/5 h-12 opacity-70"
                             />
                         </div>
                     </div>
 
                     <div className="flex items-start space-x-3 pt-2">
-                        <Checkbox id="terms" checked={agreed} onCheckedChange={(checked) => setAgreed(checked as boolean)} />
+                        <Checkbox id="terms" checked={agreed} onCheckedChange={(checked) => setAgreed(checked as boolean)} className="mt-1" />
                         <div className="grid gap-1.5 leading-none">
                             <label
                                 htmlFor="terms"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                className="text-xs font-medium leading-normal cursor-pointer text-muted-foreground"
                             >
-                                Sunt de acord cu regulamentul sălii
+                                Sunt de acord cu <span className="text-primary underline">regulamentul sălii</span>, inclusiv clauza de răspundere.
                             </label>
-                            <p className="text-sm text-muted-foreground">
-                                Prin bifarea acestei căsuțe, confirmați că ați citit și sunteți de acord cu termenii și condițiile, inclusiv cu clauza de răspundere în caz de accidentări.
-                            </p>
                         </div>
                     </div>
                     
-                    <button type="submit" className="w-full bg-gradient-primary text-primary-foreground py-6 text-base rounded-md font-bold" disabled={isSubmitting || !name.trim() || !agreed}>
-                        {isSubmitting ? 'Se creează contul...' : 'Finalizează și Intră în Cont'}
-                    </button>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-gradient-primary text-primary-foreground py-6 text-base font-bold shadow-lg" 
+                      disabled={isSubmitting || !name.trim() || !agreed}
+                    >
+                        {isSubmitting ? 'Se creează contul...' : 'Finalizează Înregistrarea'}
+                    </Button>
                 </form>
             </motion.div>
         </div>

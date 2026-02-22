@@ -10,7 +10,7 @@ import { getAuth, signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowLeft, Award } from 'lucide-react';
+import { ArrowLeft, Award, LogOut } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { subscriptions } from '@/lib/data';
 
@@ -45,13 +45,15 @@ export default function ProfilePage() {
 
     const loading = isUserLoading || memberLoading;
 
-    if (loading || !user || (!memberLoading && !memberData)) {
+    if (loading) {
         return (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-[70vh]">
                 <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
+
+    if (!user || (!memberLoading && !memberData)) return null;
 
     const displayName = memberData?.name || user.displayName;
     const displayEmail = memberData?.email || user.email;
@@ -59,47 +61,48 @@ export default function ProfilePage() {
     const displayPhotoUrl = memberData?.photoURL || user.photoURL;
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="max-w-md mx-auto space-y-8"
-        >
-            <Button asChild variant="outline" className="w-fit">
+        <div className="max-w-md mx-auto space-y-6">
+            <Button asChild variant="ghost" className="w-fit">
                 <Link href="/dashboard">
                     <ArrowLeft className="mr-2 h-4 w-4" />
-                    Înapoi la Panou
+                    Înapoi
                 </Link>
             </Button>
-            <Card className="glass rounded-3xl">
-                <CardHeader className="items-center text-center">
-                    <Avatar className="w-24 h-24 border-4 border-primary/50">
+            
+            <Card className="glass rounded-3xl border-0 overflow-hidden">
+                <CardHeader className="items-center text-center pb-2">
+                    <Avatar className="w-24 h-24 border-4 border-primary/20 shadow-xl">
                         <AvatarImage src={displayPhotoUrl || ''} alt={displayName || ''} />
-                        <AvatarFallback className="text-3xl bg-muted">
+                        <AvatarFallback className="text-3xl bg-muted font-headline">
                             {displayName?.charAt(0) || displayEmail?.charAt(0) || 'T'}
                         </AvatarFallback>
                     </Avatar>
-                    <div className="pt-4">
-                        <CardTitle className="text-3xl font-headline">{displayName}</CardTitle>
-                        <CardDescription>{displayEmail || 'Fără email'}</CardDescription>
-                        <CardDescription>{displayPhone}</CardDescription>
+                    <div className="pt-4 space-y-1">
+                        <CardTitle className="text-3xl font-headline tracking-wide">{displayName}</CardTitle>
+                        <CardDescription className="font-medium text-primary/80">{displayPhone}</CardDescription>
+                        {displayEmail && <CardDescription>{displayEmail}</CardDescription>}
                     </div>
                 </CardHeader>
                 <CardContent className="p-6">
                      {currentSubscription && (
-                        <div className="mb-6 space-y-3 text-center border-b border-border/50 pb-6">
-                            <h4 className="text-sm font-medium text-muted-foreground flex items-center justify-center gap-2">
-                                <Award className="h-4 w-4" />
-                                Abonament Actual
+                        <div className="mb-6 space-y-3 text-center bg-foreground/5 rounded-2xl p-4">
+                            <h4 className="text-xs font-bold text-muted-foreground flex items-center justify-center gap-2 uppercase tracking-widest">
+                                <Award className="h-4 w-4 text-primary" />
+                                Plan Activ
                             </h4>
-                            <Badge className="text-base font-semibold" variant="outline">{currentSubscription.title}</Badge>
+                            <Badge className="text-base font-semibold py-1 px-4" variant="outline">{currentSubscription.title}</Badge>
                         </div>
                     )}
-                    <Button variant="outline" className="w-full hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50" onClick={handleSignOut}>
+                    <Button 
+                      variant="destructive" 
+                      className="w-full h-12 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive hover:text-white transition-all duration-300 border-destructive/20" 
+                      onClick={handleSignOut}
+                    >
+                        <LogOut className="mr-2 h-4 w-4" />
                         Deconectare
                     </Button>
                 </CardContent>
             </Card>
-        </motion.div>
+        </div>
     );
 }
