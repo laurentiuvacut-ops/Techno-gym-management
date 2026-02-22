@@ -1,7 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  // Timestamp: 1740660000006 - Restabilire transformări și navigare stabilă
+  // Timestamp: 1740660000007 - Fortare rebuild pentru sincronizare imagini si navigare
   typescript: {
     ignoreBuildErrors: true,
   },

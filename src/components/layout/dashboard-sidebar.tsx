@@ -18,7 +18,7 @@ import {
   Users,
   MessageSquare,
 } from 'lucide-react';
-import Link from 'next/link';
+import Link from 'link/next';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
