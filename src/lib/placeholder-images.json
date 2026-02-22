@@ -3,26 +3,26 @@
     {
       "id": "workout-strength",
       "description": "Athlete performing heavy deadlifts",
-      "imageUrl": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=600&h=400&auto=format&fit=crop",
-      "imageHint": "strength training"
+      "imageUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&h=400&auto=format&fit=crop",
+      "imageHint": "gym strength"
     },
     {
       "id": "workout-hiit",
       "description": "High intensity jump squats in group class",
-      "imageUrl": "https://images.unsplash.com/photo-1549476464-37392f717551?q=80&w=600&h=400&auto=format&fit=crop",
-      "imageHint": "hiit training"
+      "imageUrl": "https://images.unsplash.com/photo-1434608519344-49d77a699e1d?q=80&w=600&h=400&auto=format&fit=crop",
+      "imageHint": "hiit class"
     },
     {
       "id": "workout-cardio",
       "description": "Person sprinting on curved manual treadmill",
-      "imageUrl": "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?q=80&w=600&h=400&auto=format&fit=crop",
-      "imageHint": "cardio workout"
+      "imageUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=600&h=400&auto=format&fit=crop",
+      "imageHint": "running treadmill"
     },
     {
       "id": "workout-recovery",
       "description": "Athlete foam rolling after workout",
-      "imageUrl": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=600&h=400&auto=format&fit=crop",
-      "imageHint": "foam rolling"
+      "imageUrl": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=600&h=400&auto=format&fit=crop",
+      "imageHint": "stretching gym"
     },
     {
       "id": "trainer-1",

@@ -88,7 +88,7 @@ export default function DashboardSidebar() {
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ''} />
                 <AvatarFallback className="font-medium bg-gradient-to-br from-cyan-400 to-cyan-600 text-white">
-                  {user.displayName?.charAt(0) || user.email?.charAt(0) || 'L'}
+                  {user.displayName?.charAt(0) || user.email?.charAt(0) || 'M'}
                 </AvatarFallback>
               </Avatar>
               <div className="overflow-hidden">
