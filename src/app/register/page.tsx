@@ -45,18 +45,28 @@ export default function RegisterPage() {
         const memberDocRef = doc(firestore, 'members', user.phoneNumber);
 
         try {
-            await setDoc(memberDocRef, {
-                id: user.uid, // The user's UID is still stored inside for security rule checks
+            // Verifică dacă documentul există deja (client adăugat din soft)
+            const existingDoc = await getDoc(memberDocRef);
+
+            const dataToSet: Record<string, any> = {
+                id: user.uid,
                 name: name,
                 email: user.email || null,
-                phone: user.phoneNumber, // E.164 format (e.g., +407...)
+                phone: user.phoneNumber,
                 photoURL: user.photoURL || null,
-                qrCode: user.phoneNumber, // Use the E.164 format for the QR code
-                expirationDate: format(new Date(0), 'yyyy-MM-dd'), // No active subscription
-                subscriptionType: null,
-                status: "Inactive",
+                qrCode: user.phoneNumber,
                 agreedToTermsAt: new Date().toISOString(),
-            }, { merge: true }); // Use merge: true to avoid overwriting data from the gym software if it exists
+            };
+
+            // Doar dacă documentul NU există, setează valori default pentru abonament
+            // Altfel, păstrează datele existente (abonament activ din soft)
+            if (!existingDoc.exists()) {
+                dataToSet.expirationDate = format(new Date(0), 'yyyy-MM-dd');
+                dataToSet.subscriptionType = null;
+                dataToSet.status = "Inactive";
+            }
+
+            await setDoc(memberDocRef, dataToSet, { merge: true });
             
             router.push('/dashboard');
         } catch (error) {
