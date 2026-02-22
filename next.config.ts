@@ -1,6 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
+  // Force server restart and clear cache - Timestamp: 1740570000000
   typescript: {
     ignoreBuildErrors: true,
   },
