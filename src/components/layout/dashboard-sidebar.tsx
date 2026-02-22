@@ -49,7 +49,7 @@ export default function DashboardSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-6 border-b border-border/50">
           <Link href="/dashboard" className="flex items-center gap-4" onClick={handleLinkClick}>
-              <div className="relative w-10 h-10">
+              <div className="relative w-10 h-10 shrink-0">
                 <Image 
                   src="https://i.imgur.com/9W1ye1w.png" 
                   alt="Techno Gym Logo" 
@@ -57,7 +57,7 @@ export default function DashboardSidebar() {
                   className="object-contain"
                 />
               </div>
-              <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-600">
+              <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-600 truncate">
                 TECHNO GYM
               </span>
           </Link>
@@ -93,7 +93,7 @@ export default function DashboardSidebar() {
       <SidebarFooter className="p-6 mt-auto border-t border-border/50">
         {user && (
           <Link href="/dashboard/profile" onClick={handleLinkClick} className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
+              <Avatar className="h-10 w-10 shrink-0">
                 <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ''} />
                 <AvatarFallback className="font-medium bg-gradient-to-br from-cyan-400 to-cyan-600 text-white">
                   {user.displayName?.charAt(0) || user.email?.charAt(0) || 'M'}

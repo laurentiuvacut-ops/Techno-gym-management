@@ -44,7 +44,7 @@ export default function RegisterPage() {
         const memberDocRef = doc(firestore, 'members', user.phoneNumber);
 
         try {
-            // Verifică dacă documentul există deja (client adăugat din soft/recepție)
+            // Verifică dacă documentul există deja (pentru a nu suprascrie datele clienților existenți)
             const existingDoc = await getDoc(memberDocRef);
 
             const dataToSet: Record<string, any> = {
@@ -57,8 +57,7 @@ export default function RegisterPage() {
                 agreedToTermsAt: new Date().toISOString(),
             };
 
-            // Doar dacă documentul NU există, setează valori default pentru abonament
-            // Altfel, păstrează datele existente (abonament activ din soft)
+            // Setează valori default doar dacă membrul nu există deja în bază (adăugat manual de admin/soft)
             if (!existingDoc.exists()) {
                 dataToSet.expirationDate = format(new Date(0), 'yyyy-MM-dd');
                 dataToSet.subscriptionType = null;

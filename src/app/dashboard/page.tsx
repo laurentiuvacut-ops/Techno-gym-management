@@ -134,7 +134,7 @@ export default function DashboardHomePage() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-8 pb-10"
+      className="space-y-6 md:space-y-8 pb-10"
     >
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div className="space-y-1">
@@ -143,7 +143,7 @@ export default function DashboardHomePage() {
         </div>
         <Button 
           onClick={handleInstallClick}
-          className="bg-gradient-primary text-primary-foreground shadow-lg px-6 py-6 h-auto text-base font-bold"
+          className="bg-gradient-primary text-primary-foreground shadow-lg px-6 py-5 h-auto text-sm md:text-base font-bold"
         >
           <Download className="mr-2 h-5 w-5" />
           Instalează App
@@ -152,7 +152,7 @@ export default function DashboardHomePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Subscription Hero Card */}
-        <div className="relative lg:col-span-2 p-8 md:p-10 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[320px]">
+        <div className="relative lg:col-span-2 p-6 md:p-10 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[300px] md:min-h-[350px]">
           <div className="absolute -top-1/4 -right-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full blur-[100px] -z-10" />
           
           <div className="flex items-center gap-4">
@@ -165,17 +165,17 @@ export default function DashboardHomePage() {
             </div>
           </div>
           
-          <div className="text-center my-4">
+          <div className="text-center my-6">
             {!subscriptionInfo.isSet || memberLoading ? (
-              <Skeleton className="h-32 w-48 mx-auto rounded-2xl" />
+              <Skeleton className="h-24 w-40 mx-auto rounded-2xl" />
             ) : (
               <div className="flex flex-col items-center">
-                <p className="text-9xl md:text-[11rem] font-headline text-gradient leading-[0.8] select-none tracking-tighter">
+                <p className="text-7xl md:text-8xl font-headline text-gradient leading-[0.8] select-none tracking-tighter">
                   {subscriptionInfo.daysForDisplay}
                 </p>
                 <div className="mt-4">
-                  <p className="font-bold tracking-[0.3em] text-sm md:text-lg uppercase">Zile Rămase</p>
-                  <p className="text-sm text-muted-foreground mt-1" suppressHydrationWarning>Expiră la {subscriptionInfo.expirationDateDisplay}</p>
+                  <p className="font-bold tracking-[0.3em] text-xs md:text-sm uppercase">Zile Rămase</p>
+                  <p className="text-xs md:text-sm text-muted-foreground mt-1" suppressHydrationWarning>Expiră la {subscriptionInfo.expirationDateDisplay}</p>
                 </div>
               </div>
             )}
@@ -184,15 +184,15 @@ export default function DashboardHomePage() {
         </div>
 
         {/* Access Code Card */}
-        <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-6 min-h-[320px]">
+        <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-6 min-h-[300px] md:min-h-[350px]">
           {subscriptionInfo.daysRemaining >= 0 && user.phoneNumber ? (
             <>
               <div className="p-4 bg-white rounded-[2rem] shadow-2xl transition-transform hover:scale-105 duration-300">
                   <Image
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${user.phoneNumber}&bgcolor=255-255-255`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${user.phoneNumber}&bgcolor=255-255-255`}
                       alt="QR Code pentru acces"
-                      width={200}
-                      height={200}
+                      width={180}
+                      height={180}
                       className="rounded-xl"
                       priority
                   />
@@ -204,8 +204,8 @@ export default function DashboardHomePage() {
             </>
           ) : (
             <>
-              <div className="w-48 h-48 bg-muted/20 rounded-3xl flex items-center justify-center p-8 text-center border-2 border-dashed border-border/50">
-                  <p className="text-sm text-muted-foreground">Codul QR este indisponibil.</p>
+              <div className="w-40 h-40 bg-muted/20 rounded-3xl flex items-center justify-center p-8 text-center border-2 border-dashed border-border/50">
+                  <p className="text-sm text-muted-foreground text-center">Codul QR este indisponibil.</p>
               </div>
               <div className="space-y-1">
                 <h3 className="text-2xl font-headline tracking-wide text-destructive">Abonament Expirat</h3>
@@ -219,7 +219,7 @@ export default function DashboardHomePage() {
       {/* Quick Navigation Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Link href="/dashboard/shop">
-          <div className="group p-8 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] h-full flex flex-col justify-between">
+          <div className="group p-8 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] h-full flex flex-col justify-between min-h-[160px]">
             <div className="space-y-2">
               <h3 className="text-3xl font-headline tracking-wide">Shop & Stoc</h3>
               <p className="text-muted-foreground">Verifică stocul de produse.</p>
@@ -232,7 +232,7 @@ export default function DashboardHomePage() {
           </div>
         </Link>
         <Link href="/dashboard/plans">
-          <div className="group p-8 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] h-full flex flex-col justify-between">
+          <div className="group p-8 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] h-full flex flex-col justify-between min-h-[160px]">
             <div className="space-y-2">
               <h3 className="text-3xl font-headline tracking-wide">Abonamente</h3>
               <p className="text-muted-foreground">Vezi toate planurile disponibile.</p>
