@@ -2,7 +2,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  // Reset cache and restart server - Timestamp: 1740572100001
+  // Reset cache and restart server - Timestamp: 1740572100002
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -45,4 +45,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default export default nextConfig;
+export default nextConfig;
