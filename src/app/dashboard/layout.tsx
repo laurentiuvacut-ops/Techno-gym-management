@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 export default function DashboardLayout({
   children,
 }: {
-  children: React.Node;
+  children: React.ReactNode;
 }) {
   const pathname = usePathname();
 
