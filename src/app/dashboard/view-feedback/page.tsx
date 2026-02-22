@@ -86,7 +86,7 @@ export default function ViewFeedbackPage() {
                     </CardContent>
                     <CardFooter className="text-xs text-muted-foreground justify-end pt-4 border-t border-border/30">
                         {feedback.createdAt ? (
-                             <p>
+                             <p suppressHydrationWarning>
                                 {formatDistanceToNow(feedback.createdAt.toDate ? feedback.createdAt.toDate() : new Date(feedback.createdAt.seconds * 1000), { locale: ro, addSuffix: true })}
                             </p>
                         ) : (

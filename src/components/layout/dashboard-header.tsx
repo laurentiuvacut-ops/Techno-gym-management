@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { cn } from '@/utils/cn';
+import { cn } from '@/lib/utils';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useUser } from '@/firebase';
 import Link from 'next/link';
