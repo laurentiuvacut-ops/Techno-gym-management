@@ -13,6 +13,7 @@ import { subscriptions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 export default function DashboardHomePage() {
   const { user, isUserLoading } = useUser();
@@ -41,7 +42,7 @@ export default function DashboardHomePage() {
 
   const [subscriptionInfo, setSubscriptionInfo] = useState({
     daysRemaining: 0,
-    status: "Expirat",
+    status: "Inactiv",
     expirationDateDisplay: "N/A",
     daysForDisplay: 0,
     isSet: false
@@ -56,7 +57,7 @@ export default function DashboardHomePage() {
     if (!expirationValue) {
       setSubscriptionInfo({
         daysRemaining: 0,
-        status: "Expirat",
+        status: "Inactiv",
         expirationDateDisplay: "N/A",
         daysForDisplay: 0,
         isSet: true
@@ -82,7 +83,7 @@ export default function DashboardHomePage() {
 
         setSubscriptionInfo({
             daysRemaining: diff,
-            status: diff >= 0 ? "Activ" : "Expirat",
+            status: diff >= 0 ? "Activ" : "Inactiv",
             expirationDateDisplay: format(expDate, 'dd MMM yyyy'),
             daysForDisplay: Math.max(0, diff),
             isSet: true
@@ -90,7 +91,7 @@ export default function DashboardHomePage() {
     } else {
       setSubscriptionInfo({
         daysRemaining: 0,
-        status: "Expirat",
+        status: "Inactiv",
         expirationDateDisplay: "N/A",
         daysForDisplay: 0,
         isSet: true
@@ -124,9 +125,10 @@ export default function DashboardHomePage() {
     );
   }
   
-  const currentSubscription = subscriptions.find(sub => sub.title === memberData?.subscriptionType);
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
-  const subscriptionTitle = currentSubscription?.title || 'Fără Abonament Activ';
+  // Use the plan type stored in the database, or a fallback
+  const subscriptionTitle = memberData?.subscriptionType || 'Fără Abonament';
+  const isActive = subscriptionInfo.status === "Activ";
 
   return (
     <>
@@ -152,7 +154,7 @@ export default function DashboardHomePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Subscription Hero Card */}
-        <div className="relative lg:col-span-2 p-6 md:p-10 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[300px] md:min-h-[350px]">
+        <div className="relative lg:col-span-2 p-6 md:p-10 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[350px] md:min-h-[400px]">
           <div className="absolute -top-1/4 -right-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full blur-[100px] -z-10" />
           
           <div className="flex items-center gap-4">
@@ -160,8 +162,13 @@ export default function DashboardHomePage() {
               <Clock className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h2 className="text-2xl font-headline tracking-wide">{subscriptionTitle}</h2>
-              <p className="text-xs font-bold text-primary uppercase tracking-[0.2em]">{subscriptionInfo.status}</p>
+              <h2 className="text-3xl font-headline tracking-wide uppercase">{subscriptionTitle}</h2>
+              <p className={cn(
+                "text-sm font-bold uppercase tracking-[0.2em]",
+                isActive ? "text-primary" : "text-destructive"
+              )}>
+                {subscriptionInfo.status}
+              </p>
             </div>
           </div>
           
@@ -170,10 +177,10 @@ export default function DashboardHomePage() {
               <Skeleton className="h-24 w-40 mx-auto rounded-2xl" />
             ) : (
               <div className="flex flex-col items-center">
-                <p className="text-7xl md:text-8xl font-headline text-gradient leading-[0.8] select-none tracking-tighter">
+                <p className="text-[120px] md:text-[180px] font-headline text-gradient leading-[0.7] select-none tracking-tighter">
                   {subscriptionInfo.daysForDisplay}
                 </p>
-                <div className="mt-4">
+                <div className="mt-8">
                   <p className="font-bold tracking-[0.3em] text-xs md:text-sm uppercase">Zile Rămase</p>
                   <p className="text-xs md:text-sm text-muted-foreground mt-1" suppressHydrationWarning>Expiră la {subscriptionInfo.expirationDateDisplay}</p>
                 </div>
@@ -184,8 +191,8 @@ export default function DashboardHomePage() {
         </div>
 
         {/* Access Code Card */}
-        <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-6 min-h-[300px] md:min-h-[350px]">
-          {subscriptionInfo.daysRemaining >= 0 && user.phoneNumber ? (
+        <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-6 min-h-[350px] md:min-h-[400px]">
+          {isActive && user.phoneNumber ? (
             <>
               <div className="p-4 bg-white rounded-[2rem] shadow-2xl transition-transform hover:scale-105 duration-300">
                   <Image
@@ -208,7 +215,7 @@ export default function DashboardHomePage() {
                   <p className="text-sm text-muted-foreground text-center">Codul QR este indisponibil.</p>
               </div>
               <div className="space-y-1">
-                <h3 className="text-2xl font-headline tracking-wide text-destructive">Abonament Expirat</h3>
+                <h3 className="text-2xl font-headline tracking-wide text-destructive">Abonament Inactiv</h3>
                 <p className="text-sm text-muted-foreground">Reînnoiește-ți planul pentru acces.</p>
               </div>
             </>
