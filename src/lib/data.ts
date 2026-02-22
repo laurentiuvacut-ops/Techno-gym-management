@@ -138,19 +138,10 @@ export const shopItems = [
     }
 ];
 
-export const transformations = [
-  {
-    id: 1,
-    name: 'Transformare Masculină',
-    story: 'O transformare incredibilă de forță!',
-    before: getImage('transformation-before-1'),
-    after: getImage('transformation-after-1'),
-  },
-  {
-    id: 2,
-    name: 'Transformare Feminină',
-    story: 'Rezultate obținute în 3 luni de fitness intens.',
-    before: getImage('transformation-before-2'),
-    after: getImage('transformation-after-2'),
-  }
-];
+export const transformations = Array.from({ length: 28 }, (_, i) => ({
+  id: i + 1,
+  name: `Transformare ${i + 1}`,
+  story: `Povestea de succes a membrului ${i + 1}.`,
+  before: getImage(`t-b-${i + 1}`),
+  after: getImage(`t-a-${i + 1}`),
+}));
