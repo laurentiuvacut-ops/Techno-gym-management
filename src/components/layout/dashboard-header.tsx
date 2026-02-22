@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function DashboardHeader() {
-  const { user, loading: isUserLoading } = useUser();
+  const { user, isUserLoading } = useUser();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
 
