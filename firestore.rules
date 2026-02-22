@@ -25,11 +25,12 @@ service cloud.firestore {
                        request.auth.token.phone_number == phoneNumber &&
                        request.resource.data.id == request.auth.uid;
 
-      // A user can update ONLY the subscription-related fields on their own document.
+      // A user can update subscription-related fields AND profile fields on their own document.
       allow update: if request.auth != null && 
                        request.auth.token.phone_number == phoneNumber &&
                        request.resource.data.diff(resource.data).affectedKeys()
-                         .hasOnly(['expirationDate', 'subscriptionType', 'status']);
+                         .hasOnly(['expirationDate', 'subscriptionType', 'status',
+                                   'id', 'name', 'email', 'phone', 'photoURL', 'qrCode', 'agreedToTermsAt']);
       
       // Explicitly disallow listing members and deleting.
       allow list, delete: if false;
