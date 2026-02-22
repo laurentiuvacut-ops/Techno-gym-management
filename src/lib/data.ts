@@ -141,15 +141,15 @@ export const shopItems = [
 export const transformations = [
   {
     id: 1,
-    name: 'Membru Nou',
-    story: 'O transformare incredibilă!',
+    name: 'Transformare Masculină',
+    story: 'O transformare incredibilă de forță!',
     before: getImage('transformation-before-1'),
     after: getImage('transformation-after-1'),
   },
   {
     id: 2,
-    name: 'Transformare 2',
-    story: 'Rezultate obținute în 3 luni.',
+    name: 'Transformare Feminină',
+    story: 'Rezultate obținute în 3 luni de fitness intens.',
     before: getImage('transformation-before-2'),
     after: getImage('transformation-after-2'),
   }

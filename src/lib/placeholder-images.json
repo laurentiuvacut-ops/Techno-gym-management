@@ -68,15 +68,15 @@
     },
     {
       "id": "transformation-before-2",
-      "description": "Member before transformation 2",
-      "imageUrl": "https://images.unsplash.com/photo-1591741543032-bf439b4fd46c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYW4lMjB3ZWlnaHR8ZW58MHx8fHwxNzcxNzkzNzY3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "man weight"
+      "description": "Woman before fitness journey",
+      "imageUrl": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=600&h=800&auto=format&fit=crop",
+      "imageHint": "woman before"
     },
     {
       "id": "transformation-after-2",
-      "description": "Member after transformation 2",
-      "imageUrl": "https://images.unsplash.com/photo-1730157464704-ce3a97c28701?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxmaXQlMjBib2R5fGVufDB8fHx8MTc3MTc5Mzc2N3ww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fit body"
+      "description": "Woman after fitness journey",
+      "imageUrl": "https://images.unsplash.com/photo-1583454110551-21f2fa2adfcd?q=80&w=600&h=800&auto=format&fit=crop",
+      "imageHint": "woman after"
     }
   ]
 }

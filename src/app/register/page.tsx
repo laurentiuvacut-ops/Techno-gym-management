@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -41,7 +42,6 @@ export default function RegisterPage() {
 
         setIsSubmitting(true);
         
-        // The document ID is now the user's phone number in E.164 format.
         const memberDocRef = doc(firestore, 'members', user.phoneNumber);
 
         try {
