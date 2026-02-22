@@ -1,4 +1,3 @@
-
 import type { ImagePlaceholder } from './placeholder-images';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -142,6 +141,6 @@ export const transformations = Array.from({ length: 28 }, (_, i) => ({
   id: i + 1,
   name: `Transformare ${i + 1}`,
   story: `Povestea de succes a membrului ${i + 1}.`,
-  before: getImage(`t-b-${i + 1}`),
-  after: getImage(`t-a-${i + 1}`),
+  before: getImage(`transformation-before-${i + 1}`),
+  after: getImage(`transformation-after-${i + 1}`),
 }));
