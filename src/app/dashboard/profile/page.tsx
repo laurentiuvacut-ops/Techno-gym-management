@@ -15,11 +15,10 @@ import { Badge } from '@/components/ui/badge';
 import { subscriptions } from '@/lib/data';
 
 export default function ProfilePage() {
-    const { user, loading: userLoading } = useUser();
+    const { user, isUserLoading } = useUser();
     const router = useRouter();
     const firestore = useFirestore();
 
-    // The document ID is now the user's E.164 phone number.
     const memberDocRef = useMemo(() => {
         if (!firestore || !user?.phoneNumber) return null;
         return doc(firestore, 'members', user.phoneNumber);
@@ -33,10 +32,10 @@ export default function ProfilePage() {
     }, [memberData]);
 
     useEffect(() => {
-        if (!userLoading && !user) {
+        if (!isUserLoading && !user) {
             router.push('/login');
         }
-    }, [user, userLoading, router]);
+    }, [user, isUserLoading, router]);
     
     const handleSignOut = async () => {
         const auth = getAuth();
@@ -44,7 +43,7 @@ export default function ProfilePage() {
         router.push('/');
     };
 
-    const loading = userLoading || memberLoading;
+    const loading = isUserLoading || memberLoading;
 
     if (loading || !user || (!memberLoading && !memberData)) {
         return (

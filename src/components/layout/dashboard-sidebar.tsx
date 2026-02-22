@@ -16,7 +16,6 @@ import {
   CreditCard,
   Dumbbell,
   Users,
-  MessageSquare,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -31,7 +30,6 @@ const mainNavItems = [
   { href: '/dashboard/plans', label: 'Abonamente', icon: CreditCard },
   { href: '/dashboard/workouts', label: 'Antrenamente', icon: Dumbbell },
   { href: '/dashboard/trainers', label: 'Antrenori', icon: Users },
-  { href: '/dashboard/feedback', label: 'Trimite Feedback', icon: MessageSquare },
 ];
 
 export default function DashboardSidebar() {
