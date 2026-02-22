@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function DashboardHeader() {
-  const { user, loading } = useUser();
+  const { user, isUserLoading } = useUser();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -42,7 +42,7 @@ export default function DashboardHeader() {
         <SidebarTrigger />
       </div>
       <div className="flex-1" />
-      {mounted && !loading && user && (
+      {mounted && !isUserLoading && user && (
         <Link href="/dashboard/profile">
           <Avatar className="h-9 w-9 border border-primary/20">
             <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
