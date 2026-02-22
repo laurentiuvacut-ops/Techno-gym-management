@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 export default function RegisterPage() {
-    const { user, loading: userLoading } = useUser();
+    const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const router = useRouter();
     const { toast } = useToast();
@@ -23,10 +23,10 @@ export default function RegisterPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        if (!userLoading && !user) {
+        if (!isUserLoading && !user) {
             router.replace('/login');
         }
-    }, [user, userLoading, router]);
+    }, [user, isUserLoading, router]);
 
     const handleCreateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -80,7 +80,7 @@ export default function RegisterPage() {
         }
     };
 
-    if (userLoading || !user) {
+    if (isUserLoading || !user) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>

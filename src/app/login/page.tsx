@@ -20,7 +20,7 @@ declare global {
 }
 
 export default function LoginPage() {
-    const { user, loading } = useUser();
+    const { user, isUserLoading: loading } = useUser();
     const router = useRouter();
     const auth = useAuth();
     
