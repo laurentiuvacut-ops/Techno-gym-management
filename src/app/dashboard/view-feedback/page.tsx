@@ -17,10 +17,7 @@ type Feedback = {
   id: string;
   rating: number;
   comment: string;
-  createdAt: {
-    seconds: number;
-    nanoseconds: number;
-  } | null;
+  createdAt: any;
 };
 
 export default function ViewFeedbackPage() {
@@ -41,18 +38,12 @@ export default function ViewFeedbackPage() {
 
   const { data: feedbackData, isLoading: feedbackLoading } = useCollection<Feedback>(feedbackQuery);
 
-  const loading = userLoading || feedbackLoading;
-
-  if (loading) {
+  if (userLoading || feedbackLoading) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
-  }
-
-  if (!user) {
-    return null;
   }
 
   return (
@@ -74,32 +65,32 @@ export default function ViewFeedbackPage() {
           <Inbox className="w-8 h-8" />
           Feedback Primit
         </h1>
-        <p className="text-muted-foreground">Aici sunt toate recenziile primite de la membri.</p>
+        <p className="text-muted-foreground">Recenziile lăsate de membri pentru îmbunătățirea serviciilor.</p>
       </div>
 
       {feedbackData && feedbackData.length > 0 ? (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {feedbackData.map((feedback, index) => (
             <motion.div
               key={feedback.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
             >
-                <Card className="glass">
-                    <CardHeader className="items-center">
+                <Card className="glass h-full flex flex-col">
+                    <CardHeader className="items-center pb-2">
                         <StarRating rating={feedback.rating} />
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-center italic text-foreground/80">"{feedback.comment}"</p>
+                    <CardContent className="flex-1 text-center">
+                        <p className="italic text-foreground/80 leading-relaxed">"{feedback.comment}"</p>
                     </CardContent>
-                    <CardFooter className="text-xs text-muted-foreground justify-end">
+                    <CardFooter className="text-xs text-muted-foreground justify-end pt-4 border-t border-border/30">
                         {feedback.createdAt ? (
                              <p>
-                                Primit {formatDistanceToNow(new Date(feedback.createdAt.seconds * 1000), { locale: ro, addSuffix: true })}
+                                {formatDistanceToNow(feedback.createdAt.toDate ? feedback.createdAt.toDate() : new Date(feedback.createdAt.seconds * 1000), { locale: ro, addSuffix: true })}
                             </p>
                         ) : (
-                            <p>Data necunoscută</p>
+                            <p>Recent</p>
                         )}
                     </CardFooter>
                 </Card>
@@ -107,10 +98,10 @@ export default function ViewFeedbackPage() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center text-center p-8 glass rounded-3xl min-h-[300px]">
-            <Inbox className="w-20 h-20 text-muted-foreground mb-4" />
-            <h2 className="text-3xl font-headline">Niciun Feedback</h2>
-            <p className="text-muted-foreground max-w-md">Nu a fost primit niciun feedback până acum. Când membrii vor trimite recenzii, ele vor apărea aici.</p>
+        <div className="flex flex-col items-center justify-center text-center p-12 glass rounded-3xl min-h-[300px]">
+            <Inbox className="w-16 h-16 text-muted-foreground/30 mb-4" />
+            <h2 className="text-2xl font-headline">Niciun Feedback</h2>
+            <p className="text-muted-foreground">Momentan nu există recenzii în baza de date.</p>
         </div>
       )}
     </motion.div>

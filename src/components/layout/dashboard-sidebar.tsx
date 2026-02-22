@@ -35,14 +35,13 @@ const mainNavItems = [
   { href: '/dashboard/view-feedback', label: 'Feedback Primit', icon: Inbox },
 ];
 
-
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useUser();
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="p-6 border-b border-[#1f2937]">
+      <SidebarHeader className="p-6 border-b border-border/50">
           <Link href="/dashboard" className="flex items-center gap-4">
               <div className="relative w-10 h-10">
                 <Image 
@@ -85,7 +84,7 @@ export default function DashboardSidebar() {
         </div>
       </SidebarContent>
 
-      <SidebarFooter className="p-6 mt-auto border-t border-[#1f2937]">
+      <SidebarFooter className="p-6 mt-auto border-t border-border/50">
         {user && (
           <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useUser } from '@/firebase';
 import Link from 'next/link';
@@ -43,7 +43,7 @@ export default function DashboardHeader() {
       <div className="flex-1" />
       {mounted && !loading && user && (
         <Link href="/dashboard/profile">
-          <Avatar className="h-9 w-9">
+          <Avatar className="h-9 w-9 border border-primary/20">
             <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
             <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
