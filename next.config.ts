@@ -1,7 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  // Timestamp: 1740573100000 - Force full HMR reset and cache clear
+  // Timestamp: 1740660000000 - Reset HMR cache
   typescript: {
     ignoreBuildErrors: true,
   },
