@@ -146,12 +146,11 @@ export const transformations = [
     before: getImage('transformation-before-1'),
     after: getImage('transformation-after-1'),
   },
-  // Putem adăuga mai multe manual sau repeta pentru a umple caruselul
   {
     id: 2,
     name: 'Transformare 2',
     story: 'Rezultate obținute în 3 luni.',
-    before: getImage('transformation-before-1'),
-    after: getImage('transformation-after-1'),
+    before: getImage('transformation-before-2'),
+    after: getImage('transformation-after-2'),
   }
 ];
