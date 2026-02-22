@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -26,6 +25,12 @@ export default function DashboardHomePage() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!isUserLoading && !user && mounted) {
+      router.replace('/login');
+    }
+  }, [user, isUserLoading, router, mounted]);
+
   const memberDocRef = useMemo(() => {
     if (!firestore || !user?.phoneNumber) return null;
     return doc(firestore, 'members', user.phoneNumber);
@@ -39,12 +44,6 @@ export default function DashboardHomePage() {
     expirationDateDisplay: "N/A",
     daysForDisplay: 0,
   });
-
-  useEffect(() => {
-    if (!isUserLoading && !user && mounted) {
-      router.push('/login');
-    }
-  }, [user, isUserLoading, router, mounted]);
 
   useEffect(() => {
     if (!memberData) return;
@@ -99,7 +98,7 @@ export default function DashboardHomePage() {
     setShowInstallInstructions(true);
   };
   
-  const loading = isUserLoading || memberLoading || !mounted;
+  const loading = isUserLoading || !mounted;
 
   if (loading) {
     return (
@@ -156,7 +155,6 @@ export default function DashboardHomePage() {
       </div>
 
       <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Hero Card */}
         <div className="relative lg:col-span-2 p-8 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[300px]">
           <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full blur-3xl -z-10" />
           <div className="flex items-center gap-3">
@@ -176,7 +174,6 @@ export default function DashboardHomePage() {
           <div/>
         </div>
 
-        {/* QR Code */}
         <div className="p-8 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4">
           {subscriptionInfo.daysRemaining >= 0 && user.phoneNumber ? (
             <>
@@ -204,7 +201,6 @@ export default function DashboardHomePage() {
         </div>
       </div>
 
-      {/* Quick Links */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Link href="/dashboard/shop">
           <div className="group p-6 glass rounded-3xl transition-colors duration-300 hover:border-primary/30">

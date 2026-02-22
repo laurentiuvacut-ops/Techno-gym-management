@@ -25,7 +25,7 @@ export default function RegisterPage() {
 
     useEffect(() => {
         if (!userLoading && !user) {
-            router.push('/login');
+            router.replace('/login');
         }
     }, [user, userLoading, router]);
 
@@ -142,9 +142,9 @@ export default function RegisterPage() {
                         </div>
                     </div>
                     
-                    <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground py-6 text-base" disabled={isSubmitting || !name.trim() || !agreed}>
+                    <button type="submit" className="w-full bg-gradient-primary text-primary-foreground py-6 text-base rounded-md font-bold" disabled={isSubmitting || !name.trim() || !agreed}>
                         {isSubmitting ? 'Se creează contul...' : 'Finalizează și Intră în Cont'}
-                    </Button>
+                    </button>
                 </form>
             </motion.div>
         </div>

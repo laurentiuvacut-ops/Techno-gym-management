@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   Home,
@@ -37,11 +38,18 @@ const mainNavItems = [
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useUser();
+  const { setOpenMobile, isMobile } = useSidebar();
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-6 border-b border-border/50">
-          <Link href="/dashboard" className="flex items-center gap-4">
+          <Link href="/dashboard" className="flex items-center gap-4" onClick={handleLinkClick}>
               <div className="relative w-10 h-10">
                 <Image 
                   src="https://i.imgur.com/9W1ye1w.png" 
@@ -72,7 +80,7 @@ export default function DashboardSidebar() {
                   )}
                   tooltip={item.label}
                 >
-                  <Link href={item.href}>
+                  <Link href={item.href} onClick={handleLinkClick}>
                     <item.icon className="h-5 w-5" />
                     <span>{item.label}</span>
                   </Link>
@@ -85,7 +93,7 @@ export default function DashboardSidebar() {
 
       <SidebarFooter className="p-6 mt-auto border-t border-border/50">
         {user && (
-          <div className="flex items-center gap-3">
+          <Link href="/dashboard/profile" onClick={handleLinkClick} className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ''} />
                 <AvatarFallback className="font-medium bg-gradient-to-br from-cyan-400 to-cyan-600 text-white">
@@ -96,7 +104,7 @@ export default function DashboardSidebar() {
                 <p className="font-medium text-white truncate">{user.displayName || 'Membru'}</p>
                 <p className="text-xs text-gray-400">Membru Premium</p>
               </div>
-          </div>
+          </Link>
         )}
       </SidebarFooter>
     </Sidebar>
