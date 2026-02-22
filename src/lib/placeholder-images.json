@@ -55,12 +55,6 @@
       "imageHint": "dark gym"
     },
     {
-      "id": "gym-interior-2",
-      "description": "Dumbbells and weights stacked in a gym",
-      "imageUrl": "https://i.imgur.com/6JwFGIo.jpg",
-      "imageHint": "gym weights"
-    },
-    {
       "id": "transformation-before-1",
       "description": "Member before transformation 1",
       "imageUrl": "https://i.imgur.com/fws8TFv.jpg",

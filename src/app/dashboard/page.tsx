@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -14,11 +15,16 @@ import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
 
 export default function DashboardHomePage() {
-  const { user, loading: userLoading } = useUser();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
   const firestore = useFirestore();
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user?.phoneNumber) return null;
@@ -35,10 +41,10 @@ export default function DashboardHomePage() {
   });
 
   useEffect(() => {
-    if (!userLoading && !user) {
+    if (!isUserLoading && !user && mounted) {
       router.push('/login');
     }
-  }, [user, userLoading, router]);
+  }, [user, isUserLoading, router, mounted]);
 
   useEffect(() => {
     if (!memberData) return;
@@ -93,15 +99,17 @@ export default function DashboardHomePage() {
     setShowInstallInstructions(true);
   };
   
-  const loading = userLoading || memberLoading;
+  const loading = isUserLoading || memberLoading || !mounted;
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
+
+  if (!user) return null;
   
   if (!memberLoading && !memberData) {
     return (
@@ -163,7 +171,7 @@ export default function DashboardHomePage() {
           <div className="text-center my-8">
             <p className="text-8xl md:text-9xl font-headline text-gradient leading-none">{subscriptionInfo.daysForDisplay}</p>
             <p className="font-bold tracking-widest">Zile Rămase</p>
-            <p className="text-sm text-muted-foreground">Expiră pe {subscriptionInfo.expirationDateDisplay}</p>
+            <p className="text-sm text-muted-foreground" suppressHydrationWarning>Expiră pe {subscriptionInfo.expirationDateDisplay}</p>
           </div>
           <div/>
         </div>

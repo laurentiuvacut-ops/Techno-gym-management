@@ -1,3 +1,4 @@
+
 'use client';
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
@@ -15,17 +16,20 @@ import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { addDays, format, isValid, differenceInCalendarDays } from 'date-fns';
 
 function PlansComponent() {
-  const { user, loading: userLoading } = useUser();
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  // Ref to ensure processing happens only once per successful payment
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const paymentProcessedRef = useRef(false);
-  // State to manage the post-payment processing phase
   const [isProcessingPayment, setIsProcessingPayment] = useState(true);
 
   const memberDocRef = useMemo(() => {
@@ -40,7 +44,6 @@ function PlansComponent() {
     return subscriptions.find(sub => sub.title === memberData.subscriptionType);
   }, [memberData]);
 
-  // This is the main effect that handles payment processing
   useEffect(() => {
     const planId = searchParams.get('plan_id');
     const paymentSuccess = searchParams.get('payment_success') === 'true';
@@ -58,7 +61,7 @@ function PlansComponent() {
       return;
     }
     
-    if (userLoading || memberLoading || !memberData || !memberDocRef) {
+    if (isUserLoading || memberLoading || !memberData || !memberDocRef) {
       return; 
     }
     
@@ -73,11 +76,10 @@ function PlansComponent() {
       const purchasedPlan = subscriptions.find(s => s.id === pendingPlanId);
 
       if (!purchasedPlan) {
-        console.error("Plan not found during processing:", pendingPlanId);
         toast({
           variant: "destructive",
           title: "Eroare la procesare",
-          description: "Planul achiziționat nu a fost găsit. Vă rugăm contactați suportul.",
+          description: "Planul achiziționat nu a fost găsit.",
         });
         sessionStorage.removeItem('payment_processing_plan_id');
         setIsProcessingPayment(false);
@@ -115,8 +117,6 @@ function PlansComponent() {
       };
 
       try {
-        console.log("🔥 Attempting Firestore update:", updatedData);
-        console.log("🔥 Document path:", memberDocRef.path);
         await updateDoc(memberDocRef, updatedData);
         toast({
           title: "Plată reușită!",
@@ -124,18 +124,12 @@ function PlansComponent() {
           className: "bg-success text-success-foreground",
         });
       } catch (error) {
-        console.error("🔥 Firestore update FAILED:", error);
         const permissionError = new FirestorePermissionError({
             path: memberDocRef.path,
             operation: 'update',
             requestResourceData: updatedData
         });
         errorEmitter.emit('permission-error', permissionError);
-        toast({
-            variant: "destructive",
-            title: "Eroare la actualizarea abonamentului",
-            description: "Nu am putut salva datele abonamentului. Vă rugăm contactați suportul.",
-        });
       } finally {
         sessionStorage.removeItem('payment_processing_plan_id');
         setIsProcessingPayment(false);
@@ -143,14 +137,14 @@ function PlansComponent() {
     };
     
     processPaymentUpdate();
-  }, [searchParams, user, userLoading, memberLoading, memberData, memberDocRef, firestore, toast, router]);
+  }, [searchParams, user, isUserLoading, memberLoading, memberData, memberDocRef, firestore, toast, router]);
 
 
   useEffect(() => {
-    if (!userLoading && !user) {
+    if (!isUserLoading && !user && mounted) {
       router.push('/login');
     }
-  }, [user, userLoading, router]);
+  }, [user, isUserLoading, router, mounted]);
 
   const handlePurchase = async (plan: any) => {
     setCheckoutUrl(null);
@@ -180,32 +174,33 @@ function PlansComponent() {
         } else {
             toast({
                 variant: "destructive",
-                title: "Eroare la crearea sesiunii de plată",
-                description: stripeError || "Serverul nu a returnat un URL de plată. Asigurați-vă că cheia secretă Stripe este corectă.",
+                title: "Eroare",
+                description: stripeError || "Nu s-a putut crea sesiunea de plată.",
             });
             setIsUpdating(null);
         }
     } catch (error: any) {
-      console.error("Error creating Stripe checkout session:", error);
       toast({
         variant: "destructive",
-        title: "Eroare la comunicarea cu serverul",
-        description: `A apărut o problemă: ${error.message || 'Eroare necunoscută'}. Vă rugăm să încercați din nou.`,
+        title: "Eroare",
+        description: error.message || 'Eroare necunoscută.',
       });
       setIsUpdating(null);
     }
   };
   
-  const loading = userLoading || memberLoading || isProcessingPayment;
+  const loading = isUserLoading || memberLoading || isProcessingPayment || !mounted;
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-muted-foreground">Se procesează plata...</p>
+        <p className="text-muted-foreground">Se procesează...</p>
       </div>
     );
   }
+
+  if (!user) return null;
   
   const currentPlanId = currentSubscription?.id;
 
@@ -225,13 +220,13 @@ function PlansComponent() {
 
       <div className="space-y-1 text-center">
         <h1 className="text-4xl font-headline tracking-wider">Abonamente</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">Alege planul care ți se potrivește. Poți anula sau schimba oricând.</p>
+        <p className="text-muted-foreground max-w-2xl mx-auto">Alege planul care ți se potrivește.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {subscriptions.map((plan) => {
           const isCurrent = plan.id === currentPlanId;
-          const isPopular = plan.popular;
+          const isPopular = (plan as any).popular;
           const isFeatured = isCurrent || isPopular;
           const isProcessingThisPlan = isUpdating === plan.id;
 
@@ -310,8 +305,6 @@ function PlansComponent() {
   );
 }
 
-
-// A `Suspense` boundary is required to use `useSearchParams()` in a page that may be server-rendered.
 export default function PlansPage() {
   return (
     <Suspense fallback={<div className="flex items-center justify-center h-full">

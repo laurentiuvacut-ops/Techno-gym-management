@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useUser, useFirestore, useCollection } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -21,15 +22,20 @@ type Feedback = {
 };
 
 export default function ViewFeedbackPage() {
-  const { user, loading: userLoading } = useUser();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
   const firestore = useFirestore();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!userLoading && !user) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isUserLoading && !user && mounted) {
       router.push('/login');
     }
-  }, [user, userLoading, router]);
+  }, [user, isUserLoading, router, mounted]);
 
   const feedbackQuery = useMemo(() => {
     if (!firestore) return null;
@@ -38,13 +44,15 @@ export default function ViewFeedbackPage() {
 
   const { data: feedbackData, isLoading: feedbackLoading } = useCollection<Feedback>(feedbackQuery);
 
-  if (userLoading || feedbackLoading) {
+  if (isUserLoading || feedbackLoading || !mounted) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
+
+  if (!user) return null;
 
   return (
     <motion.div
@@ -65,7 +73,7 @@ export default function ViewFeedbackPage() {
           <Inbox className="w-8 h-8" />
           Feedback Primit
         </h1>
-        <p className="text-muted-foreground">Recenziile lăsate de membri pentru îmbunătățirea serviciilor.</p>
+        <p className="text-muted-foreground">Recenziile lăsate de membri.</p>
       </div>
 
       {feedbackData && feedbackData.length > 0 ? (
@@ -101,7 +109,7 @@ export default function ViewFeedbackPage() {
         <div className="flex flex-col items-center justify-center text-center p-12 glass rounded-3xl min-h-[300px]">
             <Inbox className="w-16 h-16 text-muted-foreground/30 mb-4" />
             <h2 className="text-2xl font-headline">Niciun Feedback</h2>
-            <p className="text-muted-foreground">Momentan nu există recenzii în baza de date.</p>
+            <p className="text-muted-foreground">Momentan nu există recenzii.</p>
         </div>
       )}
     </motion.div>

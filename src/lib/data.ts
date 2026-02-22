@@ -5,24 +5,17 @@ import { PlaceHolderImages } from './placeholder-images';
 export const getImage = (id: string): ImagePlaceholder => {
     const img = PlaceHolderImages.find(p => p.id === id);
     if (!img) {
-        // This consistent fallback prevents hydration errors. If an image ID is ever
-        // invalid, both the server and client will fall back to the same known-good image.
         const fallbackImg = PlaceHolderImages.find(p => p.id === 'gym-interior-1');
-        if (fallbackImg) return fallbackImg;
-
-        // Absolute last resort if even the hero image is missing from JSON.
-        return {
+        return fallbackImg || {
             id: 'not-found',
             description: 'Image not found',
-            imageUrl: 'https://i.imgur.com/6N8o2LA.jpg', // The correct URL hardcoded.
+            imageUrl: 'https://i.imgur.com/6N8o2LA.jpg',
             imageHint: 'dark gym',
         };
     }
     return img;
 };
 
-// IMPORTANT: These prices and titles are sent directly to Stripe.
-// You can edit them here, and the changes will reflect on the checkout page.
 export const subscriptions = [
   {
     id: "classic",
@@ -78,29 +71,6 @@ export const subscriptions = [
       "Invitați un prieten în weekend",
     ],
     cta: "Se cumpără în locație",
-  },
-];
-
-export const workouts = [
-  {
-    id: "strength",
-    category: "Strength",
-    image: getImage('workout-strength'),
-  },
-  {
-    id: "hiit",
-    category: "HIIT",
-    image: getImage('workout-hiit'),
-  },
-  {
-    id: "cardio",
-    category: "Cardio",
-    image: getImage('workout-cardio'),
-  },
-  {
-    id: "recovery",
-    category: "Recovery",
-    image: getImage('workout-recovery'),
   },
 ];
 
@@ -168,10 +138,20 @@ export const shopItems = [
     }
 ];
 
-export const transformations = Array.from({ length: 28 }, (_, i) => ({
-  id: i + 1,
-  name: 'Membru Nou',
-  story: 'O nouă transformare de succes!',
-  before: getImage(`transformation-before-${i + 1}`),
-  after: getImage(`transformation-after-${i + 1}`),
-}));
+export const transformations = [
+  {
+    id: 1,
+    name: 'Membru Nou',
+    story: 'O transformare incredibilă!',
+    before: getImage('transformation-before-1'),
+    after: getImage('transformation-after-1'),
+  },
+  // Putem adăuga mai multe manual sau repeta pentru a umple caruselul
+  {
+    id: 2,
+    name: 'Transformare 2',
+    story: 'Rezultate obținute în 3 luni.',
+    before: getImage('transformation-before-1'),
+    after: getImage('transformation-after-1'),
+  }
+];
