@@ -28,7 +28,8 @@ export default function ProfilePage() {
         return doc(firestore, 'members', user.phoneNumber);
     }, [firestore, user]);
 
-    const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
+    // We don't block the UI with memberLoading to avoid flickers
+    const { data: memberData } = useDoc(memberDocRef);
     
     const currentSubscription = useMemo(() => {
         if (!memberData || !memberData.subscriptionType) return null;
@@ -118,9 +119,9 @@ export default function ProfilePage() {
         reader.readAsDataURL(file);
     };
 
-    if (!user || (!memberLoading && !memberData)) return null;
+    if (!user) return null;
 
-    const displayName = memberData?.name || user.displayName;
+    const displayName = memberData?.name || user.displayName || 'Membru';
     const displayPhone = memberData?.phone || user.phoneNumber;
     const displayPhotoUrl = memberData?.photoURL || user.photoURL;
 
@@ -136,7 +137,7 @@ export default function ProfilePage() {
             <Card className="glass rounded-3xl border-0 overflow-hidden shadow-xl">
                 <CardHeader className="items-center text-center pb-2 bg-foreground/5 pt-6">
                     <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-                        <Avatar className="w-24 h-24 border-3 border-primary/20 shadow-lg transition-all duration-300 group-hover:border-primary">
+                        <Avatar className="w-20 h-20 border-3 border-primary/20 shadow-lg transition-all duration-300 group-hover:border-primary">
                             <AvatarImage src={displayPhotoUrl || ''} alt={displayName || ''} className="object-cover" />
                             <AvatarFallback className="text-3xl bg-muted font-headline">
                                 {displayName?.charAt(0) || 'T'}
@@ -144,9 +145,9 @@ export default function ProfilePage() {
                         </Avatar>
                         <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             {isUploading ? (
-                                <Loader2 className="w-8 h-8 text-white animate-spin" />
+                                <Loader2 className="w-6 h-6 text-white animate-spin" />
                             ) : (
-                                <Camera className="w-8 h-8 text-white" />
+                                <Camera className="w-6 h-6 text-white" />
                             )}
                         </div>
                         <input 

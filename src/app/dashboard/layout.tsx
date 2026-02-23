@@ -28,7 +28,7 @@ export default function DashboardLayout({
     }
   }, [user, isUserLoading, router, mounted]);
 
-  // Show a SINGLE global spinner only on the very first load of the app
+  // Show a SINGLE global spinner only on the very first load of the app (cold boot)
   if (isUserLoading && !user) {
     return (
       <div className="flex items-center justify-center h-screen bg-background">
