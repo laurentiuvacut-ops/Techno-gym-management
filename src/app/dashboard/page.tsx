@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import { doc } from "firebase/firestore";
-import { ArrowRight, Clock, Download } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -99,10 +98,6 @@ export default function DashboardHomePage() {
     }
   }, [memberData]);
 
-  const handleInstallClick = () => {
-    setShowInstallInstructions(true);
-  };
-  
   if (isUserLoading || !mounted) {
     return (
       <div className="flex items-center justify-center h-[70vh]">
@@ -138,22 +133,11 @@ export default function DashboardHomePage() {
       className="space-y-4 md:space-y-6 pb-6"
     >
       <div className="flex justify-between items-center flex-wrap gap-2">
-        <div className="space-y-0.5">
-          <h1 className="text-3xl md:text-5xl font-headline tracking-wider">Salut, {displayName}!</h1>
-        </div>
-        <Button 
-          onClick={handleInstallClick}
-          size="sm"
-          className="bg-gradient-primary text-primary-foreground shadow-lg font-bold"
-        >
-          <Download className="mr-2 h-4 w-4" />
-          App
-        </Button>
+        <h1 className="text-3xl md:text-5xl font-headline tracking-wider">Salut, {displayName}!</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Subscription Hero Card */}
-        <div className="relative lg:col-span-2 p-5 md:p-6 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[250px] md:min-h-[280px]">
+        <div className="relative lg:col-span-2 p-5 md:p-6 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[220px] md:min-h-[250px]">
           <div className="absolute -top-1/4 -right-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full blur-[100px] -z-10" />
           
           <div className="flex items-center gap-3">
@@ -171,7 +155,7 @@ export default function DashboardHomePage() {
             </div>
           </div>
           
-          <div className="text-center my-1">
+          <div className="text-center my-2">
             {!subscriptionInfo.isSet || memberLoading ? (
               <Skeleton className="h-20 w-32 mx-auto rounded-2xl" />
             ) : (
@@ -189,8 +173,7 @@ export default function DashboardHomePage() {
           <div/>
         </div>
 
-        {/* Access Code Card */}
-        <div className="p-5 glass rounded-3xl flex flex-col items-center justify-center text-center gap-3 min-h-[250px] md:min-h-[280px]">
+        <div className="p-5 glass rounded-3xl flex flex-col items-center justify-center text-center gap-3 min-h-[220px] md:min-h-[250px]">
           {isActive && user.phoneNumber ? (
             <>
               <div className="p-2 bg-white rounded-[1.2rem] shadow-xl transition-transform hover:scale-105 duration-300">
@@ -222,12 +205,11 @@ export default function DashboardHomePage() {
         </div>
       </div>
 
-      {/* Quick Navigation Cards */}
       <div className="grid grid-cols-2 gap-4 md:gap-6">
         <Link href="/dashboard/shop">
-          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[120px]">
-            <div className="space-y-1">
-              <h3 className="text-xl font-headline tracking-wide uppercase">Shop</h3>
+          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[110px]">
+            <div className="space-y-0.5">
+              <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Shop &amp; Stoc</h3>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Vezi stocul</p>
             </div>
             <div className="flex justify-end">
@@ -238,10 +220,10 @@ export default function DashboardHomePage() {
           </div>
         </Link>
         <Link href="/dashboard/plans">
-          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[120px]">
-            <div className="space-y-1">
-              <h3 className="text-xl font-headline tracking-wide uppercase">Planuri</h3>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Abonamente</p>
+          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[110px]">
+            <div className="space-y-0.5">
+              <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Abonamente</h3>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Planuri noi</p>
             </div>
             <div className="flex justify-end">
               <div className="w-8 h-8 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">

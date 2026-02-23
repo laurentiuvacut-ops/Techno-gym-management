@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -154,7 +153,7 @@ export default function ProfilePage() {
                         <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                             <ShoppingBag className="h-6 w-6 text-primary" />
                         </div>
-                        <span className="text-xs font-headline tracking-widest uppercase">Shop & Stoc</span>
+                        <span className="text-xs font-headline tracking-widest uppercase">Shop &amp; Stoc</span>
                     </div>
                 </Link>
             </div>
