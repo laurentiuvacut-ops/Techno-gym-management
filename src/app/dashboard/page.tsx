@@ -137,7 +137,7 @@ export default function DashboardHomePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        <div className="relative lg:col-span-2 p-5 md:p-6 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[220px] md:min-h-[250px]">
+        <div className="relative lg:col-span-2 p-6 md:p-8 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[240px] md:min-h-[280px]">
           <div className="absolute -top-1/4 -right-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full blur-[100px] -z-10" />
           
           <div className="flex items-center gap-3">
@@ -155,7 +155,7 @@ export default function DashboardHomePage() {
             </div>
           </div>
           
-          <div className="text-center my-2">
+          <div className="text-center my-4">
             {!subscriptionInfo.isSet || memberLoading ? (
               <Skeleton className="h-20 w-32 mx-auto rounded-2xl" />
             ) : (
@@ -173,27 +173,27 @@ export default function DashboardHomePage() {
           <div/>
         </div>
 
-        <div className="p-5 glass rounded-3xl flex flex-col items-center justify-center text-center gap-3 min-h-[220px] md:min-h-[250px]">
+        <div className="p-6 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4 min-h-[240px] md:min-h-[280px]">
           {isActive && user.phoneNumber ? (
             <>
-              <div className="p-2 bg-white rounded-[1.2rem] shadow-xl transition-transform hover:scale-105 duration-300">
+              <div className="p-3 bg-white rounded-[1.5rem] shadow-xl transition-transform hover:scale-105 duration-300">
                   <Image
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${user.phoneNumber}&bgcolor=255-255-255`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${user.phoneNumber}&bgcolor=255-255-255`}
                       alt="QR Code"
-                      width={120}
-                      height={120}
+                      width={140}
+                      height={140}
                       className="rounded-lg"
                       priority
                   />
               </div>
               <div className="space-y-0.5">
-                <h3 className="text-lg font-headline tracking-wide uppercase">Cod de Acces</h3>
+                <h3 className="text-xl font-headline tracking-wide uppercase">Cod de Acces</h3>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Scanează la recepție</p>
               </div>
             </>
           ) : (
             <>
-              <div className="w-24 h-24 bg-muted/20 rounded-3xl flex items-center justify-center p-4 text-center border-2 border-dashed border-border/50">
+              <div className="w-28 h-28 bg-muted/20 rounded-3xl flex items-center justify-center p-4 text-center border-2 border-dashed border-border/50">
                   <p className="text-[10px] text-muted-foreground">Indisponibil</p>
               </div>
               <div className="space-y-0.5">
@@ -207,7 +207,7 @@ export default function DashboardHomePage() {
 
       <div className="grid grid-cols-2 gap-4 md:gap-6">
         <Link href="/dashboard/shop">
-          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[110px]">
+          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[120px]">
             <div className="space-y-0.5">
               <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Shop &amp; Stoc</h3>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Vezi stocul</p>
@@ -220,7 +220,7 @@ export default function DashboardHomePage() {
           </div>
         </Link>
         <Link href="/dashboard/plans">
-          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[110px]">
+          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[120px]">
             <div className="space-y-0.5">
               <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Abonamente</h3>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Planuri noi</p>
