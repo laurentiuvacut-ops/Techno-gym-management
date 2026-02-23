@@ -134,12 +134,11 @@ export default function DashboardHomePage() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-4 md:space-y-6 pb-10"
+      className="space-y-4 md:space-y-6 pb-6"
     >
       <div className="flex justify-between items-center flex-wrap gap-2">
         <div className="space-y-0.5">
           <h1 className="text-3xl md:text-5xl font-headline tracking-wider">Salut, {displayName}!</h1>
-          <p className="text-muted-foreground text-sm md:text-lg">Sumarul contului tău.</p>
         </div>
         <Button 
           onClick={handleInstallClick}
@@ -147,13 +146,13 @@ export default function DashboardHomePage() {
           className="bg-gradient-primary text-primary-foreground shadow-lg font-bold"
         >
           <Download className="mr-2 h-4 w-4" />
-          Instalează App
+          App
         </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Subscription Hero Card */}
-        <div className="relative lg:col-span-2 p-5 md:p-8 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[280px] md:min-h-[350px]">
+        <div className="relative lg:col-span-2 p-5 md:p-6 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[250px] md:min-h-[300px]">
           <div className="absolute -top-1/4 -right-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full blur-[100px] -z-10" />
           
           <div className="flex items-center gap-3">
@@ -171,7 +170,7 @@ export default function DashboardHomePage() {
             </div>
           </div>
           
-          <div className="text-center my-2">
+          <div className="text-center my-1">
             {!subscriptionInfo.isSet || memberLoading ? (
               <Skeleton className="h-20 w-32 mx-auto rounded-2xl" />
             ) : (
@@ -179,9 +178,9 @@ export default function DashboardHomePage() {
                 <p className="text-8xl md:text-9xl font-headline text-gradient leading-none select-none tracking-tighter">
                   {subscriptionInfo.daysForDisplay}
                 </p>
-                <div className="mt-4">
-                  <p className="font-bold tracking-[0.3em] text-[10px] md:text-xs uppercase">Zile Rămase</p>
-                  <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5" suppressHydrationWarning>Expiră la {subscriptionInfo.expirationDateDisplay}</p>
+                <div className="mt-2">
+                  <p className="font-bold tracking-[0.3em] text-[10px] uppercase">Zile Rămase</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5" suppressHydrationWarning>Expiră: {subscriptionInfo.expirationDateDisplay}</p>
                 </div>
               </div>
             )}
@@ -190,32 +189,32 @@ export default function DashboardHomePage() {
         </div>
 
         {/* Access Code Card */}
-        <div className="p-6 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4 min-h-[280px] md:min-h-[350px]">
+        <div className="p-5 glass rounded-3xl flex flex-col items-center justify-center text-center gap-3 min-h-[250px] md:min-h-[300px]">
           {isActive && user.phoneNumber ? (
             <>
-              <div className="p-3 bg-white rounded-[1.5rem] shadow-xl transition-transform hover:scale-105 duration-300">
+              <div className="p-2 bg-white rounded-[1.2rem] shadow-xl transition-transform hover:scale-105 duration-300">
                   <Image
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${user.phoneNumber}&bgcolor=255-255-255`}
-                      alt="QR Code pentru acces"
-                      width={150}
-                      height={150}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${user.phoneNumber}&bgcolor=255-255-255`}
+                      alt="QR Code"
+                      width={120}
+                      height={120}
                       className="rounded-lg"
                       priority
                   />
               </div>
               <div className="space-y-0.5">
-                <h3 className="text-xl font-headline tracking-wide">Cod de Acces</h3>
-                <p className="text-xs text-muted-foreground">Scanează la recepție.</p>
+                <h3 className="text-lg font-headline tracking-wide uppercase">Cod de Acces</h3>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Scanează la recepție</p>
               </div>
             </>
           ) : (
             <>
-              <div className="w-32 h-32 bg-muted/20 rounded-3xl flex items-center justify-center p-6 text-center border-2 border-dashed border-border/50">
-                  <p className="text-xs text-muted-foreground">Indisponibil.</p>
+              <div className="w-24 h-24 bg-muted/20 rounded-3xl flex items-center justify-center p-4 text-center border-2 border-dashed border-border/50">
+                  <p className="text-[10px] text-muted-foreground">Indisponibil</p>
               </div>
               <div className="space-y-0.5">
-                <h3 className="text-xl font-headline tracking-wide text-destructive">Abonament Inactiv</h3>
-                <p className="text-xs text-muted-foreground">Reînnoiește-ți planul.</p>
+                <h3 className="text-lg font-headline tracking-wide text-destructive uppercase">Inactiv</h3>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Reînnoiește-ți planul</p>
               </div>
             </>
           )}
@@ -223,29 +222,29 @@ export default function DashboardHomePage() {
       </div>
 
       {/* Quick Navigation Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 gap-4 md:gap-6">
         <Link href="/dashboard/shop">
-          <div className="group p-6 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] h-full flex flex-col justify-between min-h-[130px]">
+          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[120px]">
             <div className="space-y-1">
-              <h3 className="text-2xl font-headline tracking-wide">Shop & Stoc</h3>
-              <p className="text-sm text-muted-foreground">Verifică stocul.</p>
+              <h3 className="text-xl font-headline tracking-wide uppercase">Shop</h3>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Vezi stocul</p>
             </div>
-            <div className="flex justify-end mt-2">
-              <div className="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">
-                <ArrowRight className="w-5 h-5" />
+            <div className="flex justify-end">
+              <div className="w-8 h-8 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">
+                <ArrowRight className="w-4 h-4" />
               </div>
             </div>
           </div>
         </Link>
         <Link href="/dashboard/plans">
-          <div className="group p-6 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] h-full flex flex-col justify-between min-h-[130px]">
+          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[120px]">
             <div className="space-y-1">
-              <h3 className="text-2xl font-headline tracking-wide">Abonamente</h3>
-              <p className="text-sm text-muted-foreground">Vezi planurile.</p>
+              <h3 className="text-xl font-headline tracking-wide uppercase">Planuri</h3>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Abonamente</p>
             </div>
-            <div className="flex justify-end mt-2">
-              <div className="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">
-                <ArrowRight className="w-5 h-5" />
+            <div className="flex justify-end">
+              <div className="w-8 h-8 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">
+                <ArrowRight className="w-4 h-4" />
               </div>
             </div>
           </div>

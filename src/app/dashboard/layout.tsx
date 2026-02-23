@@ -26,7 +26,7 @@ export default function DashboardLayout({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5 }}
                 transition={{ duration: 0.2, ease: "easeInOut" }}
-                className="w-full px-4 md:px-8 py-6 md:py-10 mx-auto selectable-text"
+                className="w-full px-4 md:px-8 py-4 md:py-6 mx-auto selectable-text"
               >
                 {children}
               </motion.div>
