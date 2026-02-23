@@ -1,9 +1,11 @@
+
 'use client';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import DashboardSidebar from '@/components/layout/dashboard-sidebar';
 import DashboardHeader from '@/components/layout/dashboard-header';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function DashboardLayout({
   children,
@@ -11,10 +13,15 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background overflow-hidden overscroll-none">
+      <div className="flex min-h-screen w-full bg-background">
         <DashboardSidebar />
         <div className="flex flex-1 flex-col h-screen overflow-hidden">
           <DashboardHeader />

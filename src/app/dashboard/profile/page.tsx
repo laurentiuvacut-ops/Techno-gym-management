@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -10,7 +11,7 @@ import { getAuth, signOut } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowLeft, Award, LogOut, Check, Home, ShoppingBag, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Award, LogOut, Check, Home, ShoppingBag } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { subscriptions } from '@/lib/data';
 import { Separator } from '@/components/ui/separator';
@@ -139,7 +140,6 @@ export default function ProfilePage() {
                 </CardContent>
             </Card>
 
-            {/* Quick Navigation Cards */}
             <div className="grid grid-cols-2 gap-4">
                 <Link href="/dashboard">
                     <div className="glass p-5 rounded-3xl flex flex-col items-center justify-center gap-3 aspect-square transition-all duration-300 hover:border-primary/40 active:scale-[0.96] group">
@@ -154,7 +154,7 @@ export default function ProfilePage() {
                         <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                             <ShoppingBag className="h-6 w-6 text-primary" />
                         </div>
-                        <span className="text-xs font-headline tracking-widest uppercase">Shop &amp; Stoc</span>
+                        <span className="text-xs font-headline tracking-widest uppercase">Shop & Stoc</span>
                     </div>
                 </Link>
             </div>

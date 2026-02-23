@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -152,7 +153,7 @@ export default function DashboardHomePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Subscription Hero Card */}
-        <div className="relative lg:col-span-2 p-5 md:p-6 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[250px] md:min-h-[300px]">
+        <div className="relative lg:col-span-2 p-5 md:p-6 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[250px] md:min-h-[280px]">
           <div className="absolute -top-1/4 -right-1/4 w-1/2 h-1/2 bg-primary/10 rounded-full blur-[100px] -z-10" />
           
           <div className="flex items-center gap-3">
@@ -189,7 +190,7 @@ export default function DashboardHomePage() {
         </div>
 
         {/* Access Code Card */}
-        <div className="p-5 glass rounded-3xl flex flex-col items-center justify-center text-center gap-3 min-h-[250px] md:min-h-[300px]">
+        <div className="p-5 glass rounded-3xl flex flex-col items-center justify-center text-center gap-3 min-h-[250px] md:min-h-[280px]">
           {isActive && user.phoneNumber ? (
             <>
               <div className="p-2 bg-white rounded-[1.2rem] shadow-xl transition-transform hover:scale-105 duration-300">
