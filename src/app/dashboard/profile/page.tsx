@@ -1,24 +1,28 @@
 'use client';
 
-import { useUser, useFirestore, useDoc } from '@/firebase';
+import { useUser, useFirestore, useDoc, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getAuth, signOut } from 'firebase/auth';
-import { doc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowLeft, Award, LogOut, Check, Home, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Award, LogOut, Check, Home, ShoppingBag, Camera, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { subscriptions } from '@/lib/data';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
     const { user, isUserLoading } = useUser();
     const router = useRouter();
     const firestore = useFirestore();
+    const { toast } = useToast();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const memberDocRef = useMemo(() => {
         if (!firestore || !user?.phoneNumber) return null;
@@ -42,6 +46,50 @@ export default function ProfilePage() {
         const auth = getAuth();
         await signOut(auth);
         router.push('/');
+    };
+
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !memberDocRef) return;
+
+        // Limit size to ~500KB for Firestore string field safety
+        if (file.size > 512000) {
+            toast({
+                variant: "destructive",
+                title: "Imagine prea mare",
+                description: "Vă rugăm să alegeți o imagine sub 500KB.",
+            });
+            return;
+        }
+
+        setIsUploading(true);
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64String = reader.result as string;
+            const updateData = { photoURL: base64String };
+            
+            try {
+                await updateDoc(memberDocRef, updateData);
+                toast({
+                    title: "Profil actualizat",
+                    description: "Poza de profil a fost salvată cu succes.",
+                });
+            } catch (error) {
+                const permissionError = new FirestorePermissionError({
+                    path: memberDocRef.path,
+                    operation: 'update',
+                    requestResourceData: updateData
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            } finally {
+                setIsUploading(false);
+            }
+        };
+        reader.readAsDataURL(file);
     };
 
     const loading = isUserLoading || memberLoading;
@@ -76,12 +124,28 @@ export default function ProfilePage() {
             
             <Card className="glass rounded-3xl border-0 overflow-hidden shadow-2xl">
                 <CardHeader className="items-center text-center pb-2 bg-foreground/5 pt-8">
-                    <Avatar className="w-24 h-24 border-4 border-primary/20 shadow-xl">
-                        <AvatarImage src={displayPhotoUrl || ''} alt={displayName || ''} />
-                        <AvatarFallback className="text-3xl bg-muted font-headline">
-                            {displayName?.charAt(0) || displayEmail?.charAt(0) || 'T'}
-                        </AvatarFallback>
-                    </Avatar>
+                    <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+                        <Avatar className="w-24 h-24 border-4 border-primary/20 shadow-xl transition-all duration-300 group-hover:border-primary">
+                            <AvatarImage src={displayPhotoUrl || ''} alt={displayName || ''} className="object-cover" />
+                            <AvatarFallback className="text-3xl bg-muted font-headline">
+                                {displayName?.charAt(0) || displayEmail?.charAt(0) || 'T'}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            {isUploading ? (
+                                <Loader2 className="w-8 h-8 text-white animate-spin" />
+                            ) : (
+                                <Camera className="w-8 h-8 text-white" />
+                            )}
+                        </div>
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleFileChange} 
+                            accept="image/*" 
+                            className="hidden" 
+                        />
+                    </div>
                     <div className="pt-4 space-y-1">
                         <CardTitle className="text-3xl font-headline tracking-wide">{displayName}</CardTitle>
                         <CardDescription className="font-medium text-primary/80">{displayPhone}</CardDescription>
