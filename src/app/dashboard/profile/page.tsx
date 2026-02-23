@@ -145,7 +145,7 @@ export default function ProfilePage() {
         <motion.div 
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="max-w-md mx-auto space-y-3 pb-4"
+            className="max-w-md mx-auto space-y-4 pb-4"
         >
             <Button asChild variant="ghost" size="sm" className="w-fit">
                 <Link href="/dashboard">
@@ -155,19 +155,19 @@ export default function ProfilePage() {
             </Button>
             
             <Card className="glass rounded-3xl border-0 overflow-hidden shadow-xl">
-                <CardHeader className="items-center text-center pb-1 bg-foreground/5 pt-4">
+                <CardHeader className="items-center text-center pb-2 bg-foreground/5 pt-6">
                     <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-                        <Avatar className="w-20 h-20 border-3 border-primary/20 shadow-lg transition-all duration-300 group-hover:border-primary">
+                        <Avatar className="w-24 h-24 border-3 border-primary/20 shadow-lg transition-all duration-300 group-hover:border-primary">
                             <AvatarImage src={displayPhotoUrl || ''} alt={displayName || ''} className="object-cover" />
-                            <AvatarFallback className="text-2xl bg-muted font-headline">
+                            <AvatarFallback className="text-3xl bg-muted font-headline">
                                 {displayName?.charAt(0) || 'T'}
                             </AvatarFallback>
                         </Avatar>
                         <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             {isUploading ? (
-                                <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                <Loader2 className="w-8 h-8 text-white animate-spin" />
                             ) : (
-                                <Camera className="w-6 h-6 text-white" />
+                                <Camera className="w-8 h-8 text-white" />
                             )}
                         </div>
                         <input 
@@ -178,43 +178,43 @@ export default function ProfilePage() {
                             className="hidden" 
                         />
                     </div>
-                    <div className="pt-2 space-y-0.5">
-                        <CardTitle className="text-2xl font-headline tracking-wide">{displayName}</CardTitle>
-                        <CardDescription className="text-xs font-medium text-primary/80">{displayPhone}</CardDescription>
+                    <div className="pt-3 space-y-1">
+                        <CardTitle className="text-3xl font-headline tracking-wide">{displayName}</CardTitle>
+                        <CardDescription className="text-sm font-medium text-primary/80">{displayPhone}</CardDescription>
                     </div>
                 </CardHeader>
-                <CardContent className="p-4 space-y-4">
+                <CardContent className="p-5 space-y-5">
                      {currentSubscription ? (
                         <div className="space-y-4">
-                            <div className="space-y-2 text-center bg-primary/10 rounded-xl p-3 border border-primary/10">
-                                <h4 className="text-[9px] font-bold text-primary flex items-center justify-center gap-1.5 uppercase tracking-wider">
-                                    <Award className="h-3 w-3" />
+                            <div className="space-y-2 text-center bg-primary/10 rounded-xl p-4 border border-primary/10">
+                                <h4 className="text-[10px] font-bold text-primary flex items-center justify-center gap-1.5 uppercase tracking-wider">
+                                    <Award className="h-4 w-4" />
                                     Plan Activ
                                 </h4>
-                                <Badge className="text-sm font-semibold py-0.5 px-3 bg-primary text-primary-foreground border-none" variant="default">
+                                <Badge className="text-base font-semibold py-1 px-4 bg-primary text-primary-foreground border-none" variant="default">
                                     {currentSubscription.title}
                                 </Badge>
                             </div>
 
-                            <div className="space-y-2">
-                                <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 border-b border-border/30 pb-1">
-                                    Beneficii
+                            <div className="space-y-3">
+                                <h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70 border-b border-border/30 pb-1.5">
+                                    Beneficii Abonament
                                 </h4>
-                                <ul className="space-y-1.5">
+                                <ul className="space-y-2">
                                     {currentSubscription.benefits.slice(0, 4).map((benefit, i) => (
-                                        <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground/90">
-                                            <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                                                <Check className="h-2.5 w-2.5 text-primary" />
+                                        <li key={i} className="flex items-start gap-3 text-sm text-foreground/90">
+                                            <div className="h-5 w-5 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+                                                <Check className="h-3 w-3 text-primary" />
                                             </div>
-                                            <span className="truncate">{benefit}</span>
+                                            <span>{benefit}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
                         </div>
                     ) : (
-                        <div className="text-center p-4 bg-destructive/10 rounded-xl border border-destructive/10">
-                            <p className="text-xs font-medium text-destructive">Niciun abonament activ.</p>
+                        <div className="text-center p-6 bg-destructive/10 rounded-xl border border-destructive/10">
+                            <p className="text-sm font-medium text-destructive">Niciun abonament activ.</p>
                         </div>
                     )}
                     
@@ -222,30 +222,30 @@ export default function ProfilePage() {
 
                     <Button 
                       variant="destructive" 
-                      className="w-full h-10 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all duration-200 border border-destructive/10 font-bold text-xs" 
+                      className="w-full h-12 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all duration-200 border border-destructive/10 font-bold text-sm" 
                       onClick={handleSignOut}
                     >
                         <LogOut className="mr-2 h-4 w-4" />
-                        Deconectare
+                        Deconectare Cont
                     </Button>
                 </CardContent>
             </Card>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
                 <Link href="/dashboard">
-                    <div className="glass p-3 rounded-2xl flex flex-col items-center justify-center gap-2 h-24 transition-all duration-200 hover:border-primary/40 active:scale-[0.96] group">
-                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                            <Home className="h-5 w-5 text-primary" />
+                    <div className="glass p-4 rounded-[2rem] flex flex-col items-center justify-center gap-3 h-28 transition-all duration-200 hover:border-primary/40 active:scale-[0.96] group shadow-lg">
+                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Home className="h-6 w-6 text-primary" />
                         </div>
-                        <span className="text-[10px] font-headline tracking-widest uppercase">Acasa</span>
+                        <span className="text-xs font-headline tracking-widest uppercase">Acasa</span>
                     </div>
                 </Link>
                 <Link href="/dashboard/shop">
-                    <div className="glass p-3 rounded-2xl flex flex-col items-center justify-center gap-2 h-24 transition-all duration-200 hover:border-primary/40 active:scale-[0.96] group">
-                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                            <ShoppingBag className="h-5 w-5 text-primary" />
+                    <div className="glass p-4 rounded-[2rem] flex flex-col items-center justify-center gap-3 h-28 transition-all duration-200 hover:border-primary/40 active:scale-[0.96] group shadow-lg">
+                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <ShoppingBag className="h-6 w-6 text-primary" />
                         </div>
-                        <span className="text-[10px] font-headline tracking-widest uppercase">Shop & Stoc</span>
+                        <span className="text-xs font-headline tracking-widest uppercase">Shop & Stoc</span>
                     </div>
                 </Link>
             </div>
