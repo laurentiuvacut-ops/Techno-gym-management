@@ -155,7 +155,7 @@ export default function DashboardHomePage() {
             </div>
           </div>
           
-          <div className="text-center my-4">
+          <div className="text-center my-2 md:my-4">
             {!subscriptionInfo.isSet || memberLoading ? (
               <Skeleton className="h-20 w-32 mx-auto rounded-2xl" />
             ) : (
@@ -163,14 +163,14 @@ export default function DashboardHomePage() {
                 <p className="text-8xl md:text-9xl font-headline text-gradient leading-none select-none tracking-tighter">
                   {subscriptionInfo.daysForDisplay}
                 </p>
-                <div className="mt-2">
+                <div className="mt-1 md:mt-2">
                   <p className="font-bold tracking-[0.3em] text-[10px] uppercase">Zile Rămase</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5" suppressHydrationWarning>Expiră: {subscriptionInfo.expirationDateDisplay}</p>
                 </div>
               </div>
             )}
           </div>
-          <div/>
+          <div className="h-4" />
         </div>
 
         <div className="p-6 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4 min-h-[240px] md:min-h-[280px]">
@@ -207,27 +207,27 @@ export default function DashboardHomePage() {
 
       <div className="grid grid-cols-2 gap-4 md:gap-6">
         <Link href="/dashboard/shop">
-          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[120px]">
+          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[140px] md:min-h-[160px]">
             <div className="space-y-0.5">
               <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Shop &amp; Stoc</h3>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Vezi stocul</p>
             </div>
             <div className="flex justify-end">
-              <div className="w-8 h-8 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">
-                <ArrowRight className="w-4 h-4" />
+              <div className="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">
+                <ArrowRight className="w-5 h-5" />
               </div>
             </div>
           </div>
         </Link>
         <Link href="/dashboard/plans">
-          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[120px]">
+          <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[140px] md:min-h-[160px]">
             <div className="space-y-0.5">
               <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Abonamente</h3>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Planuri noi</p>
             </div>
             <div className="flex justify-end">
-              <div className="w-8 h-8 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">
-                <ArrowRight className="w-4 h-4" />
+              <div className="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">
+                <ArrowRight className="w-5 h-5" />
               </div>
             </div>
           </div>
