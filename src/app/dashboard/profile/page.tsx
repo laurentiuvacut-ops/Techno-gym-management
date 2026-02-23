@@ -1,14 +1,13 @@
 'use client';
 
 import { useUser, useFirestore, useDoc, errorEmitter, FirestorePermissionError } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getAuth, signOut } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
-import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Award, LogOut, Check, Home, ShoppingBag, Camera, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
-    const { user, isUserLoading } = useUser();
+    const { user } = useUser();
     const router = useRouter();
     const firestore = useFirestore();
     const { toast } = useToast();
@@ -35,12 +34,6 @@ export default function ProfilePage() {
         if (!memberData || !memberData.subscriptionType) return null;
         return subscriptions.find(sub => sub.title === memberData.subscriptionType);
     }, [memberData]);
-
-    useEffect(() => {
-        if (!isUserLoading && !user) {
-            router.push('/login');
-        }
-    }, [user, isUserLoading, router]);
     
     const handleSignOut = async () => {
         const auth = getAuth();
@@ -125,16 +118,6 @@ export default function ProfilePage() {
         reader.readAsDataURL(file);
     };
 
-    const loading = isUserLoading || memberLoading;
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-[70vh]">
-                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
     if (!user || (!memberLoading && !memberData)) return null;
 
     const displayName = memberData?.name || user.displayName;
@@ -142,11 +125,7 @@ export default function ProfilePage() {
     const displayPhotoUrl = memberData?.photoURL || user.photoURL;
 
     return (
-        <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-md mx-auto space-y-4 pb-4"
-        >
+        <div className="max-w-md mx-auto space-y-4 pb-4">
             <Button asChild variant="ghost" size="sm" className="w-fit">
                 <Link href="/dashboard">
                     <ArrowLeft className="mr-2 h-4 w-4" />
@@ -249,6 +228,6 @@ export default function ProfilePage() {
                     </div>
                 </Link>
             </div>
-        </motion.div>
+        </div>
     );
 }

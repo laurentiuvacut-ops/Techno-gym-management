@@ -3,8 +3,9 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import DashboardSidebar from '@/components/layout/dashboard-sidebar';
 import DashboardHeader from '@/components/layout/dashboard-header';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useUser } from '@/firebase';
 
 export default function DashboardLayout({
   children,
@@ -12,11 +13,30 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isUserLoading } = useUser();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Centralized Auth Guard to prevent flickering in sub-pages
+  useEffect(() => {
+    if (!isUserLoading && !user && mounted) {
+      router.replace('/login');
+    }
+  }, [user, isUserLoading, router, mounted]);
+
+  if (isUserLoading || !mounted) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -24,21 +44,19 @@ export default function DashboardLayout({
         <DashboardSidebar />
         <div className="flex flex-1 flex-col h-screen overflow-hidden">
           <DashboardHeader />
-          <main className="flex-1 overflow-y-auto relative outline-none overscroll-contain">
-            {mounted && (
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={pathname}
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -5 }}
-                  transition={{ duration: 0.2, ease: "easeInOut" }}
-                  className="w-full px-4 md:px-8 py-4 md:py-6 mx-auto selectable-text"
-                >
-                  {children}
-                </motion.div>
-              </AnimatePresence>
-            )}
+          <main className="flex-1 overflow-y-auto relative outline-none overscroll-contain scroll-smooth">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 2 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -2 }}
+                transition={{ duration: 0.15, ease: "linear" }}
+                className="w-full px-4 md:px-8 py-4 md:py-6 mx-auto selectable-text"
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </main>
         </div>
       </div>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import { doc } from "firebase/firestore";
 import { ArrowRight, Clock } from 'lucide-react';
@@ -15,22 +14,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
 export default function DashboardHomePage() {
-  const { user, isUserLoading } = useUser();
-  const router = useRouter();
+  const { user } = useUser();
   const firestore = useFirestore();
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isUserLoading && !user && mounted) {
-      router.replace('/login');
-    }
-  }, [user, isUserLoading, router, mounted]);
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user?.phoneNumber) return null;
@@ -98,19 +85,11 @@ export default function DashboardHomePage() {
     }
   }, [memberData]);
 
-  if (isUserLoading || !mounted) {
-    return (
-      <div className="flex items-center justify-center h-[70vh]">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
   if (!user) return null;
   
   if (!memberLoading && !memberData) {
     return (
-        <div className="flex flex-col items-center justify-center h-[70vh] text-center p-6">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
             <h1 className="text-2xl font-headline mb-2">Finalizează-ți contul</h1>
             <p className="text-muted-foreground mb-6 max-w-sm">Profilul tău de membru nu a fost găsit. Te rugăm să completezi înregistrarea pentru a accesa panoul de control.</p>
             <Button asChild size="lg">
@@ -127,11 +106,7 @@ export default function DashboardHomePage() {
   return (
     <>
     <PwaInstallInstructions open={showInstallInstructions} onOpenChange={setShowInstallInstructions} />
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-4 md:space-y-6 pb-6"
-    >
+    <div className="space-y-4 md:space-y-6 pb-6">
       <div className="flex justify-between items-center flex-wrap gap-2">
         <h1 className="text-3xl md:text-5xl font-headline tracking-wider">Salut, {displayName}!</h1>
       </div>
@@ -157,7 +132,10 @@ export default function DashboardHomePage() {
           
           <div className="text-center my-2 md:my-4">
             {!subscriptionInfo.isSet || memberLoading ? (
-              <Skeleton className="h-20 w-32 mx-auto rounded-2xl" />
+              <div className="flex flex-col items-center gap-2">
+                <Skeleton className="h-24 w-32 mx-auto rounded-2xl" />
+                <Skeleton className="h-4 w-24 mx-auto" />
+              </div>
             ) : (
               <div className="flex flex-col items-center">
                 <p className="text-8xl md:text-9xl font-headline text-gradient leading-none select-none tracking-tighter">
@@ -233,7 +211,7 @@ export default function DashboardHomePage() {
           </div>
         </Link>
       </div>
-    </motion.div>
+    </div>
     </>
   );
 }
