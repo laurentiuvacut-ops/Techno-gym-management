@@ -209,7 +209,7 @@ export default function DashboardHomePage() {
         <Link href="/dashboard/shop">
           <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[140px] md:min-h-[160px]">
             <div className="space-y-0.5">
-              <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Shop &amp; Stoc</h3>
+              <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Shop & Stoc</h3>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Vezi stocul</p>
             </div>
             <div className="flex justify-end">
