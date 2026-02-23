@@ -1,4 +1,3 @@
-
 'use client';
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,7 @@ function PlansComponent() {
   }, []);
 
   const paymentProcessedRef = useRef(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(true);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const memberDocRef = useMemo(() => {
     if (!firestore || !user?.phoneNumber) return null;
@@ -57,7 +56,6 @@ function PlansComponent() {
     const pendingPlanId = sessionStorage.getItem('payment_processing_plan_id');
 
     if (!pendingPlanId) {
-      setIsProcessingPayment(false);
       return;
     }
     
@@ -66,11 +64,11 @@ function PlansComponent() {
     }
     
     if (paymentProcessedRef.current) {
-      setIsProcessingPayment(false);
       return;
     }
 
     paymentProcessedRef.current = true;
+    setIsProcessingPayment(true);
     
     const processPaymentUpdate = async () => {
       const purchasedPlan = subscriptions.find(s => s.id === pendingPlanId);
@@ -139,13 +137,6 @@ function PlansComponent() {
     processPaymentUpdate();
   }, [searchParams, user, isUserLoading, memberLoading, memberData, memberDocRef, firestore, toast, router]);
 
-
-  useEffect(() => {
-    if (!isUserLoading && !user && mounted) {
-      router.push('/login');
-    }
-  }, [user, isUserLoading, router, mounted]);
-
   const handlePurchase = async (plan: any) => {
     setCheckoutUrl(null);
     if (!user?.phoneNumber) {
@@ -189,39 +180,37 @@ function PlansComponent() {
     }
   };
   
-  const loading = isUserLoading || memberLoading || isProcessingPayment || !mounted;
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full gap-4">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-muted-foreground">Se procesează...</p>
-      </div>
-    );
-  }
-
-  if (!user) return null;
+  if (!user || !mounted) return null;
   
   const currentPlanId = currentSubscription?.id;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.3 }}
       className="space-y-8"
     >
-      <Button asChild variant="outline" className="w-fit">
-          <Link href="/dashboard">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Înapoi la Panou
-          </Link>
-      </Button>
+      <div className="flex flex-col gap-6">
+        <Button asChild variant="outline" className="w-fit">
+            <Link href="/dashboard">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Înapoi la Panou
+            </Link>
+        </Button>
 
-      <div className="space-y-1 text-center">
-        <h1 className="text-4xl font-headline tracking-wider">Abonamente</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">Alege planul care ți se potrivește.</p>
+        <div className="space-y-1 text-center">
+            <h1 className="text-4xl font-headline tracking-wider">Abonamente</h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto">Alege planul care ți se potrivește.</p>
+        </div>
       </div>
+
+      {isProcessingPayment && (
+          <div className="flex items-center justify-center p-8 glass rounded-3xl gap-3">
+              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-sm font-medium">Se actualizează abonamentul...</p>
+          </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {subscriptions.map((plan) => {
@@ -307,9 +296,7 @@ function PlansComponent() {
 
 export default function PlansPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-full">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>}>
+    <Suspense fallback={null}>
       <PlansComponent />
     </Suspense>
   )

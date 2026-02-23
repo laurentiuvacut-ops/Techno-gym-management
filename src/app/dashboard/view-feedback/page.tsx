@@ -1,9 +1,7 @@
-
 'use client';
 
 import { useUser, useFirestore, useCollection } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -13,6 +11,7 @@ import { ro } from 'date-fns/locale';
 import { ArrowLeft, Inbox } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Feedback = {
   id: string;
@@ -22,20 +21,13 @@ type Feedback = {
 };
 
 export default function ViewFeedbackPage() {
-  const { user, isUserLoading } = useUser();
-  const router = useRouter();
+  const { user } = useUser();
   const firestore = useFirestore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (!isUserLoading && !user && mounted) {
-      router.push('/login');
-    }
-  }, [user, isUserLoading, router, mounted]);
 
   const feedbackQuery = useMemo(() => {
     if (!firestore) return null;
@@ -44,21 +36,13 @@ export default function ViewFeedbackPage() {
 
   const { data: feedbackData, isLoading: feedbackLoading } = useCollection<Feedback>(feedbackQuery);
 
-  if (isUserLoading || feedbackLoading || !mounted) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (!user) return null;
+  if (!user || !mounted) return null;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.3 }}
       className="max-w-4xl mx-auto space-y-8"
     >
       <Button asChild variant="outline" className="w-fit">
@@ -76,7 +60,13 @@ export default function ViewFeedbackPage() {
         <p className="text-muted-foreground">Recenziile lăsate de membri.</p>
       </div>
 
-      {feedbackData && feedbackData.length > 0 ? (
+      {feedbackLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[1, 2, 3, 4].map(i => (
+                <Skeleton key={i} className="h-40 w-full rounded-2xl glass" />
+            ))}
+        </div>
+      ) : feedbackData && feedbackData.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {feedbackData.map((feedback, index) => (
             <motion.div

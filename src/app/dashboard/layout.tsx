@@ -21,14 +21,15 @@ export default function DashboardLayout({
     setMounted(true);
   }, []);
 
-  // Centralized Auth Guard to prevent flickering in sub-pages
+  // Centralized Auth Guard - Redirect only if we ARE NOT loading and user is missing
   useEffect(() => {
     if (!isUserLoading && !user && mounted) {
       router.replace('/login');
     }
   }, [user, isUserLoading, router, mounted]);
 
-  if (isUserLoading || !mounted) {
+  // Show a SINGLE global spinner only on the very first load of the app
+  if (isUserLoading && !user) {
     return (
       <div className="flex items-center justify-center h-screen bg-background">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -36,7 +37,8 @@ export default function DashboardLayout({
     );
   }
 
-  if (!user) return null;
+  // If we are not loading and have no user, don't render anything (redirect will happen)
+  if (!isUserLoading && !user) return null;
 
   return (
     <SidebarProvider defaultOpen={true}>

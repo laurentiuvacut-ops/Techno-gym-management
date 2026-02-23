@@ -4,37 +4,21 @@ import { trainers } from "@/lib/data";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useUser } from '@/firebase';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Users, ArrowLeft } from 'lucide-react';
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
-
 export default function TrainersPage() {
-  const { user, isUserLoading } = useUser();
-  const router = useRouter();
+  const { user } = useUser();
 
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, isUserLoading, router]);
-
-  if (isUserLoading || !user) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  if (!user) return null;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.3 }}
       className="space-y-8"
     >
         <Button asChild variant="outline" className="w-fit">
@@ -55,8 +39,8 @@ export default function TrainersPage() {
         {trainers.map((trainer, index) => (
           <motion.div
             key={trainer.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
           >
             <a href={trainer.instagramUrl} target="_blank" rel="noopener noreferrer" className="group">
