@@ -20,7 +20,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
+import { useMemo } from 'react';
+import { doc } from 'firebase/firestore';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -37,6 +39,7 @@ const mainNavItems = [
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useUser();
+  const firestore = useFirestore();
   const { setOpenMobile, isMobile } = useSidebar();
 
   const handleLinkClick = () => {
@@ -44,6 +47,16 @@ export default function DashboardSidebar() {
       setOpenMobile(false);
     }
   };
+
+  const memberDocRef = useMemo(() => {
+    if (!firestore || !user?.phoneNumber) return null;
+    return doc(firestore, 'members', user.phoneNumber);
+  }, [firestore, user]);
+
+  const { data: memberData } = useDoc(memberDocRef);
+
+  const displayPhotoUrl = memberData?.photoURL || user?.photoURL || '';
+  const displayName = memberData?.name || user?.displayName || 'Membru';
 
   return (
     <Sidebar collapsible="icon">
@@ -94,13 +107,13 @@ export default function DashboardSidebar() {
         {user && (
           <Link href="/dashboard/profile" onClick={handleLinkClick} className="flex items-center gap-3">
               <Avatar className="h-10 w-10 shrink-0">
-                <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ''} />
+                <AvatarImage src={displayPhotoUrl} alt={displayName} className="object-cover" />
                 <AvatarFallback className="font-medium bg-gradient-to-br from-cyan-400 to-cyan-600 text-white">
-                  {user.displayName?.charAt(0) || user.email?.charAt(0) || 'M'}
+                  {displayName.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="overflow-hidden">
-                <p className="font-medium text-white truncate">{user.displayName || 'Membru'}</p>
+                <p className="font-medium text-white truncate">{displayName}</p>
                 <p className="text-xs text-gray-400">Membru Premium</p>
               </div>
           </Link>

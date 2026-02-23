@@ -3,18 +3,30 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '../ui/button';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
+import { useMemo, useState, useEffect } from 'react';
+import { doc } from 'firebase/firestore';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
 
 export default function Header() {
-  const { user, loading } = useUser();
+  const { user, isUserLoading: loading } = useUser();
+  const firestore = useFirestore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const memberDocRef = useMemo(() => {
+    if (!firestore || !user?.phoneNumber) return null;
+    return doc(firestore, 'members', user.phoneNumber);
+  }, [firestore, user]);
+
+  const { data: memberData } = useDoc(memberDocRef);
+
+  const displayPhotoUrl = memberData?.photoURL || user?.photoURL || '';
+  const displayName = memberData?.name || user?.displayName || 'U';
 
   return (
     <header className={cn(
@@ -41,8 +53,8 @@ export default function Header() {
         ) : user ? (
             <Link href="/dashboard/profile">
               <Avatar className='h-9 w-9'>
-                <AvatarImage src={user.photoURL || ''} alt={user.displayName || ''} />
-                <AvatarFallback>{user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'}</AvatarFallback>
+                <AvatarImage src={displayPhotoUrl} alt={displayName} className="object-cover" />
+                <AvatarFallback>{displayName.charAt(0)}</AvatarFallback>
               </Avatar>
             </Link>
         ) : (
