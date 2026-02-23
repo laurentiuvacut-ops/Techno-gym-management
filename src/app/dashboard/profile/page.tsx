@@ -52,43 +52,78 @@ export default function ProfilePage() {
         fileInputRef.current?.click();
     };
 
+    const resizeImage = (dataUrl: string): Promise<string> => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const MAX_SIZE = 400; // Dimensiune optimă pentru avatar
+
+                if (width > height) {
+                    if (width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    }
+                } else {
+                    if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0, width, height);
+                // Compresie la 0.7 pentru a fi sub limita Firestore dar vizibilă clar
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.src = dataUrl;
+        });
+    };
+
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !memberDocRef) return;
 
-        // Limit size to ~500KB for Firestore string field safety
-        if (file.size > 512000) {
-            toast({
-                variant: "destructive",
-                title: "Imagine prea mare",
-                description: "Vă rugăm să alegeți o imagine sub 500KB.",
-            });
-            return;
-        }
-
         setIsUploading(true);
         const reader = new FileReader();
+        
         reader.onloadend = async () => {
-            const base64String = reader.result as string;
-            const updateData = { photoURL: base64String };
-            
             try {
+                const base64Original = reader.result as string;
+                // Redimensionăm poza indiferent de mărimea originală
+                const compressedBase64 = await resizeImage(base64Original);
+                
+                const updateData = { photoURL: compressedBase64 };
                 await updateDoc(memberDocRef, updateData);
+                
                 toast({
                     title: "Profil actualizat",
                     description: "Poza de profil a fost salvată cu succes.",
                 });
             } catch (error) {
+                console.error("Error updating profile photo:", error);
                 const permissionError = new FirestorePermissionError({
                     path: memberDocRef.path,
                     operation: 'update',
-                    requestResourceData: updateData
+                    requestResourceData: { photoURL: 'base64_data' }
                 });
                 errorEmitter.emit('permission-error', permissionError);
+                
+                toast({
+                    variant: "destructive",
+                    title: "Eroare",
+                    description: "Nu am putut salva poza. Încercați din nou.",
+                });
             } finally {
                 setIsUploading(false);
+                if (fileInputRef.current) fileInputRef.current.value = '';
             }
         };
+        
         reader.readAsDataURL(file);
     };
 
