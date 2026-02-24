@@ -42,7 +42,7 @@ export default function ViewFeedbackTab() {
         variant="ghost" 
         size="sm" 
         onClick={() => setActiveTab('home')}
-        className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
+        className="text-white hover:text-primary gap-2 h-9 px-4 border border-white/10 bg-white/5 hover:bg-white/10 rounded-xl transition-all"
       >
         <ArrowLeft className="w-4 h-4" />
         Acasa
