@@ -67,32 +67,18 @@ export default function LoginPage() {
             
              if (err.code === 'auth/requests-from-referer' || err.code === 'auth/app-not-authorized' || err.message?.includes('-39')) {
                  setError(
-                    <Alert variant="destructive">
-                        <AlertTitle>Eroare de Configurare: Domeniu Neautorizat (-39)</AlertTitle>
-                        <AlertDescription>
-                            <div className="space-y-2 text-sm">
-                                <p>Firebase a blocat cererea deoarece acest domeniu nu este autorizat în Consola Firebase.</p>
-                                <ol className="list-decimal list-inside space-y-1 pl-2">
-                                    <li>Intrați în <strong>Consola Firebase</strong> &rarr; <strong>Authentication</strong> &rarr; <strong>Settings</strong>.</li>
-                                    <li>La tab-ul <strong>Authorized domains</strong>, adăugați domeniul curent (<code>{typeof window !== 'undefined' ? window.location.hostname : '...'}</code>).</li>
-                                    <li>Dacă domeniul este deja acolo, asigurați-vă că <strong>Cheia API</strong> din Consola Google Cloud are permisiuni pentru reCAPTCHA Enterprise.</li>
-                                </ol>
-                                <p className="font-medium pt-2 italic">Această eroare este tehnică și ține de setările proiectului Firebase, nu de codul aplicației.</p>
-                            </div>
+                    <Alert variant="destructive" className="border-primary/50 bg-primary/5">
+                        <AlertTitle className="text-primary font-bold">Eroare Tehnică de Autorizare (-39)</AlertTitle>
+                        <AlertDescription className="text-xs space-y-2 mt-2">
+                            <p>Această eroare NU este legată de abonament. Ea apare deoarece browserul/domeniul nu este autorizat în Consola Firebase.</p>
+                            <p><strong>Soluție pentru Admin:</strong> Adăugați <code>{typeof window !== 'undefined' ? window.location.hostname : 'domeniul curent'}</code> în Firebase Console &rarr; Auth &rarr; Settings &rarr; Authorized domains.</p>
                         </AlertDescription>
                     </Alert>
                  );
             } else if (err.code === 'auth/invalid-phone-number') {
                 setError("Numărul de telefon introdus nu este valid.");
             } else if (err.code === 'auth/too-many-requests') {
-                 setError(
-                    <Alert variant="destructive">
-                        <AlertTitle>Prea multe încercări</AlertTitle>
-                        <AlertDescription>
-                            <p className="text-sm">Solicitările au fost blocate temporar. Vă rugăm să așteptați câteva minute sau să folosiți un număr de test configurat în consola Firebase.</p>
-                        </AlertDescription>
-                    </Alert>
-                 );
+                 setError("Prea multe încercări. Vă rugăm să așteptați câteva minute.");
             } else {
                 setError(`Eroare: ${err.message || 'A apărut o eroare neașteptată.'}`);
             }
@@ -134,17 +120,17 @@ export default function LoginPage() {
 
     if (loading || user) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
+            <div className="flex items-center justify-center min-h-screen bg-background">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
     
     return (
-        <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="flex items-center justify-center min-h-[80vh] bg-background">
              <div id="recaptcha-container" />
              
-            <Card className="w-full max-w-sm glass rounded-3xl">
+            <Card className="w-full max-w-sm glass rounded-3xl border-border/30">
                 <CardHeader>
                     <div className="flex justify-center mb-4">
                         <Link href="/" className="flex items-center gap-2">
@@ -161,14 +147,14 @@ export default function LoginPage() {
                     </div>
                     {step === 'phone' ? (
                         <>
-                            <CardTitle className="text-2xl text-center">Intră în Cont</CardTitle>
+                            <CardTitle className="text-2xl text-center font-headline uppercase tracking-wider">Intră în Cont</CardTitle>
                             <CardDescription className="text-center">
                                 Introdu numărul de telefon pentru a primi un cod de verificare.
                             </CardDescription>
                         </>
                     ) : (
                         <>
-                            <CardTitle className="text-2xl text-center">Verifică Codul</CardTitle>
+                            <CardTitle className="text-2xl text-center font-headline uppercase tracking-wider">Verifică Codul</CardTitle>
                             <CardDescription className="text-center">
                                 Am trimis un cod de 6 cifre la numărul tău de telefon.
                             </CardDescription>
@@ -178,10 +164,10 @@ export default function LoginPage() {
                 {step === 'phone' ? (
                     <CardContent>
                         <form onSubmit={handleSendCode} className="space-y-4">
-                            <div>
+                            <div className="space-y-2">
                                 <Label htmlFor="phone">Număr de Telefon</Label>
                                 <div className="flex items-center">
-                                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-background text-sm text-muted-foreground">+40</span>
+                                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted/20 text-sm text-muted-foreground">+40</span>
                                     <Input
                                         id="phone"
                                         type="tel"
@@ -194,18 +180,17 @@ export default function LoginPage() {
                                 </div>
                             </div>
                             {error && (
-                                <div className="mt-4">
+                                <div className="mt-2">
                                     {typeof error === 'string' ? (
-                                        <Alert variant="destructive">
-                                            <AlertTitle>Eroare</AlertTitle>
-                                            <AlertDescription>{error}</AlertDescription>
+                                        <Alert variant="destructive" className="py-2">
+                                            <AlertDescription className="text-xs">{error}</AlertDescription>
                                         </Alert>
                                     ) : (
                                         error
                                     )}
                                 </div>
                             )}
-                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground" disabled={isSubmitting}>
+                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold" disabled={isSubmitting}>
                                 {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
                             </Button>
                         </form>
@@ -213,7 +198,7 @@ export default function LoginPage() {
                 ) : (
                     <CardContent>
                         <form onSubmit={handleVerifyCode} className="space-y-4">
-                            <div>
+                            <div className="space-y-2">
                                 <Label htmlFor="otp">Cod de Verificare</Label>
                                 <Input
                                     id="otp"
@@ -222,24 +207,24 @@ export default function LoginPage() {
                                     placeholder="123456"
                                     required
                                     maxLength={6}
+                                    className="text-center tracking-[0.5em] text-lg font-bold"
                                 />
                             </div>
                              {error && (
-                                <div className="mt-4">
+                                <div className="mt-2">
                                     {typeof error === 'string' ? (
-                                        <Alert variant="destructive">
-                                            <AlertTitle>Eroare</AlertTitle>
-                                            <AlertDescription>{error}</AlertDescription>
+                                        <Alert variant="destructive" className="py-2">
+                                            <AlertDescription className="text-xs">{error}</AlertDescription>
                                         </Alert>
                                     ) : (
                                         error
                                     )}
                                 </div>
                             )}
-                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground" disabled={isSubmitting}>
+                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold" disabled={isSubmitting}>
                                 {isSubmitting ? 'Se verifică...' : 'Verifică'}
                             </Button>
-                            <Button variant="link" onClick={() => { setStep('phone'); setError(null); setConfirmationResult(null); }} className="w-full">
+                            <Button variant="link" onClick={() => { setStep('phone'); setError(null); setConfirmationResult(null); }} className="w-full text-muted-foreground text-xs">
                                 Folosește alt număr de telefon
                             </Button>
                         </form>
