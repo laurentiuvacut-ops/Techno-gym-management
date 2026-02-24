@@ -44,13 +44,17 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         try {
+            // Curățăm orice verifier existent pentru a evita erorile de re-inițializare
             if (window.recaptchaVerifier) {
                 window.recaptchaVerifier.clear();
+                delete window.recaptchaVerifier;
             }
             
             const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'invisible',
-                'callback': () => {},
+                'callback': () => {
+                    // reCAPTCHA solved
+                },
                 'expired-callback': () => {
                    setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
                 }
@@ -65,13 +69,15 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error('Login Error:', err);
             
-             if (err.code === 'auth/requests-from-referer' || err.code === 'auth/app-not-authorized' || err.message?.includes('-39')) {
+            // Eroarea -39 sau app-not-authorized indică un domeniu care nu este în Authorized Domains în Firebase
+            if (err.code === 'auth/requests-from-referer' || err.code === 'auth/app-not-authorized' || err.message?.includes('-39')) {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
-                        <AlertTitle className="text-primary font-bold">Eroare Tehnică de Autorizare (-39)</AlertTitle>
+                        <AlertTitle className="text-primary font-bold">Eroare de Autorizare (-39)</AlertTitle>
                         <AlertDescription className="text-xs space-y-2 mt-2">
-                            <p>Această eroare NU este legată de abonament. Ea apare deoarece browserul/domeniul nu este autorizat în Consola Firebase.</p>
-                            <p><strong>Soluție pentru Admin:</strong> Adăugați <code>{typeof window !== 'undefined' ? window.location.hostname : 'domeniul curent'}</code> în Firebase Console &rarr; Auth &rarr; Settings &rarr; Authorized domains.</p>
+                            <p>Această eroare apare deoarece domeniul curent nu este autorizat în Firebase.</p>
+                            <p><strong>Soluție Admin:</strong> Accesați Firebase Console &rarr; Authentication &rarr; Settings &rarr; Authorized domains și adăugați: <code>{typeof window !== 'undefined' ? window.location.hostname : 'domeniul dvs.'}</code></p>
+                            <p className="mt-2 text-[10px] opacity-70">Notă: Nu are legătură cu abonamentul utilizatorului.</p>
                         </AlertDescription>
                     </Alert>
                  );
@@ -93,7 +99,8 @@ export default function LoginPage() {
         setIsSubmitting(true);
         
         if (!confirmationResult) {
-            setError("A apărut o eroare de sesiune. Vă rugăm să reîncercați de la început.");
+            setError("Sesiunea a expirat. Vă rugăm să reîncepeți procesul.");
+            setStep('phone');
             setIsSubmitting(false);
             return;
         }
@@ -108,6 +115,7 @@ export default function LoginPage() {
                 router.push('/dashboard');
             }
         } catch (err: any) {
+            console.error('Verify Error:', err);
             if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {
                 setError('Codul introdus este invalid sau a expirat.');
             } else {
@@ -127,12 +135,13 @@ export default function LoginPage() {
     }
     
     return (
-        <div className="flex items-center justify-center min-h-[80vh] bg-background">
+        <div className="flex items-center justify-center min-h-[80vh] bg-background p-4">
+             {/* Container ascuns pentru reCAPTCHA */}
              <div id="recaptcha-container" />
              
-            <Card className="w-full max-w-sm glass rounded-3xl border-border/30">
-                <CardHeader>
-                    <div className="flex justify-center mb-4">
+            <Card className="w-full max-w-sm glass rounded-3xl border-border/30 overflow-hidden">
+                <CardHeader className="pb-4">
+                    <div className="flex justify-center mb-6">
                         <Link href="/" className="flex items-center gap-2">
                            <div className="relative w-10 h-10">
                             <Image 
@@ -147,85 +156,95 @@ export default function LoginPage() {
                     </div>
                     {step === 'phone' ? (
                         <>
-                            <CardTitle className="text-2xl text-center font-headline uppercase tracking-wider">Intră în Cont</CardTitle>
-                            <CardDescription className="text-center">
-                                Introdu numărul de telefon pentru a primi un cod de verificare.
+                            <CardTitle className="text-2xl text-center font-headline uppercase tracking-wider">Bun venit</CardTitle>
+                            <CardDescription className="text-center text-xs">
+                                Introdu numărul de telefon pentru a primi codul de acces.
                             </CardDescription>
                         </>
                     ) : (
                         <>
-                            <CardTitle className="text-2xl text-center font-headline uppercase tracking-wider">Verifică Codul</CardTitle>
-                            <CardDescription className="text-center">
-                                Am trimis un cod de 6 cifre la numărul tău de telefon.
+                            <CardTitle className="text-2xl text-center font-headline uppercase tracking-wider">Verificare</CardTitle>
+                            <CardDescription className="text-center text-xs">
+                                Am trimis un cod prin SMS la numărul tău.
                             </CardDescription>
                         </>
                     )}
                 </CardHeader>
                 {step === 'phone' ? (
-                    <CardContent>
+                    <CardContent className="space-y-4">
                         <form onSubmit={handleSendCode} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="phone">Număr de Telefon</Label>
+                                <Label htmlFor="phone" className="text-xs uppercase tracking-widest opacity-70">Telefon</Label>
                                 <div className="flex items-center">
-                                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted/20 text-sm text-muted-foreground">+40</span>
+                                    <span className="inline-flex items-center px-3 h-10 rounded-l-xl border border-r-0 border-input bg-muted/20 text-sm text-muted-foreground font-bold">+40</span>
                                     <Input
                                         id="phone"
                                         type="tel"
                                         value={phoneNumber}
                                         onChange={(e) => setPhoneNumber(e.target.value)}
-                                        placeholder="712 345 678"
+                                        placeholder="7xx xxx xxx"
                                         required
-                                        className="rounded-l-none"
+                                        className="rounded-l-none rounded-r-xl h-10 bg-background/50"
                                     />
                                 </div>
                             </div>
                             {error && (
-                                <div className="mt-2">
+                                <div className="animate-in fade-in slide-in-from-top-1 duration-200">
                                     {typeof error === 'string' ? (
-                                        <Alert variant="destructive" className="py-2">
-                                            <AlertDescription className="text-xs">{error}</AlertDescription>
+                                        <Alert variant="destructive" className="py-2 border-destructive/20 bg-destructive/5">
+                                            <AlertDescription className="text-[11px] leading-tight">{error}</AlertDescription>
                                         </Alert>
                                     ) : (
                                         error
                                     )}
                                 </div>
                             )}
-                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold" disabled={isSubmitting}>
-                                {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
+                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl shadow-lg shadow-primary/20" disabled={isSubmitting}>
+                                {isSubmitting ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Se trimite...</span>
+                                    </div>
+                                ) : 'Trimite Cod'}
                             </Button>
                         </form>
                     </CardContent>
                 ) : (
-                    <CardContent>
+                    <CardContent className="space-y-4">
                         <form onSubmit={handleVerifyCode} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="otp">Cod de Verificare</Label>
+                            <div className="space-y-2 text-center">
+                                <Label htmlFor="otp" className="text-xs uppercase tracking-widest opacity-70">Codul de 6 cifre</Label>
                                 <Input
                                     id="otp"
                                     value={otp}
-                                    onChange={(e) => setOtp(e.target.value)}
-                                    placeholder="123456"
+                                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                    placeholder="000000"
                                     required
                                     maxLength={6}
-                                    className="text-center tracking-[0.5em] text-lg font-bold"
+                                    className="text-center tracking-[0.5em] text-xl font-bold h-14 bg-background/50 rounded-xl"
                                 />
                             </div>
                              {error && (
-                                <div className="mt-2">
+                                <div className="animate-in fade-in slide-in-from-top-1 duration-200">
                                     {typeof error === 'string' ? (
-                                        <Alert variant="destructive" className="py-2">
-                                            <AlertDescription className="text-xs">{error}</AlertDescription>
+                                        <Alert variant="destructive" className="py-2 border-destructive/20 bg-destructive/5">
+                                            <AlertDescription className="text-[11px] leading-tight">{error}</AlertDescription>
                                         </Alert>
                                     ) : (
                                         error
                                     )}
                                 </div>
                             )}
-                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold" disabled={isSubmitting}>
-                                {isSubmitting ? 'Se verifică...' : 'Verifică'}
+                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl shadow-lg shadow-primary/20" disabled={isSubmitting}>
+                                {isSubmitting ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Se verifică...</span>
+                                    </div>
+                                ) : 'Confirmă Accesul'}
                             </Button>
-                            <Button variant="link" onClick={() => { setStep('phone'); setError(null); setConfirmationResult(null); }} className="w-full text-muted-foreground text-xs">
-                                Folosește alt număr de telefon
+                            <Button variant="link" onClick={() => { setStep('phone'); setError(null); setConfirmationResult(null); }} className="w-full text-muted-foreground text-[10px] uppercase tracking-widest">
+                                Folosește alt număr
                             </Button>
                         </form>
                     </CardContent>
