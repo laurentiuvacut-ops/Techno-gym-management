@@ -31,7 +31,7 @@ export default function DashboardPage() {
   
   const ActiveComponent = tabs[activeTab];
 
-  // Show a clean loader while synchronizing member data
+  // Afișăm un spinner centralizat în timpul sincronizării datelor de membru
   if (isLoading && !memberData) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -40,7 +40,7 @@ export default function DashboardPage() {
     );
   }
 
-  // Handle case where user is authenticated but doesn't have a profile yet
+  // Cazul în care utilizatorul este logat dar nu are încă un document creat în Firestore
   if (!isLoading && !memberData) {
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 animate-in fade-in duration-500">
@@ -53,5 +53,6 @@ export default function DashboardPage() {
     );
   }
 
+  // Randăm componenta activă (Home, Shop, etc.) - acum datele sunt garantate să existe sau să fie în curs de update non-blocant
   return <ActiveComponent />;
 }

@@ -14,18 +14,18 @@ export function initializeFirebase() {
   const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   const auth = getAuth(app);
   
-  // Enable persistent cache for better performance on web.
-  // This allows the app to show data immediately from the local cache.
   let firestore;
   try {
-    // Attempt to initialize with multi-tab persistence
+    // Configurație optimizată pentru mobil și web:
+    // 1. Persistență multi-tab pentru a evita blocajele în browser.
+    // 2. experimentalForceLongPolling: Esențial pentru stabilitate pe rețele mobile unde WebSockets pot fi instabile.
     firestore = initializeFirestore(app, {
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager()
-      })
+      }),
+      experimentalForceLongPolling: true
     });
   } catch (e) {
-    // If already initialized (common during hot-reloads), get existing instance
     firestore = getFirestore(app);
   }
 

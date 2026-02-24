@@ -100,7 +100,6 @@ export default function HomeTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="relative lg:col-span-2 p-6 md:p-8 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[240px] md:min-h-[280px]">
-          {/* Accent turcoaz intensificat în colț */}
           <div className="absolute -top-1/4 -right-1/4 w-3/4 h-3/4 bg-primary/25 rounded-full blur-[120px] -z-10" />
           
           <div className="flex items-center gap-3">

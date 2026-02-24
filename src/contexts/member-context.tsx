@@ -38,8 +38,10 @@ export function MemberProvider({ children }: { children: React.ReactNode }) {
 
   const { data: memberData, isLoading: docLoading } = useDoc(memberDocRef);
 
-  // Robust loading state:
-  // We are loading if auth is still resolving OR if we have a user but the document is still fetching
+  // Stare de încărcare robustă care previne "ecranul negru" sau redirect-ul prematur
+  // Suntem în loading dacă:
+  // - Auth se încarcă
+  // - Avem un user autentificat dar documentul Firestore încă nu a răspuns (docLoading e true)
   const isLoading = authLoading || (!!user && !!user.phoneNumber && docLoading && !memberData);
 
   return (
