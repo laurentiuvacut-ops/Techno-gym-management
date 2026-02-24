@@ -1,6 +1,7 @@
 'use client';
 
-import { useUser, useFirestore, useDoc, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useUser, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useMember } from '@/contexts/member-context';
 import { useMemo, useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -14,9 +15,11 @@ import { Badge } from '@/components/ui/badge';
 import { subscriptions } from '@/lib/data';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
 
 export default function ProfilePage() {
     const { user } = useUser();
+    const { memberData } = useMember();
     const router = useRouter();
     const firestore = useFirestore();
     const { toast } = useToast();
@@ -27,9 +30,6 @@ export default function ProfilePage() {
         if (!firestore || !user?.phoneNumber) return null;
         return doc(firestore, 'members', user.phoneNumber);
     }, [firestore, user]);
-
-    // We don't block the UI with memberLoading to avoid flickers
-    const { data: memberData } = useDoc(memberDocRef);
     
     const currentSubscription = useMemo(() => {
         if (!memberData || !memberData.subscriptionType) return null;
@@ -126,7 +126,12 @@ export default function ProfilePage() {
     const displayPhotoUrl = memberData?.photoURL || user.photoURL;
 
     return (
-        <div className="max-w-md mx-auto space-y-4 pb-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="max-w-md mx-auto space-y-4 pb-4"
+        >
             <Button asChild variant="ghost" size="sm" className="w-fit">
                 <Link href="/dashboard">
                     <ArrowLeft className="mr-2 h-4 w-4" />
@@ -229,6 +234,6 @@ export default function ProfilePage() {
                     </div>
                 </Link>
             </div>
-        </div>
+        </motion.div>
     );
 }

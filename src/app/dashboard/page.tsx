@@ -1,8 +1,8 @@
 'use client';
 
-import { useUser, useFirestore, useDoc } from '@/firebase';
-import { useEffect, useState, useMemo } from 'react';
-import { doc } from "firebase/firestore";
+import { useUser } from '@/firebase';
+import { useMember } from '@/contexts/member-context';
+import { useEffect, useState } from 'react';
 import { ArrowRight, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -15,16 +15,9 @@ import { cn } from '@/lib/utils';
 
 export default function DashboardHomePage() {
   const { user } = useUser();
-  const firestore = useFirestore();
+  const { memberData, isLoading: memberLoading } = useMember();
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
-
-  const memberDocRef = useMemo(() => {
-    if (!firestore || !user?.phoneNumber) return null;
-    return doc(firestore, 'members', user.phoneNumber);
-  }, [firestore, user]);
-  
-  const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
   const [subscriptionInfo, setSubscriptionInfo] = useState({
     daysRemaining: 0,
@@ -106,7 +99,12 @@ export default function DashboardHomePage() {
   return (
     <>
     <PwaInstallInstructions open={showInstallInstructions} onOpenChange={setShowInstallInstructions} />
-    <div className="space-y-4 md:space-y-6 pb-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-4 md:space-y-6 pb-6"
+    >
       <div className="flex justify-between items-center flex-wrap gap-2">
         <h1 className="text-3xl md:text-5xl font-headline tracking-wider">Salut, {displayName}!</h1>
       </div>
@@ -211,7 +209,7 @@ export default function DashboardHomePage() {
           </div>
         </Link>
       </div>
-    </div>
+    </motion.div>
     </>
   );
 }

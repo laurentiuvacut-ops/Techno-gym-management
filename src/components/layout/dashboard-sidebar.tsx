@@ -20,9 +20,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useUser, useFirestore, useDoc } from '@/firebase';
-import { useMemo } from 'react';
-import { doc } from 'firebase/firestore';
+import { useUser } from '@/firebase';
+import { useMember } from '@/contexts/member-context';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -39,7 +38,7 @@ const mainNavItems = [
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const { user } = useUser();
-  const firestore = useFirestore();
+  const { memberData } = useMember();
   const { setOpenMobile, isMobile } = useSidebar();
 
   const handleLinkClick = () => {
@@ -47,13 +46,6 @@ export default function DashboardSidebar() {
       setOpenMobile(false);
     }
   };
-
-  const memberDocRef = useMemo(() => {
-    if (!firestore || !user?.phoneNumber) return null;
-    return doc(firestore, 'members', user.phoneNumber);
-  }, [firestore, user]);
-
-  const { data: memberData } = useDoc(memberDocRef);
 
   const displayPhotoUrl = memberData?.photoURL || user?.photoURL || '';
   const displayName = memberData?.name || user?.displayName || 'Membru';

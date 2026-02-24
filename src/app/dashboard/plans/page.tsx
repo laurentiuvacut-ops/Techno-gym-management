@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star, ArrowLeft, LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser, useFirestore, useDoc, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useUser, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useMember } from '@/contexts/member-context';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { doc, updateDoc } from "firebase/firestore";
@@ -15,7 +16,8 @@ import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { addDays, format, isValid, differenceInCalendarDays } from 'date-fns';
 
 function PlansComponent() {
-  const { user, isUserLoading } = useUser();
+  const { user } = useUser();
+  const { memberData, isLoading: memberLoading } = useMember();
   const firestore = useFirestore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,8 +37,6 @@ function PlansComponent() {
     if (!firestore || !user?.phoneNumber) return null;
     return doc(firestore, 'members', user.phoneNumber);
   }, [firestore, user]);
-
-  const { data: memberData, isLoading: memberLoading } = useDoc(memberDocRef);
 
   const currentSubscription = useMemo(() => {
     if (!memberData || !memberData.subscriptionType) return null;
@@ -59,7 +59,7 @@ function PlansComponent() {
       return;
     }
     
-    if (isUserLoading || memberLoading || !memberData || !memberDocRef) {
+    if (memberLoading || !memberData || !memberDocRef) {
       return; 
     }
     
@@ -135,7 +135,7 @@ function PlansComponent() {
     };
     
     processPaymentUpdate();
-  }, [searchParams, user, isUserLoading, memberLoading, memberData, memberDocRef, firestore, toast, router]);
+  }, [searchParams, user, memberLoading, memberData, memberDocRef, firestore, toast, router]);
 
   const handlePurchase = async (plan: any) => {
     setCheckoutUrl(null);
