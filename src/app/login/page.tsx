@@ -43,44 +43,41 @@ export default function LoginPage() {
         setError(null);
         setIsSubmitting(true);
 
-        if (window.recaptchaVerifier) {
-            window.recaptchaVerifier.clear();
-        }
-        
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': () => {},
-            'expired-callback': () => {
-               setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
-            }
-        });
-        window.recaptchaVerifier = verifier;
-
-
-        const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
-
         try {
+            if (window.recaptchaVerifier) {
+                window.recaptchaVerifier.clear();
+            }
+            
+            const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'callback': () => {},
+                'expired-callback': () => {
+                   setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
+                }
+            });
+            window.recaptchaVerifier = verifier;
+
+            const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
             const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, verifier);
             setConfirmationResult(confirmation);
             setStep('otp');
             setError(null);
         } catch (err: any) {
-             if (err.code === 'auth/requests-from-referer' || (err.message && err.message.includes('are-blocked'))) {
+            console.error('Login Error:', err);
+            
+             if (err.code === 'auth/requests-from-referer' || err.code === 'auth/app-not-authorized' || err.message?.includes('-39')) {
                  setError(
                     <Alert variant="destructive">
-                        <AlertTitle>Eroare de Configurare: Cheia reCAPTCHA Greșită</AlertTitle>
+                        <AlertTitle>Eroare de Configurare: Domeniu Neautorizat (-39)</AlertTitle>
                         <AlertDescription>
                             <div className="space-y-2 text-sm">
-                                <p>Mulțumim pentru confirmare. Faptul că eroarea persistă chiar și cu domeniile adăugate indică problema cea mai frecventă: modificați <strong>cheia reCAPTCHA greșită</strong>.</p>
+                                <p>Firebase a blocat cererea deoarece acest domeniu nu este autorizat în Consola Firebase.</p>
                                 <ol className="list-decimal list-inside space-y-1 pl-2">
-                                    <li>În <strong>Consola Firebase</strong>, navigați la <strong>Authentication</strong> &rarr; tab-ul <strong>Settings</strong>.</li>
-                                    <li>Găsiți <strong>Phone</strong> în lista de provideri și dați click.</li>
-                                    <li>În secțiunea <strong>reCAPTCHA verification</strong>, căutați numele cheii (ex: "reCAPTCHA v2...", "reCAPTCHA Enterprise..."). <strong>Acesta este numele cheii corecte.</strong></li>
-                                    <li>Acum, în <strong>Consola Google Cloud</strong>, navigați la <strong>APIs & Services</strong> &rarr; <strong>Credentials</strong>.</li>
-                                    <li>Găsiți cheia API cu <strong>numele exact</strong> de la pasul 3.</li>
-                                    <li>Editați <strong>această cheie</strong> și la "Website restrictions" asigurați-vă că sunt adăugate ambele domenii: cel de test și cel de producție (`technogymcraiova.com`).</li>
+                                    <li>Intrați în <strong>Consola Firebase</strong> &rarr; <strong>Authentication</strong> &rarr; <strong>Settings</strong>.</li>
+                                    <li>La tab-ul <strong>Authorized domains</strong>, adăugați domeniul curent (<code>{typeof window !== 'undefined' ? window.location.hostname : '...'}</code>).</li>
+                                    <li>Dacă domeniul este deja acolo, asigurați-vă că <strong>Cheia API</strong> din Consola Google Cloud are permisiuni pentru reCAPTCHA Enterprise.</li>
                                 </ol>
-                                <p className="font-medium pt-2">Aceasta este o problemă de configurare și nu poate fi rezolvată prin cod. Odată ce cheia corectă este editată, eroarea va dispărea.</p>
+                                <p className="font-medium pt-2 italic">Această eroare este tehnică și ține de setările proiectului Firebase, nu de codul aplicației.</p>
                             </div>
                         </AlertDescription>
                     </Alert>
@@ -92,21 +89,12 @@ export default function LoginPage() {
                     <Alert variant="destructive">
                         <AlertTitle>Prea multe încercări</AlertTitle>
                         <AlertDescription>
-                            <div className="space-y-2 text-sm">
-                                <p>Firebase a blocat temporar solicitările de pe acest dispozitiv din cauza unui număr prea mare de încercări de autentificare într-un timp scurt. Aceasta este o măsură de securitate pentru a preveni abuzul.</p>
-                                <p className="font-medium pt-2">Ce puteți face:</p>
-                                <ul className="list-disc list-inside space-y-1 pl-2">
-                                    <li>Așteptați câteva minute înainte de a încerca din nou.</li>
-                                    <li>Asigurați-vă că numărul de telefon este corect.</li>
-                                    <li>Pentru testare în timpul dezvoltării, puteți adăuga numere de test în consola Firebase (Authentication &rarr; Settings &rarr; Phone numbers for testing).</li>
-                                </ul>
-                            </div>
+                            <p className="text-sm">Solicitările au fost blocate temporar. Vă rugăm să așteptați câteva minute sau să folosiți un număr de test configurat în consola Firebase.</p>
                         </AlertDescription>
                     </Alert>
                  );
             } else {
-                const errorMessage = err.message || 'A apărut o eroare neașteptată.';
-                setError(`Eroare: ${errorMessage}`);
+                setError(`Eroare: ${err.message || 'A apărut o eroare neașteptată.'}`);
             }
         } finally {
             setIsSubmitting(false);
@@ -136,22 +124,8 @@ export default function LoginPage() {
         } catch (err: any) {
             if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {
                 setError('Codul introdus este invalid sau a expirat.');
-            } else if (err.code === 'auth/too-many-requests') {
-                 setError(
-                    <Alert variant="destructive">
-                        <AlertTitle>Prea multe încercări eșuate</AlertTitle>
-                        <AlertDescription>
-                            <div className="space-y-2 text-sm">
-                                <p>Ați introdus coduri greșite de prea multe ori. Din motive de securitate, va trebui să solicitați un cod nou.</p>
-                                <p className="font-medium pt-2">Vă rugăm să vă întoarceți la pasul anterior pentru a trimite un nou cod de verificare pe telefonul dumneavoastră.</p>
-                            </div>
-                        </AlertDescription>
-                    </Alert>
-                 );
             } else {
-                const errorCode = err.code || 'UNKNOWN_ERROR';
-                const errorMessage = err.message || 'A apărut o eroare la verificarea codului.';
-                setError(`Eroare (${errorCode}): ${errorMessage}`);
+                setError(`Eroare la verificare: ${err.message}`);
             }
         } finally {
             setIsSubmitting(false);
