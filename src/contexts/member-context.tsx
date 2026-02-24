@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useMemo } from 'react';
@@ -38,11 +39,10 @@ export function MemberProvider({ children }: { children: React.ReactNode }) {
 
   const { data: memberData, isLoading: docLoading } = useDoc(memberDocRef);
 
-  // Stare de încărcare robustă care previne "ecranul negru" sau redirect-ul prematur
-  // Suntem în loading dacă:
-  // - Auth se încarcă
-  // - Avem un user autentificat dar documentul Firestore încă nu a răspuns (docLoading e true)
-  const isLoading = authLoading || (!!user && !!user.phoneNumber && docLoading && !memberData);
+  // Optimizăm starea de loading: nu blocăm aplicația dacă baza de date este lentă.
+  // Suntem în loading DOAR dacă Auth încă se verifică.
+  // Odată ce avem user, lăsăm tab-urile să se randeze cu Skeletons până vin datele din Firestore.
+  const isLoading = authLoading || (!!user && docLoading && !memberData);
 
   return (
     <MemberContext.Provider value={{ memberData, isLoading }}>

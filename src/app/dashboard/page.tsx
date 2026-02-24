@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
@@ -30,7 +31,9 @@ export default function DashboardPage() {
   
   const ActiveComponent = tabs[activeTab];
 
-  // Dacă nu avem date și nici nu se mai încarcă nimic, înseamnă că utilizatorul e nou
+  // Randăm componenta activă IMEDIAT. 
+  // Tab-urile individuale folosesc Skeletons dacă memberData este încă null.
+  // Verificăm dacă utilizatorul este nou DOAR după ce loading-ul s-a terminat complet.
   if (!isLoading && !memberData) {
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 animate-in fade-in duration-500">
@@ -43,7 +46,5 @@ export default function DashboardPage() {
     );
   }
 
-  // În orice alt caz (avem date sau încă se încarcă în fundal), randăm componenta imediat.
-  // Tab-urile individuale gestionează propriile Skeletons dacă memberData e null temporar.
   return <ActiveComponent />;
 }

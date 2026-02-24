@@ -1,3 +1,4 @@
+
 'use client';
 
 import { firebaseConfig } from '@/firebase/config';
@@ -6,8 +7,7 @@ import { getAuth } from 'firebase/auth';
 import { 
   getFirestore, 
   initializeFirestore, 
-  persistentLocalCache, 
-  persistentMultipleTabManager 
+  persistentLocalCache
 } from 'firebase/firestore';
 
 export function initializeFirebase() {
@@ -16,11 +16,10 @@ export function initializeFirebase() {
   
   let firestore;
   try {
-    // Activăm persistența locală pentru viteză instantanee la reîncărcare
+    // Folosim o formă mai simplă de persistență, compatibilă cu toate browserele mobile
+    // Eliminăm MultipleTabManager care poate cauza blocaje (hangs) în browsere non-PWA
     firestore = initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager()
-      })
+      localCache: persistentLocalCache({})
     });
   } catch (e) {
     firestore = getFirestore(app);
