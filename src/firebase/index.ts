@@ -16,14 +16,11 @@ export function initializeFirebase() {
   
   let firestore;
   try {
-    // Configurație optimizată pentru mobil și web:
-    // 1. Persistență multi-tab pentru a evita blocajele în browser.
-    // 2. experimentalForceLongPolling: Esențial pentru stabilitate pe rețele mobile unde WebSockets pot fi instabile.
+    // Activăm persistența locală pentru viteză instantanee la reîncărcare
     firestore = initializeFirestore(app, {
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager()
-      }),
-      experimentalForceLongPolling: true
+      })
     });
   } catch (e) {
     firestore = getFirestore(app);

@@ -3,7 +3,6 @@
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import { useMember } from '@/contexts/member-context';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
 
 import HomeTab from '@/components/dashboard/home-tab';
 import ShopTab from '@/components/dashboard/shop-tab';
@@ -31,20 +30,11 @@ export default function DashboardPage() {
   
   const ActiveComponent = tabs[activeTab];
 
-  // Afișăm un spinner centralizat în timpul sincronizării datelor de membru
-  if (isLoading && !memberData) {
-    return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-      </div>
-    );
-  }
-
-  // Cazul în care utilizatorul este logat dar nu are încă un document creat în Firestore
+  // Dacă nu avem date și nici nu se mai încarcă nimic, înseamnă că utilizatorul e nou
   if (!isLoading && !memberData) {
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 animate-in fade-in duration-500">
-            <h1 className="text-2xl font-headline mb-2 uppercase tracking-wider">Finalizează-ți contul</h1>
+            <h1 className="text-2xl font-headline mb-2 uppercase tracking-wider text-white">Finalizează-ți contul</h1>
             <p className="text-muted-foreground mb-6 max-w-sm text-sm">Profilul tău de membru nu a fost găsit. Te rugăm să completezi înregistrarea pentru a accesa panoul de control.</p>
             <Button asChild size="lg" className="glow-primary">
                 <a href="/register">Finalizează Înregistrarea</a>
@@ -53,6 +43,7 @@ export default function DashboardPage() {
     );
   }
 
-  // Randăm componenta activă (Home, Shop, etc.) - acum datele sunt garantate să existe sau să fie în curs de update non-blocant
+  // În orice alt caz (avem date sau încă se încarcă în fundal), randăm componenta imediat.
+  // Tab-urile individuale gestionează propriile Skeletons dacă memberData e null temporar.
   return <ActiveComponent />;
 }
