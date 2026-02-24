@@ -138,7 +138,7 @@ export default function ProfileTab() {
                 className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
             >
                 <ArrowLeft className="w-4 h-4" />
-                Înapoi la Panou
+                Dashboard
             </Button>
 
             <Card className="glass rounded-3xl border-0 overflow-hidden shadow-xl">

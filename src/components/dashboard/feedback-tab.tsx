@@ -76,7 +76,7 @@ export default function FeedbackTab() {
         className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
       >
         <ArrowLeft className="w-4 h-4" />
-        Înapoi la Panou
+        Dashboard
       </Button>
 
       <div className="space-y-1 text-center">
@@ -96,7 +96,7 @@ export default function FeedbackTab() {
             <CheckCircle className="w-20 h-20 text-primary mb-4" />
             <h2 className="text-3xl font-headline">Mulțumim!</h2>
             <p className="text-muted-foreground">Feedback-ul tău a fost trimis cu succes.</p>
-            <Button onClick={() => setActiveTab('home')} className="mt-6">Înapoi la Panou</Button>
+            <Button onClick={() => setActiveTab('home')} className="mt-6">Dashboard</Button>
           </motion.div>
         ) : (
           <motion.div key="form" className="space-y-6">

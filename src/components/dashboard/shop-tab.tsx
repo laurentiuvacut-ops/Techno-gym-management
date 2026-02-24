@@ -54,7 +54,7 @@ export default function ShopTab() {
         className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
       >
         <ArrowLeft className="w-4 h-4" />
-        Înapoi la Panou
+        Dashboard
       </Button>
 
       <div className="space-y-1">
