@@ -2,11 +2,13 @@
 
 import { useMemo } from 'react';
 import { motion } from "framer-motion";
-import { Package, Droplet, Zap, Dna, Shirt, ShoppingBag } from "lucide-react";
+import { Package, Droplet, Zap, Dna, Shirt, ShoppingBag, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 
 const productIcons: { [key: string]: React.FC<any> } = {
   "Protein Whey 2kg": Package,
@@ -29,6 +31,7 @@ interface Product {
 
 export default function ShopTab() {
   const firestore = useFirestore();
+  const { setActiveTab } = useDashboardNav();
 
   const productsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -42,8 +45,18 @@ export default function ShopTab() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="space-y-8"
+      className="space-y-6"
     >
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => setActiveTab('home')}
+        className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Înapoi la Panou
+      </Button>
+
       <div className="space-y-1">
         <h1 className="text-4xl font-headline tracking-wider flex items-center gap-3">
           <ShoppingBag className="w-8 h-8" />

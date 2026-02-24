@@ -1,16 +1,30 @@
 'use client';
 
-import { Dumbbell, Construction } from "lucide-react";
+import { Dumbbell, Construction, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { Button } from '@/components/ui/button';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 
 export default function WorkoutsTab() {
+  const { setActiveTab } = useDashboardNav();
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-8"
+      className="space-y-6"
     >
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => setActiveTab('home')}
+        className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Înapoi la Panou
+      </Button>
+
       <div className="space-y-1">
         <h1 className="text-4xl font-headline tracking-wider flex items-center gap-3">
           <Dumbbell className="w-8 h-8" />

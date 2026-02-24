@@ -2,7 +2,7 @@
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, LinkIcon } from "lucide-react";
+import { Check, Star, LinkIcon, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { useMember } from '@/contexts/member-context';
@@ -13,12 +13,13 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { addDays, format, isValid, differenceInCalendarDays } from 'date-fns';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 
 export default function PlansTab() {
   const { user } = useUser();
   const { memberData, isLoading: memberLoading } = useMember();
+  const { setActiveTab } = useDashboardNav();
   const firestore = useFirestore();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
@@ -176,8 +177,18 @@ export default function PlansTab() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-8"
+      className="space-y-6"
     >
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => setActiveTab('home')}
+        className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Înapoi la Panou
+      </Button>
+
       <div className="flex flex-col gap-6">
         <div className="space-y-1 text-center">
             <h1 className="text-4xl font-headline tracking-wider">Abonamente</h1>

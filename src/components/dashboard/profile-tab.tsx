@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getAuth, signOut } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Award, LogOut, Check, Home, ShoppingBag, Camera, Loader2 } from 'lucide-react';
+import { Award, LogOut, Check, Home, ShoppingBag, Camera, Loader2, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { subscriptions } from '@/lib/data';
 import { Separator } from '@/components/ui/separator';
@@ -131,6 +131,16 @@ export default function ProfileTab() {
           transition={{ duration: 0.3 }}
           className="max-w-md mx-auto space-y-4 pb-4"
         >
+            <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setActiveTab('home')}
+                className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
+            >
+                <ArrowLeft className="w-4 h-4" />
+                Înapoi la Panou
+            </Button>
+
             <Card className="glass rounded-3xl border-0 overflow-hidden shadow-xl">
                 <CardHeader className="items-center text-center pb-2 bg-foreground/5 pt-6">
                     <div className="relative group cursor-pointer" onClick={handleAvatarClick}>

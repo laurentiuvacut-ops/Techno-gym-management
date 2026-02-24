@@ -8,8 +8,10 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import StarRating from '@/components/star-rating';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
-import { Inbox } from 'lucide-react';
+import { Inbox, ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 
 type Feedback = {
   id: string;
@@ -20,6 +22,7 @@ type Feedback = {
 
 export default function ViewFeedbackTab() {
   const firestore = useFirestore();
+  const { setActiveTab } = useDashboardNav();
 
   const feedbackQuery = useMemo(() => {
     if (!firestore) return null;
@@ -33,8 +36,18 @@ export default function ViewFeedbackTab() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="max-w-4xl mx-auto space-y-8"
+      className="max-w-4xl mx-auto space-y-6"
     >
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => setActiveTab('home')}
+        className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Înapoi la Panou
+      </Button>
+
       <div className="space-y-1">
         <h1 className="text-4xl font-headline tracking-wider flex items-center gap-3">
           <Inbox className="w-8 h-8" />

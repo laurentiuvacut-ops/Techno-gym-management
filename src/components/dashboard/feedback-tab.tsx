@@ -6,7 +6,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Shield, CheckCircle } from 'lucide-react';
+import { Shield, CheckCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import StarRating from '@/components/star-rating';
 import { sendFeedbackEmail } from '@/ai/flows/send-feedback-email';
@@ -67,8 +67,18 @@ export default function FeedbackTab() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="max-w-2xl mx-auto space-y-8"
+      className="max-w-2xl mx-auto space-y-6"
     >
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => setActiveTab('home')}
+        className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Înapoi la Panou
+      </Button>
+
       <div className="space-y-1 text-center">
         <h1 className="text-4xl font-headline tracking-wider">Feedback</h1>
         <p className="text-muted-foreground">Lăsați o recenzie despre experiența dumneavoastră.</p>
