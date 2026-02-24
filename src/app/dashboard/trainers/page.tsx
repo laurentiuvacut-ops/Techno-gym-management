@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, ArrowLeft } from 'lucide-react';
 import { motion } from "framer-motion";
-import Image from "image";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function TrainersPage() {
