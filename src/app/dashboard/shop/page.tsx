@@ -99,7 +99,7 @@ export default function ShopPage() {
                 <div className="flex items-center gap-2">
                   <div className={cn("h-2 w-2 rounded-full", isInStock ? "bg-primary" : "bg-destructive")} />
                   <span className={cn("text-sm font-medium", isInStock ? "text-primary" : "text-destructive")}>
-                    {isInStock ? `${item.stock} în stoc` : 'Stoc epuizat'}
+                    {isInStock ? 'În stoc' : 'Stoc epuizat'}
                   </span>
                 </div>
               </motion.div>
