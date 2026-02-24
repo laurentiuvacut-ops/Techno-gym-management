@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { useUser, useFirestore, useDoc } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useUser } from '@/firebase';
+import { useMember } from '@/contexts/member-context';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function DashboardHeader() {
   const { user, isUserLoading } = useUser();
-  const firestore = useFirestore();
+  const { memberData } = useMember();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -34,13 +34,6 @@ export default function DashboardHeader() {
       }
     };
   }, []);
-
-  const memberDocRef = useMemo(() => {
-    if (!firestore || !user?.phoneNumber) return null;
-    return doc(firestore, 'members', user.phoneNumber);
-  }, [firestore, user]);
-
-  const { data: memberData } = useDoc(memberDocRef);
 
   const displayPhotoUrl = memberData?.photoURL || user?.photoURL || '';
   const displayName = memberData?.name || user?.displayName || 'U';

@@ -3,17 +3,12 @@
 import { trainers } from "@/lib/data";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useUser } from '@/firebase';
 import { Users, ArrowLeft } from 'lucide-react';
 import { motion } from "framer-motion";
-import Image from "next/image";
+import Image from "image";
 import Link from "next/link";
 
 export default function TrainersPage() {
-  const { user } = useUser();
-
-  if (!user) return null;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}

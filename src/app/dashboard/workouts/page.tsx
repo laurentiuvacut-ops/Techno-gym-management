@@ -1,14 +1,9 @@
 'use client';
 
-import { useUser } from '@/firebase';
 import { Dumbbell, Construction } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function WorkoutsPage() {
-  const { user } = useUser();
-
-  if (!user) return null;
-  
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}

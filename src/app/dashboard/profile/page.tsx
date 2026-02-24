@@ -119,11 +119,9 @@ export default function ProfilePage() {
         reader.readAsDataURL(file);
     };
 
-    if (!user) return null;
-
-    const displayName = memberData?.name || user.displayName || 'Membru';
-    const displayPhone = memberData?.phone || user.phoneNumber;
-    const displayPhotoUrl = memberData?.photoURL || user.photoURL;
+    const displayName = memberData?.name || user?.displayName || 'Membru';
+    const displayPhone = memberData?.phone || user?.phoneNumber;
+    const displayPhotoUrl = memberData?.photoURL || user?.photoURL;
 
     return (
         <motion.div 

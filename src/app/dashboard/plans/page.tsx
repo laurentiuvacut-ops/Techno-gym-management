@@ -24,11 +24,6 @@ function PlansComponent() {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const paymentProcessedRef = useRef(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -55,11 +50,7 @@ function PlansComponent() {
 
     const pendingPlanId = sessionStorage.getItem('payment_processing_plan_id');
 
-    if (!pendingPlanId) {
-      return;
-    }
-    
-    if (memberLoading || !memberData || !memberDocRef) {
+    if (!pendingPlanId || memberLoading || !memberData || !memberDocRef) {
       return; 
     }
     
@@ -179,8 +170,6 @@ function PlansComponent() {
       setIsUpdating(null);
     }
   };
-  
-  if (!user || !mounted) return null;
   
   const currentPlanId = currentSubscription?.id;
 
