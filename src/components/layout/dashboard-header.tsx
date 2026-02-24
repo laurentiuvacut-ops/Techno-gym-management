@@ -5,12 +5,13 @@ import { cn } from '@/lib/utils';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useUser } from '@/firebase';
 import { useMember } from '@/contexts/member-context';
-import Link from 'next/link';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function DashboardHeader() {
   const { user, isUserLoading } = useUser();
   const { memberData } = useMember();
+  const { setActiveTab } = useDashboardNav();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -48,12 +49,12 @@ export default function DashboardHeader() {
       </div>
       <div className="flex-1" />
       {mounted && !isUserLoading && user && (
-        <Link href="/dashboard/profile">
+        <button onClick={() => setActiveTab('profile')}>
           <Avatar className="h-9 w-9 border border-primary/20">
             <AvatarImage src={displayPhotoUrl} alt={displayName} className="object-cover" />
             <AvatarFallback>{displayName.charAt(0)}</AvatarFallback>
           </Avatar>
-        </Link>
+        </button>
       )}
     </header>
   );
