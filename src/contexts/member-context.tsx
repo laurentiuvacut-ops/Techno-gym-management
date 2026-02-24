@@ -28,7 +28,7 @@ const MemberContext = createContext<MemberContextType>({
 });
 
 export function MemberProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useUser();
+  const { user, isUserLoading: authLoading } = useUser();
   const firestore = useFirestore();
 
   const memberDocRef = useMemo(() => {
@@ -36,7 +36,11 @@ export function MemberProvider({ children }: { children: React.ReactNode }) {
     return doc(firestore, 'members', user.phoneNumber);
   }, [firestore, user]);
 
-  const { data: memberData, isLoading } = useDoc(memberDocRef);
+  const { data: memberData, isLoading: docLoading } = useDoc(memberDocRef);
+
+  // Robust loading state:
+  // We are loading if auth is still resolving OR if we have a user but the document is still fetching
+  const isLoading = authLoading || (!!user && !!user.phoneNumber && docLoading && !memberData);
 
   return (
     <MemberContext.Provider value={{ memberData, isLoading }}>

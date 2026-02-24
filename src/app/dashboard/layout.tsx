@@ -27,6 +27,7 @@ export default function DashboardLayout({
     }
   }, [user, isUserLoading, router, mounted]);
 
+  // Handle initial auth loading state
   if (isUserLoading && !user) {
     return (
       <div className="flex items-center justify-center h-screen bg-background">

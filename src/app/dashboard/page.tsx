@@ -31,6 +31,7 @@ export default function DashboardPage() {
   
   const ActiveComponent = tabs[activeTab];
 
+  // Show a clean loader while synchronizing member data
   if (isLoading && !memberData) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -39,12 +40,13 @@ export default function DashboardPage() {
     );
   }
 
+  // Handle case where user is authenticated but doesn't have a profile yet
   if (!isLoading && !memberData) {
     return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
-            <h1 className="text-2xl font-headline mb-2">Finalizează-ți contul</h1>
-            <p className="text-muted-foreground mb-6 max-w-sm">Profilul tău de membru nu a fost găsit. Te rugăm să completezi înregistrarea pentru a accesa panoul de control.</p>
-            <Button asChild size="lg">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 animate-in fade-in duration-500">
+            <h1 className="text-2xl font-headline mb-2 uppercase tracking-wider">Finalizează-ți contul</h1>
+            <p className="text-muted-foreground mb-6 max-w-sm text-sm">Profilul tău de membru nu a fost găsit. Te rugăm să completezi înregistrarea pentru a accesa panoul de control.</p>
+            <Button asChild size="lg" className="glow-primary">
                 <a href="/register">Finalizează Înregistrarea</a>
             </Button>
         </div>

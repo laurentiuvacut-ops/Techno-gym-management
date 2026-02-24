@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useMemo, type ReactNode, useEffect } from 'react';
+import React, { useMemo, type ReactNode } from 'react';
 import { FirebaseProvider } from '@/firebase/provider';
 import { initializeFirebase } from '@/firebase';
-import { setPersistence, browserLocalPersistence } from 'firebase/auth';
 
 interface FirebaseClientProviderProps {
   children: ReactNode;
@@ -12,17 +11,9 @@ interface FirebaseClientProviderProps {
 export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
   const firebaseServices = useMemo(() => {
     // Initialize Firebase on the client side, once per component mount.
+    // Auth persistence is handled automatically by the SDK defaults for web.
     return initializeFirebase();
   }, []); // Empty dependency array ensures this runs only once on mount
-
-  useEffect(() => {
-    if (firebaseServices.auth) {
-        setPersistence(firebaseServices.auth, browserLocalPersistence)
-        .catch((error) => {
-          console.error("Firebase: Could not set auth persistence.", error);
-        });
-    }
-  }, [firebaseServices.auth]);
 
   return (
     <FirebaseProvider
