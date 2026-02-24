@@ -45,7 +45,7 @@ export default function ViewFeedbackTab() {
         className="text-muted-foreground hover:text-primary p-0 h-auto gap-2"
       >
         <ArrowLeft className="w-4 h-4" />
-        Dashboard
+        Acasa
       </Button>
 
       <div className="space-y-1">
