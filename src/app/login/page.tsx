@@ -137,26 +137,26 @@ export default function LoginPage() {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            <WifiOff className="w-4 h-4" /> Rețeaua ta blochează autentificarea
+                            <WifiOff className="w-4 h-4" /> Rețea Restrictivă Detectată
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Anumite rețele (în special <strong>Digi/RDS</strong>) blochează serverele de verificare. Soluția e schimbarea DNS-ului:</p>
-                            <div className="p-2 bg-black/20 rounded-lg border border-white/10 text-[10px] space-y-2">
-                                <p className="font-bold text-primary">📱 Android:</p>
-                                <p>Setări → Wi-Fi → ține apăsat pe rețea → Modifică → Avansat → DNS → <strong>8.8.8.8</strong></p>
-                                <p className="font-bold text-primary mt-1">🍎 iPhone:</p>
-                                <p>Setări → Wi-Fi → (i) pe rețea → Configurare DNS → Manual → <strong>8.8.8.8</strong></p>
-                                <p className="font-bold text-primary mt-1">💡 Alternativă rapidă:</p>
-                                <p>Deconectează-te de la Wi-Fi și folosește <strong>date mobile Orange/Vodafone</strong>.</p>
+                            <p>Conexiunea ta actuală (posibil <strong>Digi/RDS</strong>) blochează procesele de securitate.</p>
+                            <div className="p-3 bg-black/20 rounded-lg border border-white/10 text-[11px] space-y-2">
+                                <p className="font-bold text-primary">Soluții rapide:</p>
+                                <ul className="list-disc pl-4 space-y-1">
+                                    <li>Deconectează-te de la Wi-Fi și folosește <strong>datele mobile</strong>.</li>
+                                    <li>Dacă ești deja pe date mobile, încearcă un Wi-Fi de la alt furnizor.</li>
+                                    <li>Închide modul "Private/Incognito" dacă este activ.</li>
+                                </ul>
                             </div>
                             <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="w-full h-8 text-[10px] gap-2 border-primary/30"
+                                className="w-full h-10 text-[10px] gap-2 border-primary/30 font-bold uppercase"
                                 onClick={handleHardReset}
                             >
                                 <RefreshCcw className="w-3 h-3" />
-                                AM SCHIMBAT DNS — REÎNCARC
+                                Încearcă Resetare Conexiune
                             </Button>
                         </AlertDescription>
                     </Alert>
