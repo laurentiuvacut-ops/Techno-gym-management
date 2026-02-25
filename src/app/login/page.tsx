@@ -41,7 +41,6 @@ export default function LoginPage() {
     const initRecaptcha = () => {
         if (!auth) return;
         
-        // Clear any existing verifier to prevent stale state
         if (window.recaptchaVerifier) {
             try { window.recaptchaVerifier.clear(); } catch(e) {}
             window.recaptchaVerifier = undefined;
@@ -83,21 +82,18 @@ export default function LoginPage() {
     const handleHardReset = async () => {
         setIsSubmitting(true);
         try {
-            // Unregister service workers
             if ('serviceWorker' in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
                 for (let registration of registrations) {
                     await registration.unregister();
                 }
             }
-            // Clear caches
             if ('caches' in window) {
                 const keys = await caches.keys();
                 for (let key of keys) {
                     await caches.delete(key);
                 }
             }
-            // Clear storage
             window.localStorage.clear();
             window.sessionStorage.clear();
         } catch (e) {}
@@ -141,17 +137,17 @@ export default function LoginPage() {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            <WifiOff className="w-4 h-4" /> Rețea Restrictivă Detectată
+                            <WifiOff className="w-4 h-4" /> Rețeaua ta blochează autentificarea
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Conexiunea ta actuală (posibil <strong>Digi/RDS</strong>) blochează procesele de securitate.</p>
-                            <div className="p-3 bg-black/20 rounded-lg border border-white/10 text-[11px] space-y-2">
-                                <p className="font-bold text-primary">Soluții rapide:</p>
-                                <ul className="list-disc pl-4 space-y-1">
-                                    <li>Deconectează-te de la Wi-Fi și folosește <strong>datele mobile</strong>.</li>
-                                    <li>Dacă ești deja pe date mobile, încearcă un Wi-Fi de la alt furnizor.</li>
-                                    <li>Închide modul "Private/Incognito" dacă este activ.</li>
-                                </ul>
+                            <p>Anumite rețele (în special <strong>Digi/RDS</strong>) blochează serverele de verificare. Soluția e schimbarea DNS-ului:</p>
+                            <div className="p-2 bg-black/20 rounded-lg border border-white/10 text-[10px] space-y-2">
+                                <p className="font-bold text-primary">📱 Android:</p>
+                                <p>Setări → Wi-Fi → ține apăsat pe rețea → Modifică → Avansat → DNS → <strong>8.8.8.8</strong></p>
+                                <p className="font-bold text-primary mt-1">🍎 iPhone:</p>
+                                <p>Setări → Wi-Fi → (i) pe rețea → Configurare DNS → Manual → <strong>8.8.8.8</strong></p>
+                                <p className="font-bold text-primary mt-1">💡 Alternativă rapidă:</p>
+                                <p>Deconectează-te de la Wi-Fi și folosește <strong>date mobile Orange/Vodafone</strong>.</p>
                             </div>
                             <Button 
                                 variant="outline" 
@@ -160,7 +156,7 @@ export default function LoginPage() {
                                 onClick={handleHardReset}
                             >
                                 <RefreshCcw className="w-3 h-3" />
-                                Încearcă Resetare Conexiune
+                                AM SCHIMBAT DNS — REÎNCARC
                             </Button>
                         </AlertDescription>
                     </Alert>
