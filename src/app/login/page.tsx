@@ -11,9 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import Link from 'next/link';
-import { RefreshCcw, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { RefreshCcw, ShieldCheck, AlertTriangle, Globe } from 'lucide-react';
 
-// Extend the Window interface to avoid TypeScript errors when attaching the verifier.
 declare global {
   interface Window {
     recaptchaVerifier?: RecaptchaVerifier;
@@ -27,7 +26,7 @@ export default function LoginPage() {
     
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
-    const [step, setStep] = useState('phone'); // 'phone' or 'otp'
+    const [step, setStep] = useState('phone');
     const [error, setError] = useState<React.ReactNode | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
@@ -40,47 +39,40 @@ export default function LoginPage() {
         }
     }, [user, loading, router]);
 
-    // Initialize reCAPTCHA verifier
-    useEffect(() => {
+    const initRecaptcha = () => {
         if (!auth) return;
+        
+        if (window.recaptchaVerifier) {
+            try { window.recaptchaVerifier.clear(); } catch(e) {}
+            window.recaptchaVerifier = undefined;
+        }
 
-        const initRecaptcha = () => {
-            // Clear existing verifier to prevent "already rendered" errors
-            if (window.recaptchaVerifier) {
-                try { window.recaptchaVerifier.clear(); } catch(e) {}
-                window.recaptchaVerifier = undefined;
-            }
+        try {
+            const container = document.getElementById('recaptcha-container');
+            if (!container) return;
 
-            try {
-                const container = document.getElementById('recaptcha-container');
-                if (!container) {
-                    // Retry if container is not yet in DOM
-                    setTimeout(initRecaptcha, 500);
-                    return;
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'callback': () => {
+                    console.log('reCAPTCHA solved');
+                },
+                'expired-callback': () => {
+                    setError("Sesiunea de securitate a expirat. Reîncărcați pagina.");
                 }
+            });
 
-                window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                    'size': 'invisible',
-                    'callback': () => {
-                        console.log('reCAPTCHA solved');
-                    },
-                    'expired-callback': () => {
-                        setError("Verificarea de securitate a expirat. Vă rugăm să reîncercați.");
-                    }
-                });
+            window.recaptchaVerifier.render().then(() => {
+                setIsRecaptchaReady(true);
+            }).catch(err => {
+                console.error("reCAPTCHA render error:", err);
+            });
+        } catch (err) {
+            console.error("Recaptcha Init Error:", err);
+        }
+    };
 
-                window.recaptchaVerifier.render().then(() => {
-                    setIsRecaptchaReady(true);
-                }).catch(err => {
-                    console.error("reCAPTCHA render error:", err);
-                });
-
-            } catch (err) {
-                console.error("Recaptcha Init Error:", err);
-            }
-        };
-
-        const timer = setTimeout(initRecaptcha, 1000);
+    useEffect(() => {
+        const timer = setTimeout(initRecaptcha, 1500);
         return () => {
             clearTimeout(timer);
             if (window.recaptchaVerifier) {
@@ -90,24 +82,26 @@ export default function LoginPage() {
         };
     }, [auth]);
 
-    // Funcție pentru a curăța Service Worker-ul și cache-ul (rezolvă erorile persistente de domeniu)
     const handleHardReset = async () => {
         setIsSubmitting(true);
-        if ('serviceWorker' in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (let registration of registrations) {
-                await registration.unregister();
+        try {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
             }
-        }
-        
-        if ('caches' in window) {
-            const keys = await caches.keys();
-            for (let key of keys) {
-                await caches.delete(key);
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                for (let key of keys) {
+                    await caches.delete(key);
+                }
             }
-        }
+            // Clear all site data
+            window.localStorage.clear();
+            window.sessionStorage.clear();
+        } catch (e) {}
         
-        // Force reload from server bypassing cache
         window.location.reload();
     };
     
@@ -117,20 +111,16 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         if (!window.recaptchaVerifier) {
-            setError(
-                <div className="space-y-3">
-                    <p>Sistemul de securitate nu s-a putut inițializa.</p>
-                    <Button variant="outline" size="sm" className="w-full text-[10px]" onClick={() => window.location.reload()}>
-                        REÎNCARCĂ PAGINA
-                    </Button>
-                </div>
-            );
+            initRecaptcha();
+            setError("Se inițializează securitatea. Vă rugăm să apăsați din nou butonul în 2 secunde.");
             setIsSubmitting(false);
             return;
         }
 
         try {
-            const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
+            const cleanPhone = phoneNumber.replace(/\s/g, '').replace(/^(\+40|40|0)/, '');
+            const formattedPhoneNumber = `+40${cleanPhone}`;
+            
             const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, window.recaptchaVerifier);
             setConfirmationResult(confirmation);
             setStep('otp');
@@ -138,7 +128,6 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error('Login Error:', err);
             
-            const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'necunoscut';
             const isDomainError = err.code === 'auth/requests-from-referer' || 
                                 err.code === 'auth/app-not-authorized' || 
                                 err.message?.toLowerCase().includes('referer') ||
@@ -148,12 +137,14 @@ export default function LoginPage() {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            <AlertTriangle className="w-4 h-4" /> Eroare Autorizare
+                            <Globe className="w-4 h-4" /> Eroare Browser (Securitate)
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Browserul tău folosește o versiune veche a site-ului stocată în memorie (Cache).</p>
-                            <div className="p-2 bg-black/20 rounded border border-white/10 text-[10px] break-all">
-                                Domeniu detectat: {currentHostname}
+                            <p>Browserul tău blochează trimiterea datelor de securitate către Google.</p>
+                            <div className="p-2 bg-black/20 rounded border border-white/10 text-[9px] space-y-1">
+                                <p>• Dezactivează <strong>AdBlock</strong> sau <strong>VPN</strong></p>
+                                <p>• Nu folosi modul <strong>Incognito / Privat</strong></p>
+                                <p>• Folosește <strong>Chrome</strong> sau <strong>Safari</strong> standard</p>
                             </div>
                             <Button 
                                 variant="outline" 
@@ -168,11 +159,11 @@ export default function LoginPage() {
                     </Alert>
                  );
             } else if (err.code === 'auth/invalid-phone-number') {
-                setError("Numărul de telefon introdus nu este valid.");
+                setError("Numărul de telefon nu este valid.");
             } else if (err.code === 'auth/too-many-requests') {
-                 setError("Prea multe încercări. Vă rugăm să așteptați câteva minute.");
+                 setError("Prea multe încercări. Reveniți peste 10-15 minute.");
             } else {
-                setError(`Eroare: ${err.message || 'A apărut o eroare.'}`);
+                setError(`Eroare: ${err.message || 'A apărut o eroare neprevăzută.'}`);
             }
         } finally {
             setIsSubmitting(false);
@@ -185,7 +176,7 @@ export default function LoginPage() {
         setIsSubmitting(true);
         
         if (!confirmationResult) {
-            setError("Sesiunea a expirat.");
+            setError("Sesiunea a expirat. Reîncepeți procesul.");
             setStep('phone');
             setIsSubmitting(false);
             return;
@@ -201,7 +192,7 @@ export default function LoginPage() {
                 router.push('/dashboard');
             }
         } catch (err: any) {
-            setError('Codul introdus este invalid sau a expirat.');
+            setError('Codul este invalid sau a expirat.');
         } finally {
             setIsSubmitting(false);
         }
@@ -255,9 +246,9 @@ export default function LoginPage() {
                             <Button 
                                 type="submit" 
                                 className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl" 
-                                disabled={isSubmitting || (!isRecaptchaReady && phoneNumber.length > 5)}
+                                disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'Se trimite...' : isRecaptchaReady ? 'Trimite Cod' : 'Securizare...'}
+                                {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
                             </Button>
                         </form>
                     ) : (
