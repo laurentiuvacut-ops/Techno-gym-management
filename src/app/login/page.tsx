@@ -128,7 +128,6 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error('Login Error:', err);
             
-            // Detection for Digi/Restrictive ISP issues
             const isNetworkIssue = err.code === 'auth/requests-from-referer' || 
                                  err.code === 'auth/app-not-authorized' ||
                                  err.code === 'auth/network-request-failed' ||
