@@ -1,13 +1,12 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
-import { collection, addDoc, serverTimestamp, query, orderBy, limit, deleteDoc, doc, updateDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, orderBy, limit, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dumbbell, Plus, Trash2, Save, ChevronDown, ChevronUp, Clock, History, X, Edit2, Copy, Share2, Users, CheckSquare, Square } from 'lucide-react';
+import { Dumbbell, Plus, Trash2, Save, ChevronDown, ChevronUp, Clock, X, Edit2, Copy, Share2, Users, CheckSquare, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -314,8 +313,8 @@ export default function WorkoutsTab() {
 
       {activeSubTab === 'my-logs' ? (
         <>
-          <div className="flex justify-between items-center bg-white/5 p-4 rounded-2xl">
-            <div className="flex gap-2">
+          <div className="flex flex-col gap-4 bg-white/5 p-4 rounded-2xl">
+            <div className="flex flex-wrap gap-2">
               <Button 
                 onClick={() => { if(showForm) resetForm(); else setShowForm(true); }} 
                 className="glow-primary rounded-xl h-10 px-4 font-bold uppercase tracking-wider text-xs"
@@ -331,15 +330,15 @@ export default function WorkoutsTab() {
               </Button>
             </div>
             {selectionMode && selectedIds.length > 0 && (
-              <div className="flex gap-2 animate-in fade-in slide-in-from-right-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 animate-in fade-in slide-in-from-top-2">
                 <Input 
-                  placeholder="Titlu pachet (ex: Săptămâna de Forță)" 
+                  placeholder="Titlu pachet (ex: Săptămâna 1)" 
                   value={shareTitle} 
                   onChange={e => setShareTitle(e.target.value)}
-                  className="h-10 bg-background border-primary/30 text-xs w-48"
+                  className="h-10 bg-background border-primary/30 text-base md:text-sm sm:w-64"
                 />
-                <Button onClick={handleShareSelected} disabled={isSharing} className="h-10 px-4 rounded-xl bg-success hover:bg-success/80 text-white font-bold text-xs">
-                  {isSharing ? 'Se publică...' : `Publică ${selectedIds.length}`}
+                <Button onClick={handleShareSelected} disabled={isSharing} className="h-10 px-4 rounded-xl bg-success hover:bg-success/80 text-white font-bold text-xs shrink-0">
+                  {isSharing ? 'Se publică...' : `Publică ${selectedIds.length} Antrenamente`}
                 </Button>
               </div>
             )}
@@ -359,7 +358,7 @@ export default function WorkoutsTab() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Nume Antrenament</Label>
-                      <Input value={workoutName} onChange={e => setWorkoutName(e.target.value)} placeholder="ex: Push Day, Legs..." className="bg-background/50 border-white/10 text-base" required />
+                      <Input value={workoutName} onChange={e => setWorkoutName(e.target.value)} placeholder="ex: Push Day..." className="bg-background/50 border-white/10 text-base" required />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Durată (minute)</Label>
