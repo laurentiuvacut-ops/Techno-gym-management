@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -12,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import Link from 'next/link';
-import { RefreshCcw, ShieldCheck } from 'lucide-react';
+import { RefreshCcw, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 // Extend the Window interface to avoid TypeScript errors when attaching the verifier.
 declare global {
@@ -34,7 +33,6 @@ export default function LoginPage() {
     const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
     
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-    const recaptchaWrapperRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!loading && user) {
@@ -42,24 +40,19 @@ export default function LoginPage() {
         }
     }, [user, loading, router]);
 
-    // Initialize reCAPTCHA verifier with a more robust check
+    // Initialize reCAPTCHA verifier
     useEffect(() => {
         if (!auth) return;
 
         const initRecaptcha = () => {
-            // Curățăm orice instanță veche
             if (window.recaptchaVerifier) {
-                try { 
-                    window.recaptchaVerifier.clear(); 
-                } catch(e) {}
+                try { window.recaptchaVerifier.clear(); } catch(e) {}
                 window.recaptchaVerifier = undefined;
             }
 
             try {
-                // Verificăm dacă elementul există în DOM
                 const container = document.getElementById('recaptcha-container');
                 if (!container) {
-                    console.warn("Container reCAPTCHA negăsit, reîncercăm...");
                     setTimeout(initRecaptcha, 500);
                     return;
                 }
@@ -74,13 +67,10 @@ export default function LoginPage() {
                     }
                 });
 
-                // Forțăm o randare invizibilă pentru a valida domeniul imediat
                 window.recaptchaVerifier.render().then(() => {
                     setIsRecaptchaReady(true);
-                    console.log("reCAPTCHA inițializat cu succes.");
                 }).catch(err => {
-                    console.error("Eroare la randarea reCAPTCHA:", err);
-                    // Dacă e eroare de domeniu, o prindem aici
+                    console.error("reCAPTCHA render error:", err);
                 });
 
             } catch (err) {
@@ -88,9 +78,7 @@ export default function LoginPage() {
             }
         };
 
-        // Mică întârziere pentru a ne asigura că DOM-ul e gata
         const timer = setTimeout(initRecaptcha, 1000);
-
         return () => {
             clearTimeout(timer);
             if (window.recaptchaVerifier) {
@@ -99,6 +87,26 @@ export default function LoginPage() {
             }
         };
     }, [auth]);
+
+    // Funcție pentru a curăța Service Worker-ul și cache-ul (rezolvă erorile persistente de domeniu)
+    const handleHardReset = async () => {
+        setIsSubmitting(true);
+        if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let registration of registrations) {
+                await registration.unregister();
+            }
+        }
+        
+        if ('caches' in window) {
+            const keys = await caches.keys();
+            for (let key of keys) {
+                await caches.delete(key);
+            }
+        }
+        
+        window.location.reload();
+    };
     
     const handleSendCode = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -109,13 +117,7 @@ export default function LoginPage() {
             setError(
                 <div className="space-y-3">
                     <p>Sistemul de securitate nu s-a putut inițializa.</p>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full text-[10px] gap-2"
-                        onClick={() => window.location.reload()}
-                    >
-                        <RefreshCcw className="w-3 h-3" />
+                    <Button variant="outline" size="sm" className="w-full text-[10px]" onClick={() => window.location.reload()}>
                         REÎNCARCĂ PAGINA
                     </Button>
                 </div>
@@ -136,25 +138,27 @@ export default function LoginPage() {
             const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'necunoscut';
             const isDomainError = err.code === 'auth/requests-from-referer' || 
                                 err.code === 'auth/app-not-authorized' || 
-                                err.message?.includes('-39') ||
-                                err.message?.includes('auth/requests-from-referer');
+                                err.message?.includes('referer');
 
             if (isDomainError) {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            Eroare de Autorizare Domeniu
+                            <AlertTriangle className="w-4 h-4" /> Eroare Autorizare
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Domeniul <strong>{currentHostname}</strong> nu a putut fi validat de Firebase. Acest lucru se întâmplă uneori din cauza cache-ului browser-ului.</p>
+                            <p>Browserul tău folosește o versiune veche a site-ului stocată în memorie (Cache).</p>
+                            <div className="p-2 bg-black/20 rounded border border-white/10 text-[10px]">
+                                Domeniu: {currentHostname}
+                            </div>
                             <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="w-full h-8 text-[10px] gap-2 border-primary/30 hover:bg-primary/10"
-                                onClick={() => window.location.reload()}
+                                className="w-full h-8 text-[10px] gap-2 border-primary/30"
+                                onClick={handleHardReset}
                             >
                                 <RefreshCcw className="w-3 h-3" />
-                                REÎNCARCĂ PAGINA (GOLIRE CACHE)
+                                RESETEAZĂ ȘI REÎNCARCĂ
                             </Button>
                         </AlertDescription>
                     </Alert>
@@ -164,7 +168,7 @@ export default function LoginPage() {
             } else if (err.code === 'auth/too-many-requests') {
                  setError("Prea multe încercări. Vă rugăm să așteptați câteva minute.");
             } else {
-                setError(`Eroare: ${err.message || 'A apărut o eroare neașteptată.'}`);
+                setError(`Eroare: ${err.message || 'A apărut o eroare.'}`);
             }
         } finally {
             setIsSubmitting(false);
@@ -177,7 +181,7 @@ export default function LoginPage() {
         setIsSubmitting(true);
         
         if (!confirmationResult) {
-            setError("Sesiunea a expirat. Vă rugăm să reîncepeți procesul.");
+            setError("Sesiunea a expirat.");
             setStep('phone');
             setIsSubmitting(false);
             return;
@@ -193,12 +197,7 @@ export default function LoginPage() {
                 router.push('/dashboard');
             }
         } catch (err: any) {
-            console.error('Verify Error:', err);
-            if (err.code === 'auth/invalid-verification-code' || err.code === 'auth/code-expired') {
-                setError('Codul introdus este invalid sau a expirat.');
-            } else {
-                setError(`Eroare la verificare: ${err.message}`);
-            }
+            setError('Codul introdus este invalid sau a expirat.');
         } finally {
             setIsSubmitting(false);
         }
@@ -206,7 +205,7 @@ export default function LoginPage() {
 
     if (loading || user) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-background">
+            <div className="flex items-center justify-center min-h-screen">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
@@ -214,7 +213,6 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh] bg-background p-4">
-             {/* Container pentru reCAPTCHA - mutat în afara oricărei condiții logice */}
              <div id="recaptcha-container" className="fixed bottom-0 left-0 pointer-events-none opacity-0" />
              
             <Card className="w-full max-w-sm glass rounded-3xl border-border/30 overflow-hidden">
@@ -222,39 +220,22 @@ export default function LoginPage() {
                     <div className="flex justify-center mb-6">
                         <Link href="/" className="flex items-center gap-2">
                            <div className="relative w-10 h-10">
-                            <Image 
-                              src="https://i.imgur.com/9W1ye1w.png" 
-                              alt="Techno Gym Logo" 
-                              fill
-                              className="object-contain"
-                            />
+                            <Image src="https://i.imgur.com/9W1ye1w.png" alt="Logo" fill className="object-contain" />
                            </div>
                            <span className="text-2xl font-bold tracking-tight text-gradient">TECHNO GYM</span>
                         </Link>
                     </div>
-                    {step === 'phone' ? (
-                        <>
-                            <CardTitle className="text-2xl text-center font-headline uppercase tracking-wider">Bun venit</CardTitle>
-                            <CardDescription className="text-center text-xs">
-                                Introdu numărul de telefon pentru a primi codul de acces.
-                            </CardDescription>
-                        </>
-                    ) : (
-                        <>
-                            <CardTitle className="text-2xl text-center font-headline uppercase tracking-wider">Verificare</CardTitle>
-                            <CardDescription className="text-center text-xs">
-                                Am trimis un cod prin SMS la numărul tău.
-                            </CardDescription>
-                        </>
-                    )}
+                    <CardTitle className="text-2xl text-center font-headline uppercase tracking-wider">
+                        {step === 'phone' ? 'Bun venit' : 'Verificare'}
+                    </CardTitle>
                 </CardHeader>
-                {step === 'phone' ? (
-                    <CardContent className="space-y-4">
+                <CardContent className="space-y-4">
+                    {step === 'phone' ? (
                         <form onSubmit={handleSendCode} className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="phone" className="text-xs uppercase tracking-widest opacity-70">Telefon</Label>
                                 <div className="flex items-center">
-                                    <span className="inline-flex items-center px-3 h-10 rounded-l-xl border border-r-0 border-input bg-muted/20 text-sm text-muted-foreground font-bold">+40</span>
+                                    <span className="inline-flex items-center px-3 h-10 rounded-l-xl border border-r-0 border-input bg-muted/20 text-sm font-bold">+40</span>
                                     <Input
                                         id="phone"
                                         type="tel"
@@ -262,45 +243,23 @@ export default function LoginPage() {
                                         onChange={(e) => setPhoneNumber(e.target.value)}
                                         placeholder="7xx xxx xxx"
                                         required
-                                        className="rounded-l-none rounded-r-xl h-10 bg-background/50 text-base"
+                                        className="rounded-l-none rounded-r-xl h-10 text-base"
                                     />
                                 </div>
                             </div>
-                            {error && (
-                                <div className="animate-in fade-in slide-in-from-top-1 duration-200">
-                                    {typeof error === 'string' ? (
-                                        <Alert variant="destructive" className="py-2 border-destructive/20 bg-destructive/5">
-                                            <AlertDescription className="text-[11px] leading-tight">{error}</AlertDescription>
-                                        </Alert>
-                                    ) : (
-                                        error
-                                    )}
-                                </div>
-                            )}
+                            {error && <div className="animate-in fade-in duration-200">{error}</div>}
                             <Button 
                                 type="submit" 
-                                className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl shadow-lg shadow-primary/20" 
+                                className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl" 
                                 disabled={isSubmitting || (!isRecaptchaReady && phoneNumber.length > 5)}
                             >
-                                {isSubmitting ? (
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                        <span>Se trimite...</span>
-                                    </div>
-                                ) : isRecaptchaReady ? 'Trimite Cod' : (
-                                    <div className="flex items-center gap-2">
-                                        <ShieldCheck className="w-4 h-4 animate-pulse" />
-                                        <span>Se securizează...</span>
-                                    </div>
-                                )}
+                                {isSubmitting ? 'Se trimite...' : isRecaptchaReady ? 'Trimite Cod' : 'Securizare...'}
                             </Button>
                         </form>
-                    </CardContent>
-                ) : (
-                    <CardContent className="space-y-4">
+                    ) : (
                         <form onSubmit={handleVerifyCode} className="space-y-4">
                             <div className="space-y-2 text-center">
-                                <Label htmlFor="otp" className="text-xs uppercase tracking-widest opacity-70">Codul de 6 cifre</Label>
+                                <Label htmlFor="otp" className="text-xs uppercase tracking-widest opacity-70">Codul primit</Label>
                                 <Input
                                     id="otp"
                                     value={otp}
@@ -308,34 +267,19 @@ export default function LoginPage() {
                                     placeholder="000000"
                                     required
                                     maxLength={6}
-                                    className="text-center tracking-[0.5em] text-xl font-bold h-14 bg-background/50 rounded-xl"
+                                    className="text-center tracking-[0.5em] text-xl font-bold h-14 bg-background/50"
                                 />
                             </div>
-                             {error && (
-                                <div className="animate-in fade-in slide-in-from-top-1 duration-200">
-                                    {typeof error === 'string' ? (
-                                        <Alert variant="destructive" className="py-2 border-destructive/20 bg-destructive/5">
-                                            <AlertDescription className="text-[11px] leading-tight">{error}</AlertDescription>
-                                        </Alert>
-                                    ) : (
-                                        error
-                                    )}
-                                </div>
-                            )}
-                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl shadow-lg shadow-primary/20" disabled={isSubmitting}>
-                                {isSubmitting ? (
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                        <span>Se verifică...</span>
-                                    </div>
-                                ) : 'Confirmă Accesul'}
+                            {error && <div className="animate-in fade-in duration-200">{error}</div>}
+                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl" disabled={isSubmitting}>
+                                {isSubmitting ? 'Se verifică...' : 'Confirmă Accesul'}
                             </Button>
-                            <Button variant="link" onClick={() => { setStep('phone'); setError(null); setConfirmationResult(null); }} className="w-full text-muted-foreground text-[10px] uppercase tracking-widest">
-                                Folosește alt număr
+                            <Button variant="link" onClick={() => { setStep('phone'); setError(null); }} className="w-full text-muted-foreground text-[10px] uppercase">
+                                Alt număr
                             </Button>
                         </form>
-                    </CardContent>
-                )}
+                    )}
+                </CardContent>
             </Card>
         </div>
     );
