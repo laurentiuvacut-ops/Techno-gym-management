@@ -12,6 +12,8 @@ import WorkoutsTab from '@/components/dashboard/workouts-tab';
 import FeedbackTab from '@/components/dashboard/feedback-tab';
 import ViewFeedbackTab from '@/components/dashboard/view-feedback-tab';
 import ProfileTab from '@/components/dashboard/profile-tab';
+import ProgressTab from '@/components/dashboard/progress-tab';
+import CheckinsTab from '@/components/dashboard/checkins-tab';
 
 const tabs = {
   home: HomeTab,
@@ -22,6 +24,8 @@ const tabs = {
   feedback: FeedbackTab,
   'view-feedback': ViewFeedbackTab,
   profile: ProfileTab,
+  progress: ProgressTab,
+  checkins: CheckinsTab,
 } as const;
 
 export default function DashboardMaster() {

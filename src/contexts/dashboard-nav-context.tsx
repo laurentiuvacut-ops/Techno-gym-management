@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 
-type DashboardTab = 'home' | 'shop' | 'plans' | 'trainers' | 'workouts' | 'feedback' | 'view-feedback' | 'profile';
+type DashboardTab = 'home' | 'shop' | 'plans' | 'trainers' | 'workouts' | 'feedback' | 'view-feedback' | 'profile' | 'progress' | 'checkins';
 
 type DashboardNavContextType = {
   activeTab: DashboardTab;
@@ -33,6 +33,8 @@ export function DashboardNavProvider({ children }: { children: React.ReactNode }
     else if (path.includes('/feedback')) setActiveTab('feedback');
     else if (path.includes('/profile')) setActiveTab('profile');
     else if (path.includes('/plans')) setActiveTab('plans');
+    else if (path.includes('/progress')) setActiveTab('progress');
+    else if (path.includes('/checkins')) setActiveTab('checkins');
   }, []);
 
   useEffect(() => {
@@ -45,6 +47,8 @@ export function DashboardNavProvider({ children }: { children: React.ReactNode }
       'feedback': '/dashboard/feedback',
       'view-feedback': '/dashboard/view-feedback',
       'profile': '/dashboard/profile',
+      'progress': '/dashboard/progress',
+      'checkins': '/dashboard/checkins',
     };
     
     const currentSearch = window.location.search;

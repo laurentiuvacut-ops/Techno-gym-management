@@ -17,6 +17,8 @@ import {
   Dumbbell,
   Users,
   MessageSquare,
+  Ruler,
+  CalendarCheck,
 } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { useMember } from '@/contexts/member-context';
@@ -29,7 +31,9 @@ const mainNavItems: { tab: DashboardTab; label: string; icon: any }[] = [
   { tab: 'home', label: 'Acasă', icon: Home },
   { tab: 'shop', label: 'Shop & Stoc', icon: ShoppingBag },
   { tab: 'plans', label: 'Abonamente', icon: CreditCard },
-  { tab: 'workouts', label: 'Antrenamente', icon: Dumbbell },
+  { tab: 'workouts', label: 'Jurnal', icon: Dumbbell },
+  { tab: 'progress', label: 'Progres', icon: Ruler },
+  { tab: 'checkins', label: 'Prezențe', icon: CalendarCheck },
   { tab: 'trainers', label: 'Antrenori', icon: Users },
   { tab: 'feedback', label: 'Feedback', icon: MessageSquare },
 ];

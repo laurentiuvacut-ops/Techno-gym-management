@@ -17,6 +17,16 @@ service cloud.firestore {
                                    'id', 'name', 'email', 'phone', 'photoURL', 'qrCode', 'agreedToTermsAt']);
       
       allow list, delete: if false;
+
+      match /measurements/{measurementId} {
+        allow read, write: if request.auth != null && request.auth.token.phone_number == phoneNumber;
+      }
+      match /checkins/{checkinId} {
+        allow read, write: if request.auth != null && request.auth.token.phone_number == phoneNumber;
+      }
+      match /workoutLogs/{logId} {
+        allow read, write: if request.auth != null && request.auth.token.phone_number == phoneNumber;
+      }
     }
 
     match /subscriptions/{subscriptionId} {
