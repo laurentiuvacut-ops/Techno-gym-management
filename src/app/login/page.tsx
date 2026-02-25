@@ -1,17 +1,17 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, getAdditionalUserInfo } from 'firebase/auth';
 import { useUser, useAuth } from '@/firebase';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import Link from 'next/link';
-import { RefreshCcw, ShieldCheck, WifiOff, AlertCircle, Clock } from 'lucide-react';
+import { RefreshCcw, WifiOff, Clock } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -29,7 +29,6 @@ export default function LoginPage() {
     const [step, setStep] = useState('phone');
     const [error, setError] = useState<React.ReactNode | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
     
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
@@ -42,7 +41,6 @@ export default function LoginPage() {
     const initRecaptcha = () => {
         if (!auth) return;
         
-        // Curățăm orice instanță veche pentru a preveni conflictele de rețea
         if (window.recaptchaVerifier) {
             try { window.recaptchaVerifier.clear(); } catch(e) {}
             window.recaptchaVerifier = undefined;
@@ -52,22 +50,18 @@ export default function LoginPage() {
             const container = document.getElementById('recaptcha-container');
             if (!container) return;
 
-            // Folosim 'normal' (vizibil). Aceasta este soluția care a funcționat pentru Digi/ISP.
+            // Folosim 'normal' (vizibil) pentru a ocoli blocajele de ISP (Digi)
             window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'normal',
                 'callback': () => {
-                    setIsRecaptchaReady(true);
                     setError(null);
                 },
                 'expired-callback': () => {
-                    setIsRecaptchaReady(false);
                     setError("Verificarea de securitate a expirat. Te rugăm să bifezi din nou căsuța.");
                 }
             });
 
-            window.recaptchaVerifier.render().then(() => {
-                setIsRecaptchaReady(false);
-            }).catch(err => {
+            window.recaptchaVerifier.render().catch(err => {
                 console.error("reCAPTCHA render error:", err);
             });
         } catch (err) {
@@ -133,7 +127,7 @@ export default function LoginPage() {
                             <Clock className="w-4 h-4" /> Prea multe încercări
                         </AlertTitle>
                         <AlertDescription className="text-xs mt-2">
-                            Ai solicitat prea multe coduri într-un timp scurt. Te rugăm să aștepți <strong>5-10 minute</strong> înainte de a încerca din nou.
+                            Ai solicitat prea multe coduri. Te rugăm să aștepți <strong>10 minute</strong> înainte de a încerca din nou.
                         </AlertDescription>
                     </Alert>
                 );
@@ -148,14 +142,13 @@ export default function LoginPage() {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            <WifiOff className="w-4 h-4" /> Blocaj Securitate (ISP)
+                            <WifiOff className="w-4 h-4" /> Blocaj Securitate (ISP/Digi)
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Rețeaua ta blochează procesele de securitate.</p>
-                            <p className="font-bold text-primary">Soluții rapide:</p>
+                            <p>Conexiunea ta actuală blochează procesele de securitate.</p>
+                            <p className="font-bold text-primary">Soluție rapidă:</p>
                             <ul className="list-disc pl-4 space-y-1">
-                                <li>Treci pe <strong>date mobile</strong> (Orange/Vodafone).</li>
-                                <li>Folosește un Wi-Fi din altă rețea.</li>
+                                <li>Treci pe <strong>date mobile</strong> (Orange/Vodafone) și apasă reset.</li>
                             </ul>
                             <Button 
                                 variant="outline" 
@@ -164,7 +157,7 @@ export default function LoginPage() {
                                 onClick={handleHardReset}
                             >
                                 <RefreshCcw className="w-3 h-3" />
-                                Resetare și Reîncărcare
+                                Încearcă Resetare Conexiune
                             </Button>
                         </AlertDescription>
                     </Alert>
