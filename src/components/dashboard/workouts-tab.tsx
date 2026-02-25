@@ -167,11 +167,11 @@ export default function WorkoutsTab() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Nume Antrenament</Label>
-                  <Input value={workoutName} onChange={e => setWorkoutName(e.target.value)} placeholder="ex: Push Day, Legs..." className="bg-background/50 border-white/10" required />
+                  <Input value={workoutName} onChange={e => setWorkoutName(e.target.value)} placeholder="ex: Push Day, Legs..." className="bg-background/50 border-white/10 text-base" required />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Durată (minute)</Label>
-                  <Input type="number" value={duration} onChange={e => setDuration(e.target.value)} placeholder="60" className="bg-background/50 border-white/10" />
+                  <Input type="number" value={duration} onChange={e => setDuration(e.target.value)} placeholder="60" className="bg-background/50 border-white/10 text-base" />
                 </div>
               </div>
 
@@ -187,7 +187,7 @@ export default function WorkoutsTab() {
                   {exercises.map((ex, exIdx) => (
                     <div key={ex.id} className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
                       <div className="flex items-center gap-3">
-                        <Input value={ex.name} onChange={e => updateExerciseName(ex.id, e.target.value)} placeholder="Nume exercițiu..." className="bg-transparent border-none p-0 text-lg font-bold placeholder:opacity-30 focus-visible:ring-0" />
+                        <Input value={ex.name} onChange={e => updateExerciseName(ex.id, e.target.value)} placeholder="Nume exercițiu..." className="bg-transparent border-none p-0 text-lg font-bold placeholder:opacity-30 focus-visible:ring-0 text-base" />
                         <Button type="button" variant="ghost" size="icon" onClick={() => removeExercise(ex.id)} className="h-8 w-8 text-destructive/50 hover:text-destructive hover:bg-destructive/10">
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -198,8 +198,8 @@ export default function WorkoutsTab() {
                           <div key={setIdx} className="flex items-center gap-2">
                             <span className="text-[10px] text-muted-foreground w-4">{setIdx + 1}</span>
                             <div className="flex-1 grid grid-cols-2 gap-2">
-                              <Input type="number" value={set.weight} onChange={e => updateSet(ex.id, setIdx, 'weight', e.target.value)} placeholder="kg" className="h-8 bg-background/50 border-white/5 text-xs text-center" />
-                              <Input type="number" value={set.reps} onChange={e => updateSet(ex.id, setIdx, 'reps', e.target.value)} placeholder="reps" className="h-8 bg-background/50 border-white/5 text-xs text-center" />
+                              <Input type="number" value={set.weight} onChange={e => updateSet(ex.id, setIdx, 'weight', e.target.value)} placeholder="kg" className="h-10 md:h-8 bg-background/50 border-white/5 text-base md:text-sm text-center" />
+                              <Input type="number" value={set.reps} onChange={e => updateSet(ex.id, setIdx, 'reps', e.target.value)} placeholder="reps" className="h-10 md:h-8 bg-background/50 border-white/5 text-base md:text-sm text-center" />
                             </div>
                             <Button type="button" variant="ghost" size="icon" onClick={() => removeSet(ex.id, setIdx)} className="h-8 w-8 opacity-30 hover:opacity-100 hover:text-destructive">
                               <X className="h-3 w-3" />
@@ -217,7 +217,7 @@ export default function WorkoutsTab() {
 
               <div className="space-y-2">
                 <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Note Sesiune</Label>
-                <Textarea value={notes} onChange={e => setNotes(e.target.value)} className="bg-background/50 border-white/10 h-16" placeholder="Cum a fost?" />
+                <Textarea value={notes} onChange={e => setNotes(e.target.value)} className="bg-background/50 border-white/10 h-16 text-base" placeholder="Cum a fost?" />
               </div>
 
               <Button type="submit" disabled={isSubmitting} className="w-full h-12 bg-gradient-primary text-primary-foreground font-bold uppercase tracking-widest">

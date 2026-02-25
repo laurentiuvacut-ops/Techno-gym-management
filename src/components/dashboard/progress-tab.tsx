@@ -107,7 +107,7 @@ export default function ProgressTab() {
   };
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation(); // Prevenim expandarea rândului la ștergere
+    e.stopPropagation(); 
     if (!user?.phoneNumber || !firestore) return;
     try {
       await deleteDoc(doc(firestore, 'members', user.phoneNumber, 'measurements', id));
@@ -177,40 +177,40 @@ export default function ProgressTab() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Greutate (kg)</Label>
-                  <Input type="number" step="0.1" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} className="bg-background/50 border-white/10" placeholder="0.0" />
+                  <Input type="number" step="0.1" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} className="bg-background/50 border-white/10 text-base" placeholder="0.0" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Piept (cm)</Label>
-                  <Input type="number" step="0.5" value={formData.chest} onChange={e => setFormData({...formData, chest: e.target.value})} className="bg-background/50 border-white/10" placeholder="0.0" />
+                  <Input type="number" step="0.5" value={formData.chest} onChange={e => setFormData({...formData, chest: e.target.value})} className="bg-background/50 border-white/10 text-base" placeholder="0.0" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Talie (cm)</Label>
-                  <Input type="number" step="0.5" value={formData.waist} onChange={e => setFormData({...formData, waist: e.target.value})} className="bg-background/50 border-white/10" placeholder="0.0" />
+                  <Input type="number" step="0.5" value={formData.waist} onChange={e => setFormData({...formData, waist: e.target.value})} className="bg-background/50 border-white/10 text-base" placeholder="0.0" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Șolduri (cm)</Label>
-                  <Input type="number" step="0.5" value={formData.hips} onChange={e => setFormData({...formData, hips: e.target.value})} className="bg-background/50 border-white/10" placeholder="0.0" />
+                  <Input type="number" step="0.5" value={formData.hips} onChange={e => setFormData({...formData, hips: e.target.value})} className="bg-background/50 border-white/10 text-base" placeholder="0.0" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Braț Stâng (cm)</Label>
-                  <Input type="number" step="0.1" value={formData.leftArm} onChange={e => setFormData({...formData, leftArm: e.target.value})} className="bg-background/50 border-white/10" placeholder="0.0" />
+                  <Input type="number" step="0.1" value={formData.leftArm} onChange={e => setFormData({...formData, leftArm: e.target.value})} className="bg-background/50 border-white/10 text-base" placeholder="0.0" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Braț Drept (cm)</Label>
-                  <Input type="number" step="0.1" value={formData.rightArm} onChange={e => setFormData({...formData, rightArm: e.target.value})} className="bg-background/50 border-white/10" placeholder="0.0" />
+                  <Input type="number" step="0.1" value={formData.rightArm} onChange={e => setFormData({...formData, rightArm: e.target.value})} className="bg-background/50 border-white/10 text-base" placeholder="0.0" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Coapsă Stângă (cm)</Label>
-                  <Input type="number" step="0.1" value={formData.leftThigh} onChange={e => setFormData({...formData, leftThigh: e.target.value})} className="bg-background/50 border-white/10" placeholder="0.0" />
+                  <Input type="number" step="0.1" value={formData.leftThigh} onChange={e => setFormData({...formData, leftThigh: e.target.value})} className="bg-background/50 border-white/10 text-base" placeholder="0.0" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Body Fat (%)</Label>
-                  <Input type="number" step="0.1" value={formData.bodyFat} onChange={e => setFormData({...formData, bodyFat: e.target.value})} className="bg-background/50 border-white/10" placeholder="0.0" />
+                  <Input type="number" step="0.1" value={formData.bodyFat} onChange={e => setFormData({...formData, bodyFat: e.target.value})} className="bg-background/50 border-white/10 text-base" placeholder="0.0" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Note</Label>
-                <Textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} className="bg-background/50 border-white/10 h-20" placeholder="Cum te simți azi?" />
+                <Textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} className="bg-background/50 border-white/10 h-20 text-base" placeholder="Cum te simți azi?" />
               </div>
               <Button type="submit" disabled={isSubmitting} className="w-full h-12 bg-gradient-primary text-primary-foreground font-bold uppercase tracking-widest">
                 {isSubmitting ? 'Se salvează...' : <><Save className="mr-2 h-5 w-5" /> Salvează Măsurătorile</>}
