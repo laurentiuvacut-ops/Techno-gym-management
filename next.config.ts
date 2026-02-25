@@ -1,7 +1,8 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  // Timestamp: 1740660000008 - Forțare rebuild pentru rezolvare erori Auth domenii
+  // Timestamp: 1740660000009 - Rezolvare eroare inițializare sistem securitate (reCAPTCHA)
   typescript: {
     ignoreBuildErrors: true,
   },

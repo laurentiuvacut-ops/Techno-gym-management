@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -11,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import Link from 'next/link';
-import { RefreshCcw } from 'lucide-react';
+import { RefreshCcw, ShieldCheck } from 'lucide-react';
 
 // Extend the Window interface to avoid TypeScript errors when attaching the verifier.
 declare global {
@@ -30,6 +31,7 @@ export default function LoginPage() {
     const [step, setStep] = useState('phone'); // 'phone' or 'otp'
     const [error, setError] = useState<React.ReactNode | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
     
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
     const recaptchaWrapperRef = useRef<HTMLDivElement>(null);
@@ -40,17 +42,28 @@ export default function LoginPage() {
         }
     }, [user, loading, router]);
 
-    // Initialize reCAPTCHA verifier once on mount
+    // Initialize reCAPTCHA verifier with a more robust check
     useEffect(() => {
         if (!auth) return;
 
         const initRecaptcha = () => {
+            // Curățăm orice instanță veche
             if (window.recaptchaVerifier) {
-                try { window.recaptchaVerifier.clear(); } catch(e) {}
-                delete window.recaptchaVerifier;
+                try { 
+                    window.recaptchaVerifier.clear(); 
+                } catch(e) {}
+                window.recaptchaVerifier = undefined;
             }
 
             try {
+                // Verificăm dacă elementul există în DOM
+                const container = document.getElementById('recaptcha-container');
+                if (!container) {
+                    console.warn("Container reCAPTCHA negăsit, reîncercăm...");
+                    setTimeout(initRecaptcha, 500);
+                    return;
+                }
+
                 window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                     'size': 'invisible',
                     'callback': () => {
@@ -60,17 +73,29 @@ export default function LoginPage() {
                         setError("Verificarea de securitate a expirat. Vă rugăm să reîncercați.");
                     }
                 });
+
+                // Forțăm o randare invizibilă pentru a valida domeniul imediat
+                window.recaptchaVerifier.render().then(() => {
+                    setIsRecaptchaReady(true);
+                    console.log("reCAPTCHA inițializat cu succes.");
+                }).catch(err => {
+                    console.error("Eroare la randarea reCAPTCHA:", err);
+                    // Dacă e eroare de domeniu, o prindem aici
+                });
+
             } catch (err) {
                 console.error("Recaptcha Init Error:", err);
             }
         };
 
-        initRecaptcha();
+        // Mică întârziere pentru a ne asigura că DOM-ul e gata
+        const timer = setTimeout(initRecaptcha, 1000);
 
         return () => {
+            clearTimeout(timer);
             if (window.recaptchaVerifier) {
                 try { window.recaptchaVerifier.clear(); } catch(e) {}
-                delete window.recaptchaVerifier;
+                window.recaptchaVerifier = undefined;
             }
         };
     }, [auth]);
@@ -81,7 +106,20 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         if (!window.recaptchaVerifier) {
-            setError("Eroare la inițializarea sistemului de securitate. Vă rugăm să reîncărcați pagina.");
+            setError(
+                <div className="space-y-3">
+                    <p>Sistemul de securitate nu s-a putut inițializa.</p>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full text-[10px] gap-2"
+                        onClick={() => window.location.reload()}
+                    >
+                        <RefreshCcw className="w-3 h-3" />
+                        REÎNCARCĂ PAGINA
+                    </Button>
+                </div>
+            );
             setIsSubmitting(false);
             return;
         }
@@ -118,9 +156,6 @@ export default function LoginPage() {
                                 <RefreshCcw className="w-3 h-3" />
                                 REÎNCARCĂ PAGINA (GOLIRE CACHE)
                             </Button>
-                            <div className="pt-2 opacity-60">
-                                <p><strong>Notă Admin:</strong> Verifică dacă domeniul este în listă fără "www" (technogymcraiova.com) și cu "www".</p>
-                            </div>
                         </AlertDescription>
                     </Alert>
                  );
@@ -179,8 +214,8 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh] bg-background p-4">
-             {/* Container ascuns pentru reCAPTCHA - păstrat în DOM constant */}
-             <div id="recaptcha-container" ref={recaptchaWrapperRef} className="fixed bottom-0 left-0" />
+             {/* Container pentru reCAPTCHA - mutat în afara oricărei condiții logice */}
+             <div id="recaptcha-container" className="fixed bottom-0 left-0 pointer-events-none opacity-0" />
              
             <Card className="w-full max-w-sm glass rounded-3xl border-border/30 overflow-hidden">
                 <CardHeader className="pb-4">
@@ -242,13 +277,22 @@ export default function LoginPage() {
                                     )}
                                 </div>
                             )}
-                            <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl shadow-lg shadow-primary/20" disabled={isSubmitting}>
+                            <Button 
+                                type="submit" 
+                                className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl shadow-lg shadow-primary/20" 
+                                disabled={isSubmitting || (!isRecaptchaReady && phoneNumber.length > 5)}
+                            >
                                 {isSubmitting ? (
                                     <div className="flex items-center gap-2">
                                         <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                                         <span>Se trimite...</span>
                                     </div>
-                                ) : 'Trimite Cod'}
+                                ) : isRecaptchaReady ? 'Trimite Cod' : (
+                                    <div className="flex items-center gap-2">
+                                        <ShieldCheck className="w-4 h-4 animate-pulse" />
+                                        <span>Se securizează...</span>
+                                    </div>
+                                )}
                             </Button>
                         </form>
                     </CardContent>
