@@ -3,9 +3,9 @@
 import { useState, useMemo } from 'react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
 import { doc, setDoc, collection, query, orderBy, limit, deleteDoc } from 'firebase/firestore';
-import { format, subDays, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Ruler, TrendingUp, Plus, ChevronDown, ChevronUp, Trash2, Save, X } from 'lucide-react';
+import { Ruler, TrendingUp, Plus, ChevronDown, ChevronUp, Trash2, Save, X, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export default function ProgressTab() {
   const { user } = useUser();
@@ -23,6 +24,7 @@ export default function ProgressTab() {
   const [showForm, setShowForm] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState('weight');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     weight: '',
@@ -104,11 +106,13 @@ export default function ProgressTab() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // Prevenim expandarea rândului la ștergere
     if (!user?.phoneNumber || !firestore) return;
     try {
       await deleteDoc(doc(firestore, 'members', user.phoneNumber, 'measurements', id));
       toast({ title: "Șters", description: "Înregistrarea a fost eliminată." });
+      if (expandedId === id) setExpandedId(null);
     } catch (err) {
       toast({ variant: "destructive", title: "Eroare", description: "Nu s-a putut șterge." });
     }
@@ -131,6 +135,8 @@ export default function ProgressTab() {
     { id: 'hips', label: 'Șolduri (cm)' },
     { id: 'leftArm', label: 'Braț Stâng (cm)' },
     { id: 'rightArm', label: 'Braț Drept (cm)' },
+    { id: 'leftThigh', label: 'Coapsă Stângă (cm)' },
+    { id: 'rightThigh', label: 'Coapsă Dreaptă (cm)' },
     { id: 'bodyFat', label: 'Body Fat (%)' },
   ];
 
@@ -274,30 +280,102 @@ export default function ProgressTab() {
            <h2 className="text-xl font-headline tracking-wide uppercase">Istoric Măsurători</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-white/5 text-[10px] uppercase tracking-widest text-muted-foreground">
                 <th className="p-4">Dată</th>
                 <th className="p-4">Greutate</th>
                 <th className="p-4">Talie</th>
                 <th className="p-4">Body Fat</th>
-                <th className="p-4 text-right">Acțiuni</th>
+                <th className="p-4 text-right">Detalii</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {measurements?.map((m) => (
-                <tr key={m.id} className="hover:bg-white/5 transition-colors">
-                  <td className="p-4 font-medium text-sm">{format(new Date(m.date), 'dd MMM yyyy')}</td>
-                  <td className="p-4 text-sm">{m.weight ? `${m.weight} kg` : '-'}</td>
-                  <td className="p-4 text-sm">{m.waist ? `${m.waist} cm` : '-'}</td>
-                  <td className="p-4 text-sm">{m.bodyFat ? `${m.bodyFat}%` : '-'}</td>
-                  <td className="p-4 text-right">
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(m.id)} className="h-8 w-8 text-destructive/70 hover:text-destructive hover:bg-destructive/10">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+              {measurements?.map((m) => {
+                const isExpanded = expandedId === m.id;
+                return (
+                  <React.Fragment key={m.id}>
+                    <tr 
+                      className={cn(
+                        "hover:bg-white/5 transition-colors cursor-pointer",
+                        isExpanded && "bg-white/5"
+                      )}
+                      onClick={() => setExpandedId(isExpanded ? null : m.id)}
+                    >
+                      <td className="p-4 font-medium text-sm">{format(new Date(m.date), 'dd MMM yyyy')}</td>
+                      <td className="p-4 text-sm font-bold text-primary">{m.weight ? `${m.weight} kg` : '-'}</td>
+                      <td className="p-4 text-sm">{m.waist ? `${m.waist} cm` : '-'}</td>
+                      <td className="p-4 text-sm">{m.bodyFat ? `${m.bodyFat}%` : '-'}</td>
+                      <td className="p-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                           </Button>
+                        </div>
+                      </td>
+                    </tr>
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={5} className="p-0 border-0">
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden bg-black/20"
+                            >
+                              <div className="p-6 grid grid-cols-2 sm:grid-cols-4 gap-6">
+                                <div className="space-y-1">
+                                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Piept</p>
+                                  <p className="text-sm font-bold">{m.chest ? `${m.chest} cm` : '-'}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Șolduri</p>
+                                  <p className="text-sm font-bold">{m.hips ? `${m.hips} cm` : '-'}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Braț Stâng</p>
+                                  <p className="text-sm font-bold">{m.leftArm ? `${m.leftArm} cm` : '-'}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Braț Drept</p>
+                                  <p className="text-sm font-bold">{m.rightArm ? `${m.rightArm} cm` : '-'}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Coapsă Stângă</p>
+                                  <p className="text-sm font-bold">{m.leftThigh ? `${m.leftThigh} cm` : '-'}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Coapsă Dreaptă</p>
+                                  <p className="text-sm font-bold">{m.rightThigh ? `${m.rightThigh} cm` : '-'}</p>
+                                </div>
+                                {m.notes && (
+                                  <div className="col-span-2 sm:col-span-4 p-3 bg-white/5 rounded-xl border-l-2 border-primary mt-2">
+                                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 flex items-center gap-1">
+                                      <Info className="w-3 h-3" /> Note
+                                    </p>
+                                    <p className="text-xs italic opacity-80">"{m.notes}"</p>
+                                  </div>
+                                )}
+                                <div className="col-span-2 sm:col-span-4 flex justify-end">
+                                   <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={(e) => handleDelete(e, m.id)} 
+                                      className="text-destructive/70 hover:text-destructive hover:bg-destructive/10 h-8 px-3 rounded-lg text-[10px] uppercase font-bold tracking-widest"
+                                    >
+                                      <Trash2 className="h-3 w-3 mr-2" /> Șterge Înregistrarea
+                                    </Button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          </td>
+                        </tr>
+                      )}
+                    </AnimatePresence>
+                  </React.Fragment>
+                );
+              })}
               {(!measurements || measurements.length === 0) && (
                 <tr>
                   <td colSpan={5} className="p-10 text-center text-muted-foreground italic">Nicio măsurătoare salvată.</td>
@@ -310,3 +388,4 @@ export default function ProgressTab() {
     </motion.div>
   );
 }
+import React from 'react';
