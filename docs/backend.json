@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "Member": {
@@ -204,6 +203,7 @@
       "description": "A workout or bundle of workouts shared with the community.",
       "properties": {
         "title": { "type": "string" },
+        "description": { "type": "string", "description": "Notes or instructions from the creator." },
         "creatorName": { "type": "string" },
         "creatorId": { "type": "string" },
         "createdAt": { "type": "object" },
