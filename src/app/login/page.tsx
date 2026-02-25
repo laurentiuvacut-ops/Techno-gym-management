@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, getAdditionalUserInfo } from 'firebase/auth';
 import { useUser, useAuth } from '@/firebase';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -41,6 +41,7 @@ export default function LoginPage() {
     const initRecaptcha = () => {
         if (!auth) return;
         
+        // Clear any existing verifier to prevent stale state
         if (window.recaptchaVerifier) {
             try { window.recaptchaVerifier.clear(); } catch(e) {}
             window.recaptchaVerifier = undefined;
@@ -82,18 +83,21 @@ export default function LoginPage() {
     const handleHardReset = async () => {
         setIsSubmitting(true);
         try {
+            // Unregister service workers
             if ('serviceWorker' in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
                 for (let registration of registrations) {
                     await registration.unregister();
                 }
             }
+            // Clear caches
             if ('caches' in window) {
                 const keys = await caches.keys();
                 for (let key of keys) {
                     await caches.delete(key);
                 }
             }
+            // Clear storage
             window.localStorage.clear();
             window.sessionStorage.clear();
         } catch (e) {}
@@ -124,6 +128,7 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error('Login Error:', err);
             
+            // Detection for Digi/Restrictive ISP issues
             const isNetworkIssue = err.code === 'auth/requests-from-referer' || 
                                  err.code === 'auth/app-not-authorized' ||
                                  err.code === 'auth/network-request-failed' ||
