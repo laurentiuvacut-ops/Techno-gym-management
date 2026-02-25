@@ -6,15 +6,17 @@ import { doc, setDoc, collection, query, orderBy, limit } from 'firebase/firesto
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, isFuture, startOfWeek, differenceInDays } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import { CalendarCheck, ChevronLeft, ChevronRight, Check, History, TrendingUp, Flame } from 'lucide-react';
+import { CalendarCheck, ChevronLeft, ChevronRight, Check, History, TrendingUp, Flame, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 
 export default function CheckinsTab() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const { setActiveTab } = useDashboardNav();
   const { toast } = useToast();
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -97,6 +99,16 @@ export default function CheckinsTab() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 pb-10">
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => setActiveTab('home')}
+        className="text-white hover:text-primary gap-2 h-9 px-4 border border-white/10 bg-white/5 hover:bg-white/10 rounded-xl transition-all"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Acasa
+      </Button>
+
       <div className="space-y-1">
         <h1 className="text-4xl font-headline tracking-wider flex items-center gap-3">
           <CalendarCheck className="w-8 h-8 text-primary" />

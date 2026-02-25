@@ -6,7 +6,7 @@ import { collection, addDoc, serverTimestamp, query, orderBy, limit, deleteDoc, 
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dumbbell, Plus, Trash2, Save, ChevronDown, ChevronUp, Clock, X, Edit2, Copy, Share2, Users, CheckSquare, Square, Info } from 'lucide-react';
+import { Dumbbell, Plus, Trash2, Save, ChevronDown, ChevronUp, Clock, X, Edit2, Copy, Share2, Users, CheckSquare, Square, Info, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useMember } from '@/contexts/member-context';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 
 interface Set {
   weight: string;
@@ -31,6 +32,7 @@ export default function WorkoutsTab() {
   const { user } = useUser();
   const { memberData } = useMember();
   const firestore = useFirestore();
+  const { setActiveTab } = useDashboardNav();
   const { toast } = useToast();
   
   const [activeSubTab, setActiveSubTab] = useState<'my-logs' | 'community'>('my-logs');
@@ -289,6 +291,16 @@ export default function WorkoutsTab() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 pb-20">
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => setActiveTab('home')}
+        className="text-white hover:text-primary gap-2 h-9 px-4 border border-white/10 bg-white/5 hover:bg-white/10 rounded-xl transition-all"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Acasa
+      </Button>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-4xl font-headline tracking-wider flex items-center gap-3">

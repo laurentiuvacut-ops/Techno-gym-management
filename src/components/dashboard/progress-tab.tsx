@@ -5,7 +5,7 @@ import { useUser, useFirestore, useCollection } from '@/firebase';
 import { doc, setDoc, collection, query, orderBy, limit, deleteDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Ruler, TrendingUp, Plus, ChevronDown, ChevronUp, Trash2, Save, X, Info } from 'lucide-react';
+import { Ruler, TrendingUp, Plus, ChevronDown, ChevronUp, Trash2, Save, X, Info, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,10 +15,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 
 export default function ProgressTab() {
   const { user } = useUser();
   const firestore = useFirestore();
+  const { setActiveTab } = useDashboardNav();
   const { toast } = useToast();
   
   const [showForm, setShowForm] = useState(false);
@@ -150,6 +152,16 @@ export default function ProgressTab() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 pb-10">
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => setActiveTab('home')}
+        className="text-white hover:text-primary gap-2 h-9 px-4 border border-white/10 bg-white/5 hover:bg-white/10 rounded-xl transition-all"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Acasa
+      </Button>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-4xl font-headline tracking-wider flex items-center gap-3">
