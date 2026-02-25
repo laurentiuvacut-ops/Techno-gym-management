@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import Link from 'next/link';
-import { RefreshCcw, ShieldCheck, WifiOff, AlertCircle } from 'lucide-react';
+import { RefreshCcw, ShieldCheck, WifiOff, AlertCircle, Clock } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -42,7 +42,7 @@ export default function LoginPage() {
     const initRecaptcha = () => {
         if (!auth) return;
         
-        // Curățăm orice instanță veche
+        // Curățăm orice instanță veche pentru a preveni conflictele de rețea
         if (window.recaptchaVerifier) {
             try { window.recaptchaVerifier.clear(); } catch(e) {}
             window.recaptchaVerifier = undefined;
@@ -52,8 +52,7 @@ export default function LoginPage() {
             const container = document.getElementById('recaptcha-container');
             if (!container) return;
 
-            // Folosim 'normal' (vizibil) în loc de 'invisible'. 
-            // Aceasta este soluția de bază pentru a trece de blocajele de rețea ISP/Digi.
+            // Folosim 'normal' (vizibil). Aceasta este soluția care a funcționat pentru Digi/ISP.
             window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'normal',
                 'callback': () => {
@@ -67,7 +66,7 @@ export default function LoginPage() {
             });
 
             window.recaptchaVerifier.render().then(() => {
-                setIsRecaptchaReady(false); // Așteptăm să fie bifat
+                setIsRecaptchaReady(false);
             }).catch(err => {
                 console.error("reCAPTCHA render error:", err);
             });
@@ -127,27 +126,36 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error('Login Error:', err);
             
-            const isNetworkIssue = err.code === 'auth/requests-from-referer' || 
-                                 err.code === 'auth/app-not-authorized' ||
-                                 err.code === 'auth/network-request-failed' ||
-                                 err.code === 'auth/error-code:-39' ||
-                                 err.message?.toLowerCase().includes('referer') ||
-                                 err.message?.toLowerCase().includes('error code: 39') ||
-                                 err.message?.toLowerCase().includes('error-code:-39') ||
-                                 err.message?.includes('-39');
-
-            if (isNetworkIssue) {
+            if (err.code === 'auth/too-many-requests') {
+                setError(
+                    <Alert variant="destructive" className="bg-destructive/10">
+                        <AlertTitle className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" /> Prea multe încercări
+                        </AlertTitle>
+                        <AlertDescription className="text-xs mt-2">
+                            Ai solicitat prea multe coduri într-un timp scurt. Te rugăm să aștepți <strong>5-10 minute</strong> înainte de a încerca din nou.
+                        </AlertDescription>
+                    </Alert>
+                );
+            } else if (
+                err.code === 'auth/requests-from-referer' || 
+                err.code === 'auth/app-not-authorized' ||
+                err.code === 'auth/network-request-failed' ||
+                err.code === 'auth/error-code:-39' ||
+                err.message?.toLowerCase().includes('referer') ||
+                err.message?.includes('-39')
+            ) {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            <WifiOff className="w-4 h-4" /> Securitatea este blocată de rețea
+                            <WifiOff className="w-4 h-4" /> Blocaj Securitate (ISP)
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Rețeaua ta actuală (Digi/RDS) blochează serverele Google de verificare.</p>
+                            <p>Rețeaua ta blochează procesele de securitate.</p>
                             <p className="font-bold text-primary">Soluții rapide:</p>
                             <ul className="list-disc pl-4 space-y-1">
-                                <li>Deconectează-te de la Wi-Fi și folosește <strong>datele mobile</strong>.</li>
-                                <li>Dacă ești deja pe date mobile, încearcă un <strong>Wi-Fi din altă rețea</strong>.</li>
+                                <li>Treci pe <strong>date mobile</strong> (Orange/Vodafone).</li>
+                                <li>Folosește un Wi-Fi din altă rețea.</li>
                             </ul>
                             <Button 
                                 variant="outline" 
