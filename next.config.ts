@@ -1,7 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  // Timestamp: 1740660000030 - Fortare actualizare cache browser pentru erori domeniu
+  // Timestamp: 1740660000032 - Fortare actualizare cache browser pentru erori domeniu (ISP Fix)
   typescript: {
     ignoreBuildErrors: true,
   },

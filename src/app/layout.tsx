@@ -21,6 +21,7 @@ export const metadata: Metadata = {
   title: 'Techno Gym',
   description: 'Your futuristic gym companion.',
   manifest: '/manifest.ts',
+  referrer: 'no-referrer-when-downgrade',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

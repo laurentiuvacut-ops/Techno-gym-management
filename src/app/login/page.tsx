@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import Link from 'next/link';
-import { RefreshCcw, ShieldCheck, AlertTriangle, Globe } from 'lucide-react';
+import { RefreshCcw, ShieldCheck, AlertTriangle, Globe, WifiOff } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -29,7 +29,6 @@ export default function LoginPage() {
     const [step, setStep] = useState('phone');
     const [error, setError] = useState<React.ReactNode | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
     
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
@@ -61,9 +60,7 @@ export default function LoginPage() {
                 }
             });
 
-            window.recaptchaVerifier.render().then(() => {
-                setIsRecaptchaReady(true);
-            }).catch(err => {
+            window.recaptchaVerifier.render().catch(err => {
                 console.error("reCAPTCHA render error:", err);
             });
         } catch (err) {
@@ -72,7 +69,7 @@ export default function LoginPage() {
     };
 
     useEffect(() => {
-        const timer = setTimeout(initRecaptcha, 1500);
+        const timer = setTimeout(initRecaptcha, 1000);
         return () => {
             clearTimeout(timer);
             if (window.recaptchaVerifier) {
@@ -97,7 +94,6 @@ export default function LoginPage() {
                     await caches.delete(key);
                 }
             }
-            // Clear all site data
             window.localStorage.clear();
             window.sessionStorage.clear();
         } catch (e) {}
@@ -112,7 +108,7 @@ export default function LoginPage() {
 
         if (!window.recaptchaVerifier) {
             initRecaptcha();
-            setError("Se inițializează securitatea. Vă rugăm să apăsați din nou butonul în 2 secunde.");
+            setError("Se inițializează securitatea. Încercați din nou în 2 secunde.");
             setIsSubmitting(false);
             return;
         }
@@ -128,23 +124,22 @@ export default function LoginPage() {
         } catch (err: any) {
             console.error('Login Error:', err);
             
-            const isDomainError = err.code === 'auth/requests-from-referer' || 
-                                err.code === 'auth/app-not-authorized' || 
-                                err.message?.toLowerCase().includes('referer') ||
-                                err.message?.toLowerCase().includes('domain');
+            const isNetworkIssue = err.code === 'auth/requests-from-referer' || 
+                                 err.code === 'auth/app-not-authorized' ||
+                                 err.message?.toLowerCase().includes('referer');
 
-            if (isDomainError) {
+            if (isNetworkIssue) {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            <Globe className="w-4 h-4" /> Eroare Browser (Securitate)
+                            <WifiOff className="w-4 h-4" /> Problemă de Conexiune (Digi/ISP)
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Browserul tău blochează trimiterea datelor de securitate către Google.</p>
+                            <p>Rețeaua ta de internet blochează datele de securitate (Referrer header).</p>
                             <div className="p-2 bg-black/20 rounded border border-white/10 text-[9px] space-y-1">
-                                <p>• Dezactivează <strong>AdBlock</strong> sau <strong>VPN</strong></p>
-                                <p>• Nu folosi modul <strong>Incognito / Privat</strong></p>
-                                <p>• Folosește <strong>Chrome</strong> sau <strong>Safari</strong> standard</p>
+                                <p>1. <strong>Oprește Wi-Fi</strong> și folosește Datele Mobile.</p>
+                                <p>2. Dacă ești pe Date, încearcă o rețea Wi-Fi.</p>
+                                <p>3. Apasă butonul de mai jos pentru a reseta setările.</p>
                             </div>
                             <Button 
                                 variant="outline" 
@@ -161,9 +156,9 @@ export default function LoginPage() {
             } else if (err.code === 'auth/invalid-phone-number') {
                 setError("Numărul de telefon nu este valid.");
             } else if (err.code === 'auth/too-many-requests') {
-                 setError("Prea multe încercări. Reveniți peste 10-15 minute.");
+                 setError("Prea multe încercări. Reveniți peste 15 minute.");
             } else {
-                setError(`Eroare: ${err.message || 'A apărut o eroare neprevăzută.'}`);
+                setError(`Eroare: ${err.message || 'A apărut o eroare.'}`);
             }
         } finally {
             setIsSubmitting(false);
@@ -248,7 +243,7 @@ export default function LoginPage() {
                                 className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl" 
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'Se trimite...' : 'Trimite Cod'}
+                                {isSubmitting ? 'Se verifică...' : 'Trimite Cod'}
                             </Button>
                         </form>
                     ) : (
@@ -267,7 +262,7 @@ export default function LoginPage() {
                             </div>
                             {error && <div className="animate-in fade-in duration-200">{error}</div>}
                             <Button type="submit" className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl" disabled={isSubmitting}>
-                                {isSubmitting ? 'Se verifică...' : 'Confirmă Accesul'}
+                                {isSubmitting ? 'Se confirmă...' : 'Confirmă Accesul'}
                             </Button>
                             <Button variant="link" onClick={() => { setStep('phone'); setError(null); }} className="w-full text-muted-foreground text-[10px] uppercase">
                                 Alt număr
