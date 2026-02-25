@@ -2,16 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useSidebar } from '@/components/ui/sidebar';
 import { useUser } from '@/firebase';
 import { useMember } from '@/contexts/member-context';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Button } from '../ui/button';
+import { Menu } from 'lucide-react';
 
 export default function DashboardHeader() {
   const { user, isUserLoading } = useUser();
   const { memberData } = useMember();
   const { setActiveTab } = useDashboardNav();
+  const { toggleSidebar } = useSidebar();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -45,7 +48,15 @@ export default function DashboardHeader() {
         scrolled ? "glass" : "bg-transparent"
     )}>
       <div className="md:hidden">
-        <SidebarTrigger />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={toggleSidebar}
+          className="gap-2 h-10 px-4 border border-white/10 bg-white/5 hover:bg-white/10 rounded-xl transition-all font-headline tracking-widest uppercase text-xs"
+        >
+          <Menu className="w-4 h-4 text-primary" />
+          Meniu
+        </Button>
       </div>
       <div className="flex-1" />
       {mounted && !isUserLoading && user && (
