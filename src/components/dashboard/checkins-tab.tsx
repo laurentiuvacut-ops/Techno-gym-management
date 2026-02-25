@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
-import { doc, setDoc, collection, query, where, orderBy, limit } from 'firebase/firestore';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, isFuture, startOfWeek, endOfWeek, differenceInDays } from 'date-fns';
+import { doc, setDoc, collection, query, orderBy, limit } from 'firebase/firestore';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, isFuture, startOfWeek, differenceInDays } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { CalendarCheck, ChevronLeft, ChevronRight, Check, History, TrendingUp, Flame } from 'lucide-react';
@@ -43,23 +43,14 @@ export default function CheckinsTab() {
     const monthly = checkins.filter(c => new Date(c.date) >= monthStart).length;
     const weekly = checkins.filter(c => new Date(c.date) >= weekStart).length;
 
-    // Calculate streak
     let streak = 0;
-    const sortedDates = checkins
-      .map(c => c.date)
-      .sort((a, b) => b.localeCompare(a));
+    const sortedDates = [...new Set(checkins.map(c => c.date))].sort((a, b) => b.localeCompare(a));
 
     if (sortedDates.length > 0) {
-      let currentCheck = new Date();
-      if (sortedDates[0] !== format(currentCheck, 'yyyy-MM-dd')) {
-        currentCheck = subMonths(currentCheck, 0); // No change, just a helper
-      }
+      const lastCheckDate = new Date(sortedDates[0]);
+      const diffFromToday = differenceInDays(new Date(todayStr), lastCheckDate);
 
-      // Check for current day or yesterday to continue streak
-      const lastCheck = new Date(sortedDates[0]);
-      const diffDays = differenceInDays(new Date(format(new Date(), 'yyyy-MM-dd')), lastCheck);
-
-      if (diffDays <= 1) {
+      if (diffFromToday <= 1) {
         streak = 1;
         for (let i = 0; i < sortedDates.length - 1; i++) {
           const d1 = new Date(sortedDates[i]);
@@ -74,7 +65,7 @@ export default function CheckinsTab() {
     }
 
     return { monthly, weekly, streak };
-  }, [checkins]);
+  }, [checkins, todayStr]);
 
   const handleCheckin = async () => {
     if (!user?.phoneNumber || !firestore) return;
@@ -96,9 +87,8 @@ export default function CheckinsTab() {
     const end = endOfMonth(currentMonth);
     const days = eachDayOfInterval({ start, end });
     
-    // Fill in days from previous month to align with Monday
-    const startDay = (start.getDay() + 6) % 7; // Adjust for Monday start
-    const padding = Array.from({ length: startDay }).map((_, i) => null);
+    const startDay = (start.getDay() + 6) % 7; 
+    const padding = Array.from({ length: startDay }).map(() => null);
     
     return [...padding, ...days];
   }, [currentMonth]);

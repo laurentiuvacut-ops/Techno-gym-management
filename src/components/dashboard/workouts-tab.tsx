@@ -238,7 +238,7 @@ export default function WorkoutsTab() {
           {logs && logs.length > 0 ? (
             logs.map((log) => {
               const totalVolume = log.exercises.reduce((sum: number, ex: any) => 
-                sum + ex.sets.reduce((sSum: number, s: any) => sSum + (s.weight * s.reps), 0), 0);
+                sum + ex.sets.reduce((sSum: number, s: any) => sSum + (parseFloat(s.weight) * parseInt(s.reps)), 0), 0);
               const isExpanded = expandedId === log.id;
 
               return (

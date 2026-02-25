@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ProgressTab() {
@@ -24,7 +24,6 @@ export default function ProgressTab() {
   const [selectedMetric, setSelectedMetric] = useState('weight');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Initial form state
   const [formData, setFormData] = useState({
     weight: '',
     chest: '',
