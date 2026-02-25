@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import Link from 'next/link';
-import { RefreshCcw, ShieldCheck, AlertTriangle, Globe, WifiOff } from 'lucide-react';
+import { RefreshCcw, ShieldCheck, WifiOff, AlertCircle } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -29,6 +29,7 @@ export default function LoginPage() {
     const [step, setStep] = useState('phone');
     const [error, setError] = useState<React.ReactNode | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
     
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
@@ -41,6 +42,7 @@ export default function LoginPage() {
     const initRecaptcha = () => {
         if (!auth) return;
         
+        // Curățăm orice instanță veche
         if (window.recaptchaVerifier) {
             try { window.recaptchaVerifier.clear(); } catch(e) {}
             window.recaptchaVerifier = undefined;
@@ -50,17 +52,23 @@ export default function LoginPage() {
             const container = document.getElementById('recaptcha-container');
             if (!container) return;
 
+            // Folosim 'normal' (vizibil) în loc de 'invisible'. 
+            // Aceasta este soluția de bază pentru a trece de blocajele de rețea ISP/Digi.
             window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                'size': 'invisible',
+                'size': 'normal',
                 'callback': () => {
-                    console.log('reCAPTCHA solved');
+                    setIsRecaptchaReady(true);
+                    setError(null);
                 },
                 'expired-callback': () => {
-                    setError("Sesiunea de securitate a expirat. Reîncărcați pagina.");
+                    setIsRecaptchaReady(false);
+                    setError("Verificarea de securitate a expirat. Te rugăm să bifezi din nou căsuța.");
                 }
             });
 
-            window.recaptchaVerifier.render().catch(err => {
+            window.recaptchaVerifier.render().then(() => {
+                setIsRecaptchaReady(false); // Așteptăm să fie bifat
+            }).catch(err => {
                 console.error("reCAPTCHA render error:", err);
             });
         } catch (err) {
@@ -69,15 +77,11 @@ export default function LoginPage() {
     };
 
     useEffect(() => {
-        const timer = setTimeout(initRecaptcha, 1000);
+        const timer = setTimeout(initRecaptcha, 500);
         return () => {
             clearTimeout(timer);
-            if (window.recaptchaVerifier) {
-                try { window.recaptchaVerifier.clear(); } catch(e) {}
-                window.recaptchaVerifier = undefined;
-            }
         };
-    }, [auth]);
+    }, [auth, step]);
 
     const handleHardReset = async () => {
         setIsSubmitting(true);
@@ -88,16 +92,15 @@ export default function LoginPage() {
                     await registration.unregister();
                 }
             }
+            window.localStorage.clear();
+            window.sessionStorage.clear();
             if ('caches' in window) {
                 const keys = await caches.keys();
                 for (let key of keys) {
                     await caches.delete(key);
                 }
             }
-            window.localStorage.clear();
-            window.sessionStorage.clear();
         } catch (e) {}
-        
         window.location.reload();
     };
     
@@ -108,7 +111,7 @@ export default function LoginPage() {
 
         if (!window.recaptchaVerifier) {
             initRecaptcha();
-            setError("Se inițializează securitatea. Încercați din nou în 2 secunde.");
+            setError("Se inițializează securitatea...");
             setIsSubmitting(false);
             return;
         }
@@ -137,34 +140,27 @@ export default function LoginPage() {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            <WifiOff className="w-4 h-4" /> Rețeaua ta blochează autentificarea
+                            <WifiOff className="w-4 h-4" /> Securitatea este blocată de rețea
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Anumite rețele (în special <strong>Digi/RDS</strong>) blochează serverele de verificare. Soluția e schimbarea DNS-ului:</p>
-                            <div className="p-2 bg-black/20 rounded-lg border border-white/10 text-[10px] space-y-2">
-                                <p className="font-bold text-primary">📱 Android:</p>
-                                <p>Setări → Wi-Fi → ține apăsat pe rețea → Modifică → Avansat → DNS → <strong>8.8.8.8</strong></p>
-                                <p className="font-bold text-primary mt-1">🍎 iPhone:</p>
-                                <p>Setări → Wi-Fi → (i) pe rețea → Configurare DNS → Manual → <strong>8.8.8.8</strong></p>
-                                <p className="font-bold text-primary mt-1">💡 Alternativă rapidă:</p>
-                                <p>Deconectează-te de la Wi-Fi și folosește <strong>date mobile Orange/Vodafone</strong>.</p>
-                            </div>
+                            <p>Rețeaua ta actuală (Digi/RDS) blochează serverele Google de verificare.</p>
+                            <p className="font-bold text-primary">Soluții rapide:</p>
+                            <ul className="list-disc pl-4 space-y-1">
+                                <li>Deconectează-te de la Wi-Fi și folosește <strong>datele mobile</strong>.</li>
+                                <li>Dacă ești deja pe date mobile, încearcă un <strong>Wi-Fi din altă rețea</strong>.</li>
+                            </ul>
                             <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="w-full h-10 text-[10px] gap-2 border-primary/30 font-bold uppercase"
+                                className="w-full h-10 text-[10px] gap-2 border-primary/30 font-bold uppercase mt-2"
                                 onClick={handleHardReset}
                             >
                                 <RefreshCcw className="w-3 h-3" />
-                                AM SCHIMBAT DNS — REÎNCARC
+                                Resetare și Reîncărcare
                             </Button>
                         </AlertDescription>
                     </Alert>
                  );
-            } else if (err.code === 'auth/invalid-phone-number') {
-                setError("Numărul de telefon nu este valid.");
-            } else if (err.code === 'auth/too-many-requests') {
-                 setError("Prea multe încercări. Reveniți peste 15 minute.");
             } else {
                 setError(`Eroare: ${err.message || 'A apărut o eroare.'}`);
             }
@@ -211,9 +207,7 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh] bg-background p-4">
-             <div id="recaptcha-container" className="fixed bottom-0 left-0 pointer-events-none opacity-0" />
-             
-            <Card className="w-full max-w-sm glass rounded-3xl border-border/30 overflow-hidden">
+            <Card className="w-full max-w-sm glass rounded-3xl border-border/30 overflow-hidden shadow-2xl">
                 <CardHeader className="pb-4">
                     <div className="flex justify-center mb-6">
                         <Link href="/" className="flex items-center gap-2">
@@ -245,7 +239,13 @@ export default function LoginPage() {
                                     />
                                 </div>
                             </div>
+
+                            <div className="flex justify-center py-2">
+                                <div id="recaptcha-container" className="scale-90 origin-center" />
+                            </div>
+
                             {error && <div className="animate-in fade-in duration-200">{error}</div>}
+                            
                             <Button 
                                 type="submit" 
                                 className="w-full bg-gradient-primary text-primary-foreground font-bold h-12 rounded-xl" 
