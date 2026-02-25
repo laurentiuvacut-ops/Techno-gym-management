@@ -126,20 +126,28 @@ export default function LoginPage() {
             
             const isNetworkIssue = err.code === 'auth/requests-from-referer' || 
                                  err.code === 'auth/app-not-authorized' ||
-                                 err.message?.toLowerCase().includes('referer');
+                                 err.code === 'auth/network-request-failed' ||
+                                 err.code === 'auth/error-code:-39' ||
+                                 err.message?.toLowerCase().includes('referer') ||
+                                 err.message?.toLowerCase().includes('error code: 39') ||
+                                 err.message?.toLowerCase().includes('error-code:-39') ||
+                                 err.message?.includes('-39');
 
             if (isNetworkIssue) {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            <WifiOff className="w-4 h-4" /> Problemă de Conexiune (Digi/ISP)
+                            <WifiOff className="w-4 h-4" /> Rețeaua ta blochează autentificarea
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Rețeaua ta de internet blochează datele de securitate (Referrer header).</p>
-                            <div className="p-2 bg-black/20 rounded border border-white/10 text-[9px] space-y-1">
-                                <p>1. <strong>Oprește Wi-Fi</strong> și folosește Datele Mobile.</p>
-                                <p>2. Dacă ești pe Date, încearcă o rețea Wi-Fi.</p>
-                                <p>3. Apasă butonul de mai jos pentru a reseta setările.</p>
+                            <p>Anumite rețele (în special <strong>Digi/RDS</strong>) blochează serverele de verificare. Soluția e schimbarea DNS-ului:</p>
+                            <div className="p-2 bg-black/20 rounded-lg border border-white/10 text-[10px] space-y-2">
+                                <p className="font-bold text-primary">📱 Android:</p>
+                                <p>Setări → Wi-Fi → ține apăsat pe rețea → Modifică → Avansat → DNS → <strong>8.8.8.8</strong></p>
+                                <p className="font-bold text-primary mt-1">🍎 iPhone:</p>
+                                <p>Setări → Wi-Fi → (i) pe rețea → Configurare DNS → Manual → <strong>8.8.8.8</strong></p>
+                                <p className="font-bold text-primary mt-1">💡 Alternativă rapidă:</p>
+                                <p>Deconectează-te de la Wi-Fi și folosește <strong>date mobile Orange/Vodafone</strong>.</p>
                             </div>
                             <Button 
                                 variant="outline" 
@@ -148,7 +156,7 @@ export default function LoginPage() {
                                 onClick={handleHardReset}
                             >
                                 <RefreshCcw className="w-3 h-3" />
-                                RESETEAZĂ ȘI REÎNCARCĂ
+                                AM SCHIMBAT DNS — REÎNCARC
                             </Button>
                         </AlertDescription>
                     </Alert>
