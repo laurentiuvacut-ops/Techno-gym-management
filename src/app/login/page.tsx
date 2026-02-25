@@ -46,7 +46,11 @@ export default function LoginPage() {
         try {
             // Curățăm orice verifier existent pentru a evita erorile de re-inițializare
             if (window.recaptchaVerifier) {
-                window.recaptchaVerifier.clear();
+                try {
+                    window.recaptchaVerifier.clear();
+                } catch (e) {
+                    console.warn("Could not clear recaptcha", e);
+                }
                 delete window.recaptchaVerifier;
             }
             
@@ -56,7 +60,7 @@ export default function LoginPage() {
                     // reCAPTCHA solved
                 },
                 'expired-callback': () => {
-                   setError("Verificarea reCAPTCHA a expirat. Vă rugăm să reîncercați.");
+                   setError("Verificarea de securitate a expirat. Vă rugăm să reîncercați.");
                 }
             });
             window.recaptchaVerifier = verifier;
@@ -71,13 +75,18 @@ export default function LoginPage() {
             
             // Eroarea -39 sau app-not-authorized indică un domeniu care nu este în Authorized Domains în Firebase
             if (err.code === 'auth/requests-from-referer' || err.code === 'auth/app-not-authorized' || err.message?.includes('-39')) {
+                 const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'necunoscut';
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
-                        <AlertTitle className="text-primary font-bold">Eroare de Autorizare (-39)</AlertTitle>
+                        <AlertTitle className="text-primary font-bold">Eroare Tehnică de Autorizare</AlertTitle>
                         <AlertDescription className="text-xs space-y-2 mt-2">
-                            <p>Această eroare apare deoarece domeniul curent nu este autorizat în Firebase.</p>
-                            <p><strong>Soluție Admin:</strong> Accesați Firebase Console &rarr; Authentication &rarr; Settings &rarr; Authorized domains și adăugați: <code>{typeof window !== 'undefined' ? window.location.hostname : 'domeniul dvs.'}</code></p>
-                            <p className="mt-2 text-[10px] opacity-70">Notă: Nu are legătură cu abonamentul utilizatorului.</p>
+                            <p>Domeniul curent nu este complet autorizat în setările Firebase.</p>
+                            <p><strong>Soluție Admin:</strong> Accesați Firebase Console &rarr; Auth &rarr; Settings &rarr; Authorized domains și asigurați-vă că aveți adăugate ambele variante:</p>
+                            <ul className="list-disc ml-4 space-y-1 font-mono text-[10px] bg-black/20 p-2 rounded">
+                                <li>technogymcraiova.com</li>
+                                <li>www.technogymcraiova.com</li>
+                                <li>{currentHostname} (detectat acum)</li>
+                            </ul>
                         </AlertDescription>
                     </Alert>
                  );
