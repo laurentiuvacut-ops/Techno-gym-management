@@ -1,11 +1,10 @@
 'use client';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
+import DashboardMaster from '@/components/dashboard/dashboard-master';
 
-export default function ViewFeedbackRedirect() {
-    const router = useRouter();
-    useEffect(() => {
-        router.replace('/dashboard' + window.location.search);
-    }, [router]);
-    return null;
+export default function ViewFeedbackPage() {
+  const { setActiveTab } = useDashboardNav();
+  useEffect(() => { setActiveTab('view-feedback'); }, [setActiveTab]);
+  return <DashboardMaster />;
 }

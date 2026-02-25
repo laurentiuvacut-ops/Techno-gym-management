@@ -1,11 +1,10 @@
 'use client';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
+import DashboardMaster from '@/components/dashboard/dashboard-master';
 
-export default function ShopRedirect() {
-    const router = useRouter();
-    useEffect(() => {
-        router.replace('/dashboard' + window.location.search);
-    }, [router]);
-    return null;
+export default function ShopPage() {
+  const { setActiveTab } = useDashboardNav();
+  useEffect(() => { setActiveTab('shop'); }, [setActiveTab]);
+  return <DashboardMaster />;
 }

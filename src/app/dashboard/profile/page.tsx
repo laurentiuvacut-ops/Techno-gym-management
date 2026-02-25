@@ -1,11 +1,10 @@
 'use client';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useDashboardNav } from '@/contexts/dashboard-nav-context';
+import DashboardMaster from '@/components/dashboard/dashboard-master';
 
-export default function ProfileRedirect() {
-    const router = useRouter();
-    useEffect(() => {
-        router.replace('/dashboard' + window.location.search);
-    }, [router]);
-    return null;
+export default function ProfilePage() {
+  const { setActiveTab } = useDashboardNav();
+  useEffect(() => { setActiveTab('profile'); }, [setActiveTab]);
+  return <DashboardMaster />;
 }
