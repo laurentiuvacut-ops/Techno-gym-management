@@ -6,6 +6,10 @@ Aceasta este aplicația oficială de management pentru Techno Gym Craiova.
 - **Autentificare**: Logare cu numărul de telefon și cod OTP (Firebase Auth).
 - **Profil**: Încărcare și redimensionare automată a pozei de profil (max 400px), afișare beneficii abonament.
 - **Dashboard**: Layout optimizat pentru mobil (carduri mari, acces rapid), stare abonament în timp real.
+- **Jurnal Antrenament**: Logare seturi/repetări, editare și repetare antrenamente (șabloane).
+- **Comunitate**: Partajare antrenamente și copiere rutine de la alți membri/antrenori.
+- **Progres**: Grafice de evoluție pentru greutate și măsurători corporale.
+- **Prezențe**: Calendar de check-in și monitorizare consistență.
 - **PWA**: Aplicație instalabilă direct pe telefon (Manifest & Service Worker).
 - **Shop**: Monitorizare stoc produse suplimente și băuturi.
 - **Abonamente**: Integrare flux de plată Stripe.
