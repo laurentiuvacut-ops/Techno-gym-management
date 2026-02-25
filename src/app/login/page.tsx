@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, getAdditionalUserInfo } from 'firebase/auth';
 import { useUser, useAuth } from '@/firebase';
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import Link from 'next/link';
+import { RefreshCcw } from 'lucide-react';
 
 // Extend the Window interface to avoid TypeScript errors when attaching the verifier.
 declare global {
@@ -31,62 +32,95 @@ export default function LoginPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+    const recaptchaWrapperRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!loading && user) {
             router.push('/dashboard');
         }
     }, [user, loading, router]);
+
+    // Initialize reCAPTCHA verifier once on mount
+    useEffect(() => {
+        if (!auth) return;
+
+        const initRecaptcha = () => {
+            if (window.recaptchaVerifier) {
+                try { window.recaptchaVerifier.clear(); } catch(e) {}
+                delete window.recaptchaVerifier;
+            }
+
+            try {
+                window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                    'size': 'invisible',
+                    'callback': () => {
+                        console.log('reCAPTCHA solved');
+                    },
+                    'expired-callback': () => {
+                        setError("Verificarea de securitate a expirat. Vă rugăm să reîncercați.");
+                    }
+                });
+            } catch (err) {
+                console.error("Recaptcha Init Error:", err);
+            }
+        };
+
+        initRecaptcha();
+
+        return () => {
+            if (window.recaptchaVerifier) {
+                try { window.recaptchaVerifier.clear(); } catch(e) {}
+                delete window.recaptchaVerifier;
+            }
+        };
+    }, [auth]);
     
     const handleSendCode = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setIsSubmitting(true);
 
-        try {
-            // Curățăm orice verifier existent pentru a evita erorile de re-inițializare
-            if (window.recaptchaVerifier) {
-                try {
-                    window.recaptchaVerifier.clear();
-                } catch (e) {
-                    console.warn("Could not clear recaptcha", e);
-                }
-                delete window.recaptchaVerifier;
-            }
-            
-            const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                'size': 'invisible',
-                'callback': () => {
-                    // reCAPTCHA solved
-                },
-                'expired-callback': () => {
-                   setError("Verificarea de securitate a expirat. Vă rugăm să reîncercați.");
-                }
-            });
-            window.recaptchaVerifier = verifier;
+        if (!window.recaptchaVerifier) {
+            setError("Eroare la inițializarea sistemului de securitate. Vă rugăm să reîncărcați pagina.");
+            setIsSubmitting(false);
+            return;
+        }
 
+        try {
             const formattedPhoneNumber = `+40${phoneNumber.replace(/\s/g, '')}`;
-            const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, verifier);
+            const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, window.recaptchaVerifier);
             setConfirmationResult(confirmation);
             setStep('otp');
             setError(null);
         } catch (err: any) {
             console.error('Login Error:', err);
             
-            // Eroarea -39 sau app-not-authorized indică un domeniu care nu este în Authorized Domains în Firebase
-            if (err.code === 'auth/requests-from-referer' || err.code === 'auth/app-not-authorized' || err.message?.includes('-39')) {
-                 const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'necunoscut';
+            const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'necunoscut';
+            const isDomainError = err.code === 'auth/requests-from-referer' || 
+                                err.code === 'auth/app-not-authorized' || 
+                                err.message?.includes('-39') ||
+                                err.message?.includes('auth/requests-from-referer');
+
+            if (isDomainError) {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
-                        <AlertTitle className="text-primary font-bold">Eroare Tehnică de Autorizare</AlertTitle>
-                        <AlertDescription className="text-xs space-y-2 mt-2">
-                            <p>Domeniul curent nu este complet autorizat în setările Firebase.</p>
-                            <p><strong>Soluție Admin:</strong> Accesați Firebase Console &rarr; Auth &rarr; Settings &rarr; Authorized domains și asigurați-vă că aveți adăugate ambele variante:</p>
-                            <ul className="list-disc ml-4 space-y-1 font-mono text-[10px] bg-black/20 p-2 rounded">
-                                <li>technogymcraiova.com</li>
-                                <li>www.technogymcraiova.com</li>
-                                <li>{currentHostname} (detectat acum)</li>
-                            </ul>
+                        <AlertTitle className="text-primary font-bold flex items-center gap-2">
+                            Eroare de Autorizare Domeniu
+                        </AlertTitle>
+                        <AlertDescription className="text-xs space-y-3 mt-2">
+                            <p>Domeniul <strong>{currentHostname}</strong> nu a putut fi validat de Firebase. Acest lucru se întâmplă uneori din cauza cache-ului browser-ului.</p>
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full h-8 text-[10px] gap-2 border-primary/30 hover:bg-primary/10"
+                                onClick={() => window.location.reload()}
+                            >
+                                <RefreshCcw className="w-3 h-3" />
+                                REÎNCARCĂ PAGINA (GOLIRE CACHE)
+                            </Button>
+                            <div className="pt-2 opacity-60">
+                                <p><strong>Notă Admin:</strong> Verifică dacă domeniul este în listă fără "www" (technogymcraiova.com) și cu "www".</p>
+                            </div>
                         </AlertDescription>
                     </Alert>
                  );
@@ -145,8 +179,8 @@ export default function LoginPage() {
     
     return (
         <div className="flex items-center justify-center min-h-[80vh] bg-background p-4">
-             {/* Container ascuns pentru reCAPTCHA */}
-             <div id="recaptcha-container" />
+             {/* Container ascuns pentru reCAPTCHA - păstrat în DOM constant */}
+             <div id="recaptcha-container" ref={recaptchaWrapperRef} className="fixed bottom-0 left-0" />
              
             <Card className="w-full max-w-sm glass rounded-3xl border-border/30 overflow-hidden">
                 <CardHeader className="pb-4">
@@ -193,7 +227,7 @@ export default function LoginPage() {
                                         onChange={(e) => setPhoneNumber(e.target.value)}
                                         placeholder="7xx xxx xxx"
                                         required
-                                        className="rounded-l-none rounded-r-xl h-10 bg-background/50"
+                                        className="rounded-l-none rounded-r-xl h-10 bg-background/50 text-base"
                                     />
                                 </div>
                             </div>

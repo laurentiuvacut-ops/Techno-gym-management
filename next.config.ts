@@ -1,7 +1,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  // Timestamp: 1740660000007 - Fortare rebuild pentru sincronizare imagini si navigare
+  // Timestamp: 1740660000008 - Forțare rebuild pentru rezolvare erori Auth domenii
   typescript: {
     ignoreBuildErrors: true,
   },
