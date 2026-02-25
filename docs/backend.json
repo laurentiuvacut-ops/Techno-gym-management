@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Member": {
@@ -195,6 +196,23 @@
         "rating",
         "createdAt"
       ]
+    },
+    "SharedWorkout": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SharedWorkout",
+      "type": "object",
+      "description": "A workout or bundle of workouts shared with the community.",
+      "properties": {
+        "title": { "type": "string" },
+        "creatorName": { "type": "string" },
+        "creatorId": { "type": "string" },
+        "createdAt": { "type": "object" },
+        "workouts": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      },
+      "required": ["title", "creatorName", "creatorId", "workouts"]
     }
   },
   "auth": {
@@ -299,8 +317,24 @@
             }
           ]
         }
+      },
+      {
+        "path": "/sharedWorkouts/{sharedId}",
+        "definition": {
+          "entityName": "SharedWorkout",
+          "schema": {
+            "$ref": "#/backend/entities/SharedWorkout"
+          },
+          "description": "Public workouts shared by members or trainers.",
+          "params": [
+            {
+              "name": "sharedId",
+              "description": "Unique identifier for the shared entry."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to support the Techno Gym app's core features. The structure emphasizes Authorization Independence by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data, with the document ID being the user's E.164 phone number for secure, direct access.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Stores customer feedback.\n\nThe structure facilitates secure `list` operations by ensuring that each collection contains data with similar access control requirements. For example, member-specific data and general workout data are stored in separate collections."
+    "reasoning": "The Firestore data structure is designed to support the Techno Gym app's core features. The structure emphasizes Authorization Independence by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data, with the document ID being the user's E.164 phone number for secure, direct access.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Stores customer feedback.\n*   `sharedWorkouts`: Community-driven collection for sharing routines."
   }
 }
