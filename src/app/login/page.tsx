@@ -45,6 +45,7 @@ export default function LoginPage() {
         if (!auth) return;
 
         const initRecaptcha = () => {
+            // Clear existing verifier to prevent "already rendered" errors
             if (window.recaptchaVerifier) {
                 try { window.recaptchaVerifier.clear(); } catch(e) {}
                 window.recaptchaVerifier = undefined;
@@ -53,6 +54,7 @@ export default function LoginPage() {
             try {
                 const container = document.getElementById('recaptcha-container');
                 if (!container) {
+                    // Retry if container is not yet in DOM
                     setTimeout(initRecaptcha, 500);
                     return;
                 }
@@ -105,6 +107,7 @@ export default function LoginPage() {
             }
         }
         
+        // Force reload from server bypassing cache
         window.location.reload();
     };
     
@@ -138,7 +141,8 @@ export default function LoginPage() {
             const currentHostname = typeof window !== 'undefined' ? window.location.hostname : 'necunoscut';
             const isDomainError = err.code === 'auth/requests-from-referer' || 
                                 err.code === 'auth/app-not-authorized' || 
-                                err.message?.includes('referer');
+                                err.message?.toLowerCase().includes('referer') ||
+                                err.message?.toLowerCase().includes('domain');
 
             if (isDomainError) {
                  setError(
@@ -148,8 +152,8 @@ export default function LoginPage() {
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
                             <p>Browserul tău folosește o versiune veche a site-ului stocată în memorie (Cache).</p>
-                            <div className="p-2 bg-black/20 rounded border border-white/10 text-[10px]">
-                                Domeniu: {currentHostname}
+                            <div className="p-2 bg-black/20 rounded border border-white/10 text-[10px] break-all">
+                                Domeniu detectat: {currentHostname}
                             </div>
                             <Button 
                                 variant="outline" 
