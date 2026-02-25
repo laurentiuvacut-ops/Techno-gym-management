@@ -8,7 +8,6 @@ import { ArrowRight, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { format, differenceInCalendarDays, isValid } from 'date-fns';
-import { Button } from '@/components/ui/button';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -184,11 +183,11 @@ export default function HomeTab() {
             </div>
           </div>
         </button>
-        <button onClick={() => setActiveTab('plans')} className="text-left">
+        <button onClick={() => setActiveTab('workouts')} className="text-left">
           <div className="group p-5 glass rounded-3xl transition-all duration-300 hover:border-primary/40 active:scale-[0.98] flex flex-col justify-between min-h-[140px] md:min-h-[160px]">
             <div className="space-y-0.5">
-              <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Abonamente</h3>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Planuri noi</p>
+              <h3 className="text-xl font-headline tracking-wide uppercase leading-tight">Jurnal Antrenament</h3>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Vezi progresul</p>
             </div>
             <div className="flex justify-end">
               <div className="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:bg-primary/20 group-hover:text-primary transition-colors">
