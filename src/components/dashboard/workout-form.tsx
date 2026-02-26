@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { addDoc, serverTimestamp, doc, updateDoc, CollectionReference } from 'firebase/firestore';
+import React, { useState, useCallback, useMemo } from 'react';
+import { addDoc, serverTimestamp, doc, updateDoc, type CollectionReference } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, Save, X } from 'lucide-react';
@@ -33,21 +33,28 @@ interface WorkoutFormProps {
 export default function WorkoutForm({ logsRef, initialData, editingId, onCancel, onSaved }: WorkoutFormProps) {
   const { toast } = useToast();
   
-  // Toate hook-urile trebuie să fie la începutul componentei
+  // State-urile trebuie să fie la începutul componentei pentru a evita erorile de randare
   const [workoutName, setWorkoutName] = useState(initialData?.name || '');
-  const [duration, setDuration] = useState(initialData?.duration?.toString() || '');
+  const [duration, setDuration] = useState(initialData?.duration ? initialData.duration.toString() : '');
   const [notes, setNotes] = useState(initialData?.notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Inițializarea exercițiilor cu protecție la date lipsă
   const [exercises, setExercises] = useState<Exercise[]>(() => {
-    if (!initialData?.exercises) return [];
+    if (!initialData?.exercises || !Array.isArray(initialData.exercises)) {
+      return [{ 
+        id: Math.random().toString(36).substring(7), 
+        name: '', 
+        sets: [{ weight: '', reps: '' }] 
+      }];
+    }
     return initialData.exercises.map((ex: any) => ({
       id: Math.random().toString(36).substring(7),
       name: ex.name || '',
-      sets: ex.sets?.map((s: any) => ({
-        weight: s.weight?.toString() || '',
-        reps: s.reps?.toString() || ''
-      })) || [{ weight: '', reps: '' }]
+      sets: Array.isArray(ex.sets) ? ex.sets.map((s: any) => ({
+        weight: s.weight ? s.weight.toString() : '',
+        reps: s.reps ? s.reps.toString() : ''
+      })) : [{ weight: '', reps: '' }]
     }));
   });
 
@@ -90,7 +97,9 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
     setExercises(prev => prev.map(e => {
       if (e.id === exId) {
         const newSets = [...e.sets];
-        newSets[setIndex] = { ...newSets[setIndex], [field]: value };
+        if (newSets[setIndex]) {
+          newSets[setIndex] = { ...newSets[setIndex], [field]: value };
+        }
         return { ...e, sets: newSets };
       }
       return e;
@@ -99,8 +108,8 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!logsRef || !workoutName.trim() || exercises.length === 0) {
-      toast({ variant: "destructive", title: "Incomplet", description: "Adaugă un nume și cel puțin un exercițiu." });
+    if (!logsRef || !workoutName.trim()) {
+      toast({ variant: "destructive", title: "Incomplet", description: "Adaugă un nume pentru antrenament." });
       return;
     }
 

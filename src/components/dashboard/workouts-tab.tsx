@@ -6,7 +6,7 @@ import { collection, query, orderBy, limit, deleteDoc, doc } from 'firebase/fire
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Clock, Edit2, Copy, Share2, Users, CheckSquare, Square, Info, ArrowLeft } from 'lucide-react';
+import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Clock, Edit2, Copy, Share2, Users, CheckSquare, Square, Info, ArrowLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -98,7 +98,6 @@ export default function WorkoutsTab() {
   }, []);
 
   const handleShareSelected = useCallback(async () => {
-    const { addDoc, serverTimestamp } = await import('firebase/firestore');
     if (!sharedRef || !user || !memberData || selectedIds.length === 0 || !shareTitle.trim()) {
       toast({ variant: "destructive", title: "Eroare", description: "Selectează antrenamente și adaugă un titlu." });
       return;
@@ -108,6 +107,7 @@ export default function WorkoutsTab() {
     const selectedWorkouts = logs?.filter(l => selectedIds.includes(l.id)) || [];
 
     try {
+      const { addDoc, serverTimestamp } = await import('firebase/firestore');
       await addDoc(sharedRef, {
         title: shareTitle,
         description: shareDescription,
@@ -227,6 +227,7 @@ export default function WorkoutsTab() {
           <AnimatePresence>
             {showForm && (
               <WorkoutForm 
+                key={editingId || 'new'}
                 logsRef={logsRef} 
                 initialData={initialFormData} 
                 editingId={editingId} 
@@ -239,7 +240,6 @@ export default function WorkoutsTab() {
           <div className="space-y-4">
             {logs && logs.length > 0 ? (
               logs.map((log) => {
-                // Calcul volum cu protecție pentru date lipsă
                 const totalVolume = log.exercises?.reduce((sum: number, ex: any) => 
                   sum + (ex.sets?.reduce((sSum: number, s: any) => 
                     sSum + ((parseFloat(s.weight) || 0) * (parseInt(s.reps) || 0)), 0) || 0), 0) || 0;
