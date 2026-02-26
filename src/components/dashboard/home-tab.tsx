@@ -4,18 +4,20 @@ import { useUser } from '@/firebase';
 import { useMember } from '@/contexts/member-context';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import { useEffect, useState } from 'react';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { format, differenceInCalendarDays, isValid } from 'date-fns';
 import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { usePwaInstall } from '@/hooks/use-pwa-install';
 
 export default function HomeTab() {
   const { user } = useUser();
   const { memberData, isLoading: memberLoading } = useMember();
   const { setActiveTab } = useDashboardNav();
+  const { canPromptNative, isIOS, showButton, promptInstall } = usePwaInstall();
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
 
@@ -78,6 +80,14 @@ export default function HomeTab() {
     }
   }, [memberData]);
 
+  const handleInstallClick = async () => {
+    if (canPromptNative) {
+      await promptInstall();
+    } else if (isIOS) {
+      setShowInstallInstructions(true);
+    }
+  };
+
   if (!user) return null;
   
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
@@ -96,6 +106,28 @@ export default function HomeTab() {
       <div className="flex justify-between items-center flex-wrap gap-2">
         <h1 className="text-3xl md:text-5xl font-headline tracking-wider">Salut, {displayName}!</h1>
       </div>
+
+      {showButton && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full"
+        >
+          <button
+            onClick={handleInstallClick}
+            className="w-full flex items-center gap-3 p-4 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 transition-all duration-300 group"
+          >
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/20 group-hover:bg-primary/30 transition-colors">
+              <Download className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-left flex-1">
+              <p className="text-sm font-bold text-white">Instalează Aplicația</p>
+              <p className="text-xs text-muted-foreground">Acces rapid de pe ecranul principal</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-primary opacity-50 group-hover:opacity-100 transition-opacity" />
+          </button>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="relative lg:col-span-2 p-6 md:p-8 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[240px] md:min-h-[280px]">
