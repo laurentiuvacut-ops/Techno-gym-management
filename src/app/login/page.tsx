@@ -136,7 +136,7 @@ export default function LoginPage() {
                             <Clock className="w-4 h-4" /> Prea multe încercări
                         </AlertTitle>
                         <AlertDescription className="text-xs mt-2">
-                            Ai solicitat prea multe coduri. Te rugăm să aștepți <strong>10-15 minute</strong>. Google a blocat temporar numărul pentru siguranță.
+                            Ai solicitat prea multe coduri. Te rugăm să aștepți 10-15 minute. Google a blocat temporar numărul pentru siguranță.
                         </AlertDescription>
                     </Alert>
                 );
@@ -155,8 +155,8 @@ export default function LoginPage() {
                             <p>Furnizorul tău de internet blochează procesul de verificare SMS.</p>
                             <p className="font-bold text-primary">Soluție:</p>
                             <ul className="list-disc pl-4 space-y-1">
-                                <li>Asigură-te că bifezi căsuța <strong>"I'm not a robot"</strong>.</li>
-                                <li>Dacă eroarea persistă, apasă butonul de <strong>Resetare</strong> de mai jos.</li>
+                                <li>Asigură-te că bifezi căsuța <strong>"I'm not a robot"</strong> de mai jos.</li>
+                                <li>Dacă eroarea persistă, apasă butonul de <strong>Resetare</strong>.</li>
                             </ul>
                             <Button 
                                 variant="outline" 
