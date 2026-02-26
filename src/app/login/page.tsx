@@ -41,7 +41,7 @@ export default function LoginPage() {
     const initRecaptcha = () => {
         if (!auth) return;
         
-        // Curățăm orice instanță veche pentru a evita eroarea "container already has a verifier"
+        // Curățăm orice instanță veche pentru a evita erorile de inițializare dublă
         if (window.recaptchaVerifier) {
             try { 
                 window.recaptchaVerifier.clear(); 
@@ -57,15 +57,14 @@ export default function LoginPage() {
             const container = document.getElementById('recaptcha-container');
             if (!container) return;
 
-            // Folosim dimensiunea 'normal' (vizibilă) pentru a declanșa corect "reCAPTCHA SMS Defense"
+            // Folosim 'invisible' pentru UX mai bun, compatibil cu SMS Defense activat în consolă
             window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                'size': 'normal',
+                'size': 'invisible',
                 'callback': () => {
                     setError(null);
-                    console.log("reCAPTCHA solved");
                 },
                 'expired-callback': () => {
-                    setError("Verificarea a expirat. Te rugăm să bifezi din nou.");
+                    setError("Verificarea a expirat. Te rugăm să încerci din nou.");
                 }
             });
 
@@ -87,12 +86,14 @@ export default function LoginPage() {
     const handleHardReset = async () => {
         setIsSubmitting(true);
         try {
+            // Eliminăm Service Worker-ul care poate stoca setări de securitate vechi
             if ('serviceWorker' in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
                 for (let registration of registrations) {
                     await registration.unregister();
                 }
             }
+            // Curățăm toate datele locale pentru o sesiune curată
             window.localStorage.clear();
             window.sessionStorage.clear();
             if ('caches' in window) {
@@ -121,7 +122,7 @@ export default function LoginPage() {
             const cleanPhone = phoneNumber.replace(/\s/g, '').replace(/^(\+40|40|0)/, '');
             const formattedPhoneNumber = `+40${cleanPhone}`;
             
-            // Această funcție va folosi acum "reCAPTCHA SMS Defense" dacă e activat în consolă
+            // Verificarea reCAPTCHA se va declanșa automat aici în mod 'invisible'
             const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, window.recaptchaVerifier);
             setConfirmationResult(confirmation);
             setStep('otp');
@@ -152,11 +153,11 @@ export default function LoginPage() {
                             <WifiOff className="w-4 h-4" /> Blocaj Rețea (Digi/ISP)
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Furnizorul tău de internet blochează procesul de verificare SMS.</p>
-                            <p className="font-bold text-primary">Soluție:</p>
+                            <p>Furnizorul tău de internet blochează procesul de verificare automată.</p>
+                            <p className="font-bold text-primary">Dacă eroarea persistă:</p>
                             <ul className="list-disc pl-4 space-y-1">
-                                <li>Asigură-te că bifezi căsuța <strong>"I'm not a robot"</strong> de mai jos.</li>
-                                <li>Dacă eroarea persistă, apasă butonul de <strong>Resetare</strong>.</li>
+                                <li>Folosește <strong>Datele Mobile</strong> în loc de WiFi.</li>
+                                <li>Apasă butonul de <strong>Resetare Conexiune</strong> de mai jos.</li>
                             </ul>
                             <Button 
                                 variant="outline" 
@@ -249,9 +250,8 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-center py-2 min-h-[80px]">
-                                <div id="recaptcha-container" className="scale-90 origin-center" />
-                            </div>
+                            {/* Containerul reCAPTCHA rămâne necesar pentru funcționarea invizibilă */}
+                            <div id="recaptcha-container" />
 
                             {error && <div className="animate-in fade-in duration-200">{error}</div>}
                             
@@ -265,7 +265,7 @@ export default function LoginPage() {
                             
                             <div className="flex items-center justify-center gap-2 py-2">
                                 <ShieldCheck className="w-4 h-4 text-primary/50" />
-                                <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Securizat prin reCAPTCHA Defense</span>
+                                <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Protejat prin SMS Defense</span>
                             </div>
                         </form>
                     ) : (
