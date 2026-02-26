@@ -1,26 +1,22 @@
 'use client';
 
-import { Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import { useMember } from '@/contexts/member-context';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 
-// Home se încarcă imediat (e prima pagină vizibilă)
+// Importuri statice pentru viteză instantanee de navigare (Native Feel)
 import HomeTab from '@/components/dashboard/home-tab';
-
-// Restul se încarcă DOAR când user-ul navighează la ele
-const ShopTab = lazy(() => import('@/components/dashboard/shop-tab'));
-const PlansTab = lazy(() => import('@/components/dashboard/plans-tab'));
-const TrainersTab = lazy(() => import('@/components/dashboard/trainers-tab'));
-const WorkoutsTab = lazy(() => import('@/components/dashboard/workouts-tab'));
-const FeedbackTab = lazy(() => import('@/components/dashboard/feedback-tab'));
-const ViewFeedbackTab = lazy(() => import('@/components/dashboard/view-feedback-tab'));
-const ProfileTab = lazy(() => import('@/components/dashboard/profile-tab'));
-const ProgressTab = lazy(() => import('@/components/dashboard/progress-tab'));
-const CheckinsTab = lazy(() => import('@/components/dashboard/checkins-tab'));
+import ShopTab from '@/components/dashboard/shop-tab';
+import PlansTab from '@/components/dashboard/plans-tab';
+import TrainersTab from '@/components/dashboard/trainers-tab';
+import WorkoutsTab from '@/components/dashboard/workouts-tab';
+import FeedbackTab from '@/components/dashboard/feedback-tab';
+import ViewFeedbackTab from '@/components/dashboard/view-feedback-tab';
+import ProfileTab from '@/components/dashboard/profile-tab';
+import ProgressTab from '@/components/dashboard/progress-tab';
+import CheckinsTab from '@/components/dashboard/checkins-tab';
 
 const tabs = {
   home: HomeTab,
@@ -34,16 +30,6 @@ const tabs = {
   progress: ProgressTab,
   checkins: CheckinsTab,
 } as const;
-
-function TabSkeleton() {
-  return (
-    <div className="space-y-6 animate-pulse">
-      <Skeleton className="h-10 w-48 rounded-xl" />
-      <Skeleton className="h-64 w-full rounded-3xl" />
-      <Skeleton className="h-40 w-full rounded-3xl" />
-    </div>
-  );
-}
 
 export default function DashboardMaster() {
   const { activeTab } = useDashboardNav();
@@ -73,9 +59,7 @@ export default function DashboardMaster() {
         exit={{ opacity: reduced ? 1 : 0 }}
         transition={{ duration: reduced ? 0 : 0.15 }}
       >
-        <Suspense fallback={<TabSkeleton />}>
-          <ActiveComponent />
-        </Suspense>
+        <ActiveComponent />
       </motion.div>
     </AnimatePresence>
   );

@@ -35,15 +35,16 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
   const [workoutName, setWorkoutName] = useState(initialData?.name || '');
   const [duration, setDuration] = useState(initialData?.duration?.toString() || '');
   const [notes, setNotes] = useState(initialData?.notes || '');
-  const [exercises, setExercises] = useState<Exercise[]>(initialData?.exercises.map((ex: any) => ({
+  
+  // Am adăugat optional chaining la map pentru a preveni crash-ul la "Nou" (initialData fiind null)
+  const [exercises, setExercises] = useState<Exercise[]>(initialData?.exercises?.map((ex: any) => ({
     id: Math.random().toString(36),
     name: ex.name,
-    sets: ex.sets.map((s: any) => ({
+    sets: ex.sets?.map((s: any) => ({
       weight: s.weight.toString(),
       reps: s.reps.toString()
-    }))
+    })) || [{ weight: '', reps: '' }]
   })) || []);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addExercise = useCallback(() => {
     setExercises(prev => [...prev, { id: Math.random().toString(36), name: '', sets: [{ weight: '', reps: '' }] }]);
@@ -130,6 +131,8 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
       setIsSubmitting(false);
     }
   };
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
