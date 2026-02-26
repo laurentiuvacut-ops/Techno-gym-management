@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Image from 'next/image';
 import Link from 'next/link';
-import { RefreshCcw, WifiOff, Clock } from 'lucide-react';
+import { RefreshCcw, WifiOff, Clock, ShieldCheck } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -41,23 +41,31 @@ export default function LoginPage() {
     const initRecaptcha = () => {
         if (!auth) return;
         
+        // Curățăm orice instanță veche pentru a evita eroarea "container already has a verifier"
         if (window.recaptchaVerifier) {
-            try { window.recaptchaVerifier.clear(); } catch(e) {}
+            try { 
+                window.recaptchaVerifier.clear(); 
+            } catch(e) {
+                console.warn("Recaptcha clear warning:", e);
+            }
             window.recaptchaVerifier = undefined;
+            const container = document.getElementById('recaptcha-container');
+            if (container) container.innerHTML = '';
         }
 
         try {
             const container = document.getElementById('recaptcha-container');
             if (!container) return;
 
-            // Folosim 'normal' (vizibil) pentru a ocoli blocajele de ISP (Digi)
+            // Folosim dimensiunea 'normal' (vizibilă) pentru a declanșa corect "reCAPTCHA SMS Defense"
             window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
                 'size': 'normal',
                 'callback': () => {
                     setError(null);
+                    console.log("reCAPTCHA solved");
                 },
                 'expired-callback': () => {
-                    setError("Verificarea de securitate a expirat. Te rugăm să bifezi din nou căsuța.");
+                    setError("Verificarea a expirat. Te rugăm să bifezi din nou.");
                 }
             });
 
@@ -113,6 +121,7 @@ export default function LoginPage() {
             const cleanPhone = phoneNumber.replace(/\s/g, '').replace(/^(\+40|40|0)/, '');
             const formattedPhoneNumber = `+40${cleanPhone}`;
             
+            // Această funcție va folosi acum "reCAPTCHA SMS Defense" dacă e activat în consolă
             const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, window.recaptchaVerifier);
             setConfirmationResult(confirmation);
             setStep('otp');
@@ -127,28 +136,27 @@ export default function LoginPage() {
                             <Clock className="w-4 h-4" /> Prea multe încercări
                         </AlertTitle>
                         <AlertDescription className="text-xs mt-2">
-                            Ai solicitat prea multe coduri. Te rugăm să aștepți <strong>10 minute</strong> înainte de a încerca din nou.
+                            Ai solicitat prea multe coduri. Te rugăm să aștepți <strong>10-15 minute</strong>. Google a blocat temporar numărul pentru siguranță.
                         </AlertDescription>
                     </Alert>
                 );
             } else if (
+                err.code === 'auth/operation-not-allowed' || 
                 err.code === 'auth/requests-from-referer' || 
-                err.code === 'auth/app-not-authorized' ||
-                err.code === 'auth/network-request-failed' ||
-                err.code === 'auth/error-code:-39' ||
-                err.message?.toLowerCase().includes('referer') ||
-                err.message?.includes('-39')
+                err.message?.includes('-39') ||
+                err.message?.includes('operation-not-allowed')
             ) {
                  setError(
                     <Alert variant="destructive" className="border-primary/50 bg-primary/5">
                         <AlertTitle className="text-primary font-bold flex items-center gap-2">
-                            <WifiOff className="w-4 h-4" /> Blocaj Securitate (ISP/Digi)
+                            <WifiOff className="w-4 h-4" /> Blocaj Rețea (Digi/ISP)
                         </AlertTitle>
                         <AlertDescription className="text-xs space-y-3 mt-2">
-                            <p>Conexiunea ta actuală blochează procesele de securitate.</p>
-                            <p className="font-bold text-primary">Soluție rapidă:</p>
+                            <p>Furnizorul tău de internet blochează procesul de verificare SMS.</p>
+                            <p className="font-bold text-primary">Soluție:</p>
                             <ul className="list-disc pl-4 space-y-1">
-                                <li>Treci pe <strong>date mobile</strong> (Orange/Vodafone) și apasă reset.</li>
+                                <li>Asigură-te că bifezi căsuța <strong>"I'm not a robot"</strong>.</li>
+                                <li>Dacă eroarea persistă, apasă butonul de <strong>Resetare</strong> de mai jos.</li>
                             </ul>
                             <Button 
                                 variant="outline" 
@@ -157,7 +165,7 @@ export default function LoginPage() {
                                 onClick={handleHardReset}
                             >
                                 <RefreshCcw className="w-3 h-3" />
-                                Încearcă Resetare Conexiune
+                                Resetare Conexiune Aplicație
                             </Button>
                         </AlertDescription>
                     </Alert>
@@ -241,7 +249,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-center py-2">
+                            <div className="flex justify-center py-2 min-h-[80px]">
                                 <div id="recaptcha-container" className="scale-90 origin-center" />
                             </div>
 
@@ -254,6 +262,11 @@ export default function LoginPage() {
                             >
                                 {isSubmitting ? 'Se verifică...' : 'Trimite Cod'}
                             </Button>
+                            
+                            <div className="flex items-center justify-center gap-2 py-2">
+                                <ShieldCheck className="w-4 h-4 text-primary/50" />
+                                <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Securizat prin reCAPTCHA Defense</span>
+                            </div>
                         </form>
                     ) : (
                         <form onSubmit={handleVerifyCode} className="space-y-4">
