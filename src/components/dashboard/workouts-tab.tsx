@@ -31,7 +31,6 @@ export default function WorkoutsTab() {
   const [initialFormData, setInitialFormData] = useState<any>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // Sharing logic
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [shareTitle, setShareTitle] = useState('');
@@ -240,7 +239,11 @@ export default function WorkoutsTab() {
           <div className="space-y-4">
             {logs && logs.length > 0 ? (
               logs.map((log) => {
-                const totalVolume = log.exercises.reduce((sum: number, ex: any) => sum + ex.sets.reduce((sSum: number, s: any) => sSum + (parseFloat(s.weight) * parseInt(s.reps)), 0), 0);
+                // Calcul volum cu protecție pentru date lipsă
+                const totalVolume = log.exercises?.reduce((sum: number, ex: any) => 
+                  sum + (ex.sets?.reduce((sSum: number, s: any) => 
+                    sSum + ((parseFloat(s.weight) || 0) * (parseInt(s.reps) || 0)), 0) || 0), 0) || 0;
+                
                 const isExpanded = expandedId === log.id;
                 const isSelected = selectedIds.includes(log.id);
 
@@ -267,7 +270,7 @@ export default function WorkoutsTab() {
                           <div className="flex items-center gap-4">
                              <div className="hidden md:flex flex-col items-end text-[10px] uppercase font-bold text-muted-foreground">
                                 <div>{log.duration} min</div>
-                                <div className="text-primary">{log.exercises.length} Exerciții</div>
+                                <div className="text-primary">{log.exercises?.length || 0} Exerciții</div>
                              </div>
                              {isExpanded ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
                           </div>
@@ -285,11 +288,11 @@ export default function WorkoutsTab() {
                             </div>
                             {log.notes && <div className="p-4 bg-primary/5 border-l-4 border-primary rounded-r-xl text-sm italic opacity-80 leading-relaxed">"{log.notes}"</div>}
                             <div className="space-y-6">
-                              {log.exercises.map((ex: any, i: number) => (
+                              {log.exercises?.map((ex: any, i: number) => (
                                 <div key={i} className="space-y-2">
                                   <h4 className="font-bold text-primary text-sm uppercase tracking-wide">{ex.name}</h4>
                                   <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                                    {ex.sets.map((s: any, j: number) => (
+                                    {ex.sets?.map((s: any, j: number) => (
                                       <div key={j} className="p-2 rounded-xl bg-white/5 border border-white/5 text-center">
                                         <span className="text-[9px] text-muted-foreground block uppercase">Set {j + 1}</span>
                                         <span className="text-xs font-bold">{s.weight}kg × {s.reps}</span>

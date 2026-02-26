@@ -32,22 +32,31 @@ interface WorkoutFormProps {
 
 export default function WorkoutForm({ logsRef, initialData, editingId, onCancel, onSaved }: WorkoutFormProps) {
   const { toast } = useToast();
+  
+  // Toate hook-urile trebuie să fie la începutul componentei
   const [workoutName, setWorkoutName] = useState(initialData?.name || '');
   const [duration, setDuration] = useState(initialData?.duration?.toString() || '');
   const [notes, setNotes] = useState(initialData?.notes || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Am adăugat optional chaining la map pentru a preveni crash-ul la "Nou" (initialData fiind null)
-  const [exercises, setExercises] = useState<Exercise[]>(initialData?.exercises?.map((ex: any) => ({
-    id: Math.random().toString(36),
-    name: ex.name,
-    sets: ex.sets?.map((s: any) => ({
-      weight: s.weight.toString(),
-      reps: s.reps.toString()
-    })) || [{ weight: '', reps: '' }]
-  })) || []);
+  const [exercises, setExercises] = useState<Exercise[]>(() => {
+    if (!initialData?.exercises) return [];
+    return initialData.exercises.map((ex: any) => ({
+      id: Math.random().toString(36).substring(7),
+      name: ex.name || '',
+      sets: ex.sets?.map((s: any) => ({
+        weight: s.weight?.toString() || '',
+        reps: s.reps?.toString() || ''
+      })) || [{ weight: '', reps: '' }]
+    }));
+  });
 
   const addExercise = useCallback(() => {
-    setExercises(prev => [...prev, { id: Math.random().toString(36), name: '', sets: [{ weight: '', reps: '' }] }]);
+    setExercises(prev => [...prev, { 
+      id: Math.random().toString(36).substring(7), 
+      name: '', 
+      sets: [{ weight: '', reps: '' }] 
+    }]);
   }, []);
 
   const removeExercise = useCallback((exId: string) => {
@@ -132,8 +141,6 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
     }
   };
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   return (
     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
       <form onSubmit={handleSave} className="glass rounded-3xl p-6 md:p-8 space-y-6 border-primary/20">
@@ -169,21 +176,51 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
             {exercises.map((ex, exIdx) => (
               <div key={ex.id} className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
                 <div className="flex items-center gap-3">
-                  <Input value={ex.name} onChange={e => updateExerciseName(ex.id, e.target.value)} placeholder="Nume exercițiu..." className="bg-transparent border-none p-0 text-lg font-bold placeholder:opacity-30 focus-visible:ring-0 text-base" />
-                  <Button type="button" variant="ghost" size="icon" onClick={() => removeExercise(ex.id)} className="h-8 w-8 text-destructive/50 hover:text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button>
+                  <Input 
+                    value={ex.name} 
+                    onChange={e => updateExerciseName(ex.id, e.target.value)} 
+                    placeholder="Nume exercițiu..." 
+                    className="bg-transparent border-none p-0 text-lg font-bold placeholder:opacity-30 focus-visible:ring-0 text-base" 
+                  />
+                  <Button type="button" variant="ghost" size="icon" onClick={() => removeExercise(ex.id)} className="h-8 w-8 text-destructive/50 hover:text-destructive hover:bg-destructive/10">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
                 <div className="space-y-2">
                   {ex.sets.map((set, setIdx) => (
                     <div key={setIdx} className="flex items-center gap-2">
                       <span className="text-[10px] text-muted-foreground w-4">{setIdx + 1}</span>
                       <div className="flex-1 grid grid-cols-2 gap-2">
-                        <Input type="number" step="any" defaultValue={set.weight} onBlur={e => updateSet(ex.id, setIdx, 'weight', e.target.value)} placeholder="kg" className="h-12 bg-background/50 border-white/5 text-base text-center" />
-                        <Input type="number" defaultValue={set.reps} onBlur={e => updateSet(ex.id, setIdx, 'reps', e.target.value)} placeholder="reps" className="h-12 bg-background/50 border-white/5 text-base text-center" />
+                        <Input 
+                          type="number" 
+                          step="any" 
+                          defaultValue={set.weight} 
+                          onBlur={e => updateSet(ex.id, setIdx, 'weight', e.target.value)} 
+                          placeholder="kg" 
+                          className="h-12 bg-background/50 border-white/5 text-base text-center" 
+                        />
+                        <Input 
+                          type="number" 
+                          defaultValue={set.reps} 
+                          onBlur={e => updateSet(ex.id, setIdx, 'reps', e.target.value)} 
+                          placeholder="reps" 
+                          className="h-12 bg-background/50 border-white/5 text-base text-center" 
+                        />
                       </div>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => removeSet(ex.id, setIdx)} className="h-10 w-10 opacity-30 hover:opacity-100 hover:text-destructive"><X className="h-4 w-4" /></Button>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => removeSet(ex.id, setIdx)} className="h-10 w-10 opacity-30 hover:opacity-100 hover:text-destructive">
+                        <X className="h-4 w-4" />
+                      </Button>
                     </div>
                   ))}
-                  <Button type="button" variant="ghost" size="sm" onClick={() => addSet(ex.id)} className="w-full h-10 text-[10px] uppercase tracking-wider text-muted-foreground hover:bg-white/5 border border-dashed border-white/10 mt-2">+ Adaugă Set</Button>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => addSet(ex.id)} 
+                    className="w-full h-10 text-[10px] uppercase tracking-wider text-muted-foreground hover:bg-white/5 border border-dashed border-white/10 mt-2"
+                  >
+                    + Adaugă Set
+                  </Button>
                 </div>
               </div>
             ))}
