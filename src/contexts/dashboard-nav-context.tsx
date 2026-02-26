@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 type DashboardTab = 'home' | 'shop' | 'plans' | 'trainers' | 'workouts' | 'feedback' | 'view-feedback' | 'profile' | 'progress' | 'checkins';
 
@@ -16,6 +16,15 @@ const DashboardNavContext = createContext<DashboardNavContextType>({
 
 export function DashboardNavProvider({ children }: { children: React.ReactNode }) {
   const [activeTab, setActiveTab] = useState<DashboardTab>('home');
+
+  const handleSetActiveTab = useCallback((tab: DashboardTab) => {
+    setActiveTab(tab);
+    // Scroll to top pe main container
+    const mainEl = document.querySelector('main');
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, []);
 
   useEffect(() => {
     const path = window.location.pathname;
@@ -60,7 +69,7 @@ export function DashboardNavProvider({ children }: { children: React.ReactNode }
   }, [activeTab]);
 
   return (
-    <DashboardNavContext.Provider value={{ activeTab, setActiveTab }}>
+    <DashboardNavContext.Provider value={{ activeTab, setActiveTab: handleSetActiveTab }}>
       {children}
     </DashboardNavContext.Provider>
   );

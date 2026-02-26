@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
 import { doc, setDoc, collection, query, orderBy, limit, deleteDoc } from 'firebase/firestore';
 import { format } from 'date-fns';
@@ -55,7 +55,7 @@ export default function ProgressTab() {
 
   const todayStr = format(new Date(), 'yyyy-MM-dd');
 
-  const handleToggleForm = () => {
+  const handleToggleForm = useCallback(() => {
     if (!showForm) {
       const todayEntry = measurements?.find(m => m.date === todayStr);
       if (todayEntry) {
@@ -73,10 +73,10 @@ export default function ProgressTab() {
         });
       }
     }
-    setShowForm(!showForm);
-  };
+    setShowForm(prev => !prev);
+  }, [showForm, measurements, todayStr]);
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.phoneNumber || !firestore) return;
 
@@ -106,9 +106,9 @@ export default function ProgressTab() {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [user, firestore, todayStr, formData, toast]);
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
+  const handleDelete = useCallback(async (e: React.MouseEvent, id: string) => {
     e.stopPropagation(); 
     if (!user?.phoneNumber || !firestore) return;
     try {
@@ -118,7 +118,7 @@ export default function ProgressTab() {
     } catch (err) {
       toast({ variant: "destructive", title: "Eroare", description: "Nu s-a putut șterge." });
     }
-  };
+  }, [user, firestore, expandedId, toast]);
 
   const chartData = useMemo(() => {
     if (!measurements) return [];
@@ -400,4 +400,3 @@ export default function ProgressTab() {
     </motion.div>
   );
 }
-import React from 'react';

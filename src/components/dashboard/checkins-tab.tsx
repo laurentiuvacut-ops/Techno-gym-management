@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
 import { doc, setDoc, collection, query, orderBy, limit } from 'firebase/firestore';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday, isFuture, startOfWeek, differenceInDays } from 'date-fns';
@@ -69,7 +69,7 @@ export default function CheckinsTab() {
     return { monthly, weekly, streak };
   }, [checkins, todayStr]);
 
-  const handleCheckin = async () => {
+  const handleCheckin = useCallback(async () => {
     if (!user?.phoneNumber || !firestore) return;
 
     try {
@@ -82,7 +82,7 @@ export default function CheckinsTab() {
     } catch (err) {
       toast({ variant: "destructive", title: "Eroare", description: "Nu s-a putut face check-in." });
     }
-  };
+  }, [user, firestore, todayStr, toast]);
 
   const daysInMonth = useMemo(() => {
     const start = startOfMonth(currentMonth);
