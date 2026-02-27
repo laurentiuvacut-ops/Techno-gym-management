@@ -104,39 +104,6 @@ export const trainers = [
   },
 ];
 
-export const shopItems = [
-    {
-        id: "1",
-        name: "Protein Whey 2kg",
-        price: "189 RON",
-        stock: "In Stock" as "In Stock" | "Low Stock" | "Out of Stock",
-    },
-    {
-        id: "2",
-        name: "Apă minerală 0.5L",
-        price: "5 RON",
-        stock: "In Stock" as "In Stock" | "Low Stock" | "Out of Stock",
-    },
-    {
-        id: "3",
-        name: "Baton proteic",
-        price: "12 RON",
-        stock: "Out of Stock" as "In Stock" | "Low Stock" | "Out of Stock",
-    },
-    {
-        id: "4",
-        name: "BCAA 500g",
-        price: "129 RON",
-        stock: "In Stock" as "In Stock" | "Low Stock" | "Out of Stock",
-    },
-    {
-        id: "5",
-        name: "Pre-workout",
-        price: "149 RON",
-        stock: "Out of Stock" as "In Stock" | "Low Stock" | "Out of Stock",
-    }
-];
-
 export const transformations = Array.from({ length: 28 }, (_, i) => ({
   id: i + 1,
   name: `Transformare ${i + 1}`,
@@ -144,3 +111,4 @@ export const transformations = Array.from({ length: 28 }, (_, i) => ({
   before: getImage(`transformation-before-${i + 1}`),
   after: getImage(`transformation-after-${i + 1}`),
 }));
+// FIX #15: Eliminat shopItems static (acum se citește din Firestore)

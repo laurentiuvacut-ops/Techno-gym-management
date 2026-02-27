@@ -7,7 +7,7 @@ import { trainers } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Clock } from "lucide-react";
+import { Check, Clock } from "lucide-react";
 import { subscriptions } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
@@ -50,11 +50,13 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full h-[90vh] flex items-center justify-center">
-            <img
+            <Image
                 src="https://i.imgur.com/6N8o2LA.jpg"
                 alt="Modern gym with equipment"
-                loading="eager"
-                className="absolute inset-0 w-full h-full object-cover z-0 blur-sm"
+                fill
+                priority
+                className="object-cover z-0 blur-sm"
+                sizes="100vw"
             />
             <div className="absolute inset-0 bg-black/70 z-10" />
             <div className="container relative z-20 px-4 md:px-6 text-center">
@@ -101,7 +103,6 @@ export default function LandingPage() {
                         <Image
                             src={trainer.image.imageUrl}
                             alt={trainer.name}
-                            data-ai-hint={trainer.image.imageHint}
                             fill
                             className="object-cover transition-transform duration-500 group-hover:scale-110"
                         />
@@ -205,3 +206,4 @@ export default function LandingPage() {
     </div>
   );
 }
+// FIX #12: Optimizare Hero Image cu Next.js <Image> în loc de tag <img>

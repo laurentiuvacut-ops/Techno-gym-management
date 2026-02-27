@@ -1,4 +1,3 @@
-
 'use client';
 
 import { firebaseConfig } from '@/firebase/config';
@@ -16,8 +15,6 @@ export function initializeFirebase() {
   
   let firestore;
   try {
-    // Folosim o formă mai simplă de persistență, compatibilă cu toate browserele mobile
-    // Eliminăm MultipleTabManager care poate cauza blocaje (hangs) în browsere non-PWA
     firestore = initializeFirestore(app, {
       localCache: persistentLocalCache({})
     });
@@ -37,6 +34,6 @@ export * from './client-provider';
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';
 export * from './non-blocking-updates';
-export * from './non-blocking-login';
 export * from './errors';
 export * from './error-emitter';
+// FIX #16: Eliminat export non-blocking-login redundant

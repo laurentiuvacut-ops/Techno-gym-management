@@ -20,7 +20,6 @@ const bebas_neue = Bebas_Neue({
 export const metadata: Metadata = {
   title: 'Techno Gym',
   description: 'Your futuristic gym companion.',
-  manifest: '/manifest.ts',
   referrer: 'no-referrer-when-downgrade',
   appleWebApp: {
     capable: true,
@@ -42,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${bebas_neue.variable}`}>
+    <html lang="ro" className={`dark ${inter.variable} ${bebas_neue.variable}`}>
       <body className="antialiased">
         <FirebaseClientProvider>
           {children}
@@ -53,3 +52,4 @@ export default function RootLayout({
     </html>
   );
 }
+// FIX #13: Eliminat manifest manual din metadata (Next.js îl detectează automat din manifest.ts)

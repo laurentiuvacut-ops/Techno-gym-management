@@ -14,31 +14,30 @@ import {FirestorePermissionError} from '@/firebase/errors';
 
 /**
  * Initiates a setDoc operation for a document reference.
- * Does NOT await the write operation internally.
  */
 export function setDocumentNonBlocking(docRef: DocumentReference, data: any, options: SetOptions) {
-  setDoc(docRef, data, options).catch(error => {
-    errorEmitter.emit(
-      'permission-error',
-      new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'write', // or 'create'/'update' based on options
-        requestResourceData: data,
-      })
-    )
-  })
-  // Execution continues immediately
+  setDoc(docRef, data, options).catch((error: any) => {
+    if (error?.code === 'permission-denied' || error?.code === 'PERMISSION_DENIED') {
+      errorEmitter.emit(
+        'permission-error',
+        new FirestorePermissionError({
+          path: docRef.path,
+          operation: 'write',
+          requestResourceData: data,
+        })
+      );
+    } else {
+      console.error(`Firestore set failed [${docRef.path}]:`, error);
+    }
+  });
 }
-
 
 /**
  * Initiates an addDoc operation for a collection reference.
- * Does NOT await the write operation internally.
- * Returns the Promise for the new doc ref, but typically not awaited by caller.
  */
 export function addDocumentNonBlocking(colRef: CollectionReference, data: any) {
-  const promise = addDoc(colRef, data)
-    .catch(error => {
+  return addDoc(colRef, data).catch((error: any) => {
+    if (error?.code === 'permission-denied' || error?.code === 'PERMISSION_DENIED') {
       errorEmitter.emit(
         'permission-error',
         new FirestorePermissionError({
@@ -46,19 +45,19 @@ export function addDocumentNonBlocking(colRef: CollectionReference, data: any) {
           operation: 'create',
           requestResourceData: data,
         })
-      )
-    });
-  return promise;
+      );
+    } else {
+      console.error(`Firestore add failed [${colRef.path}]:`, error);
+    }
+  });
 }
-
 
 /**
  * Initiates an updateDoc operation for a document reference.
- * Does NOT await the write operation internally.
  */
 export function updateDocumentNonBlocking(docRef: DocumentReference, data: any) {
-  updateDoc(docRef, data)
-    .catch(error => {
+  updateDoc(docRef, data).catch((error: any) => {
+    if (error?.code === 'permission-denied' || error?.code === 'PERMISSION_DENIED') {
       errorEmitter.emit(
         'permission-error',
         new FirestorePermissionError({
@@ -66,24 +65,29 @@ export function updateDocumentNonBlocking(docRef: DocumentReference, data: any) 
           operation: 'update',
           requestResourceData: data,
         })
-      )
-    });
+      );
+    } else {
+      console.error(`Firestore update failed [${docRef.path}]:`, error);
+    }
+  });
 }
-
 
 /**
  * Initiates a deleteDoc operation for a document reference.
- * Does NOT await the write operation internally.
  */
 export function deleteDocumentNonBlocking(docRef: DocumentReference) {
-  deleteDoc(docRef)
-    .catch(error => {
+  deleteDoc(docRef).catch((error: any) => {
+    if (error?.code === 'permission-denied' || error?.code === 'PERMISSION_DENIED') {
       errorEmitter.emit(
         'permission-error',
         new FirestorePermissionError({
           path: docRef.path,
           operation: 'delete',
         })
-      )
-    });
+      );
+    } else {
+      console.error(`Firestore delete failed [${docRef.path}]:`, error);
+    }
+  });
 }
+// FIX #6: Tratare diferențiată erori permisiuni vs erori rețea

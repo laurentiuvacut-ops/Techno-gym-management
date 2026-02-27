@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { addDoc, serverTimestamp, doc, updateDoc, type CollectionReference } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -10,21 +10,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import type { WorkoutLog, WorkoutExercise, WorkoutSet } from '@/types/workout';
 
-interface Set {
-  weight: string;
-  reps: string;
-}
-
-interface Exercise {
+interface InternalExercise {
   id: string;
   name: string;
-  sets: Set[];
+  sets: { weight: string; reps: string }[];
 }
 
 interface WorkoutFormProps {
   logsRef: CollectionReference | null;
-  initialData?: any;
+  initialData?: Partial<WorkoutLog>;
   editingId?: string | null;
   onCancel: () => void;
   onSaved: () => void;
@@ -33,14 +29,12 @@ interface WorkoutFormProps {
 export default function WorkoutForm({ logsRef, initialData, editingId, onCancel, onSaved }: WorkoutFormProps) {
   const { toast } = useToast();
   
-  // State-urile trebuie să fie la începutul componentei pentru a evita erorile de randare
   const [workoutName, setWorkoutName] = useState(initialData?.name || '');
   const [duration, setDuration] = useState(initialData?.duration ? initialData.duration.toString() : '');
   const [notes, setNotes] = useState(initialData?.notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Inițializarea exercițiilor cu protecție la date lipsă
-  const [exercises, setExercises] = useState<Exercise[]>(() => {
+  const [exercises, setExercises] = useState<InternalExercise[]>(() => {
     if (!initialData?.exercises || !Array.isArray(initialData.exercises)) {
       return [{ 
         id: Math.random().toString(36).substring(7), 
@@ -93,7 +87,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
     }));
   }, []);
 
-  const updateSet = useCallback((exId: string, setIndex: number, field: keyof Set, value: string) => {
+  const updateSet = useCallback((exId: string, setIndex: number, field: 'weight' | 'reps', value: string) => {
     setExercises(prev => prev.map(e => {
       if (e.id === exId) {
         const newSets = [...e.sets];
@@ -248,3 +242,4 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
     </motion.div>
   );
 }
+// FIX #6 + #17: Uncontrolled sets (onBlur) pentru performanță + Tipizare strictă

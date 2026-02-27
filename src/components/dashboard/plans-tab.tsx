@@ -1,58 +1,29 @@
-
 'use client';
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star, LinkIcon, ArrowLeft, Loader2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser, useFirestore } from '@/firebase';
+import { useUser } from '@/firebase';
 import { useMember } from '@/contexts/member-context';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 
 export default function PlansTab() {
   const { user } = useUser();
-  const { memberData, isLoading: memberLoading } = useMember();
+  const { memberData } = useMember();
   const { setActiveTab } = useDashboardNav();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
-  const [isWaitingForWebhook, setIsWaitingForWebhook] = useState(false);
-  const [webhookTimeout, setWebhookTimeout] = useState(false);
 
   const paymentSuccess = searchParams.get('payment_success') === 'true';
-  const planIdParam = searchParams.get('plan_id');
-
-  useEffect(() => {
-    if (paymentSuccess) {
-      setIsWaitingForWebhook(true);
-      
-      // Auto-hide the "Processing" message after 15 seconds if nothing happens
-      const timer = setTimeout(() => {
-        setWebhookTimeout(true);
-      }, 15000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [paymentSuccess]);
-
-  // If memberData updates and reflects the active plan, stop waiting
-  useEffect(() => {
-    if (isWaitingForWebhook && memberData?.status === 'Activ' && memberData?.subscriptionType === subscriptions.find(s => s.id === planIdParam)?.title) {
-      setIsWaitingForWebhook(false);
-      toast({
-        title: "Abonament Activat!",
-        description: "Plata a fost procesată și accesul tău a fost actualizat.",
-        className: "bg-success text-success-foreground",
-      });
-    }
-  }, [memberData, isWaitingForWebhook, planIdParam, toast]);
 
   const handlePurchase = async (plan: any) => {
     setCheckoutUrl(null);
@@ -124,26 +95,13 @@ export default function PlansTab() {
         </div>
       </div>
 
-      {isWaitingForWebhook && (
-          <div className="flex flex-col items-center justify-center p-8 glass rounded-3xl gap-4 border-primary/30 animate-in fade-in duration-500">
-              {webhookTimeout ? (
-                <>
-                  <Info className="w-10 h-10 text-warning" />
-                  <div className="text-center">
-                    <p className="text-lg font-bold">Procesarea durează mai mult...</p>
-                    <p className="text-sm text-muted-foreground">Plata a fost înregistrată, dar activarea poate dura câteva minute. Dacă abonamentul nu apare activ în curând, te rugăm să ne contactezi.</p>
-                  </div>
-                  <Button variant="outline" onClick={() => setIsWaitingForWebhook(false)} className="rounded-xl border-white/10">Închide Mesajul</Button>
-                </>
-              ) : (
-                <>
-                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
-                  <div className="text-center">
-                    <p className="text-lg font-bold">Plata a fost finalizată!</p>
-                    <p className="text-sm text-muted-foreground">Se activează abonamentul tău... Te rugăm să nu închizi pagina.</p>
-                  </div>
-                </>
-              )}
+      {paymentSuccess && (
+          <div className="flex items-center justify-center p-6 glass rounded-3xl gap-3 border-primary/30 bg-primary/5 animate-in fade-in duration-500">
+              <Loader2 className="w-5 h-5 text-primary animate-spin" />
+              <div className="text-center">
+                <p className="text-sm font-bold text-primary">Plata se procesează...</p>
+                <p className="text-[10px] text-muted-foreground mt-1">Abonamentul se va activa automat în câteva secunde.</p>
+              </div>
           </div>
       )}
 
@@ -210,7 +168,7 @@ export default function PlansTab() {
                 ) : (
                   <Button 
                     onClick={() => handlePurchase(plan)}
-                    disabled={isProcessingThisPlan || isWaitingForWebhook}
+                    disabled={isProcessingThisPlan}
                     className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")}
                   >
                     {isProcessingThisPlan 
@@ -228,3 +186,4 @@ export default function PlansTab() {
     </motion.div>
   );
 }
+// FIX #7: Eliminat logică nesigură de plată pe client. Actualizarea se face acum prin Webhook (Server-Side)

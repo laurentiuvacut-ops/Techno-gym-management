@@ -6,7 +6,7 @@ import { collection, query, orderBy, limit, deleteDoc, doc } from 'firebase/fire
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Clock, Edit2, Copy, Share2, Users, CheckSquare, Square, Info, ArrowLeft, X } from 'lucide-react';
+import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Edit2, Copy, Share2, Users, CheckSquare, Square, ArrowLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,6 +17,7 @@ import { useMember } from '@/contexts/member-context';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import WorkoutForm from './workout-form';
 import WorkoutCommunity from './workout-community';
+import type { WorkoutLog, SharedWorkout } from '@/types/workout';
 
 export default function WorkoutsTab() {
   const { user } = useUser();
@@ -28,7 +29,7 @@ export default function WorkoutsTab() {
   const [activeSubTab, setActiveSubTab] = useState<'my-logs' | 'community'>('my-logs');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [initialFormData, setInitialFormData] = useState<any>(null);
+  const [initialFormData, setInitialFormData] = useState<WorkoutLog | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const [selectionMode, setSelectionMode] = useState(false);
@@ -47,7 +48,7 @@ export default function WorkoutsTab() {
     return query(logsRef, orderBy('date', 'desc'), limit(50));
   }, [logsRef]);
 
-  const { data: logs, isLoading: logsLoading } = useCollection(logsQuery);
+  const { data: logs, isLoading: logsLoading } = useCollection<WorkoutLog>(logsQuery);
 
   const sharedRef = useMemo(() => {
     if (!firestore) return null;
@@ -59,7 +60,7 @@ export default function WorkoutsTab() {
     return query(sharedRef, orderBy('createdAt', 'desc'), limit(20));
   }, [sharedRef]);
 
-  const { data: communityWorkouts, isLoading: communityLoading } = useCollection(sharedQuery);
+  const { data: communityWorkouts, isLoading: communityLoading } = useCollection<SharedWorkout>(sharedQuery);
 
   const resetForm = useCallback(() => {
     setInitialFormData(null);
@@ -67,14 +68,14 @@ export default function WorkoutsTab() {
     setShowForm(false);
   }, []);
 
-  const handleEditLog = useCallback((log: any) => {
+  const handleEditLog = useCallback((log: WorkoutLog) => {
     setInitialFormData(log);
     setEditingId(log.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const handleRepeatLog = useCallback((log: any) => {
+  const handleRepeatLog = useCallback((log: WorkoutLog) => {
     setInitialFormData(log);
     setEditingId(null);
     setShowForm(true);
@@ -229,7 +230,7 @@ export default function WorkoutsTab() {
               <WorkoutForm 
                 key={editingId || 'new'}
                 logsRef={logsRef} 
-                initialData={initialFormData} 
+                initialData={initialFormData || undefined} 
                 editingId={editingId} 
                 onCancel={resetForm} 
                 onSaved={resetForm} 
@@ -322,7 +323,7 @@ export default function WorkoutsTab() {
         </>
       ) : (
         <WorkoutCommunity 
-          communityWorkouts={communityWorkouts} 
+          communityWorkouts={communityWorkouts || []} 
           logsRef={logsRef} 
           onCopied={() => setActiveSubTab('my-logs')} 
         />
@@ -330,3 +331,4 @@ export default function WorkoutsTab() {
     </motion.div>
   );
 }
+// FIX #17: Tipizare strictă pentru obiectele de antrenament

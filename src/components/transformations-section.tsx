@@ -42,7 +42,6 @@ export default function TransformationsSection() {
                                     src={transform.before.imageUrl}
                                     alt="Before"
                                     fill
-                                    data-ai-hint={transform.before.imageHint}
                                     className="object-cover"
                                   />
                                   <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">Înainte</Badge>
@@ -52,7 +51,6 @@ export default function TransformationsSection() {
                                     src={transform.after.imageUrl}
                                     alt="After"
                                     fill
-                                    data-ai-hint={transform.after.imageHint}
                                     className="object-cover"
                                   />
                                   <Badge className="absolute bottom-2 left-2 border-none bg-black/50 text-white">După</Badge>
@@ -76,3 +74,4 @@ export default function TransformationsSection() {
         </section>
     )
 }
+// FIX #18: Eliminat data-ai-hint nefolosit în producție

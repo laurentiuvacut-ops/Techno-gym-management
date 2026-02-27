@@ -49,7 +49,6 @@ export default function TrainersTab() {
                     <Image
                         src={trainer.image.imageUrl}
                         alt={trainer.name}
-                        data-ai-hint={trainer.image.imageHint}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
@@ -66,3 +65,4 @@ export default function TrainersTab() {
     </motion.div>
   );
 }
+// FIX #18: Eliminat data-ai-hint nefolosit în producție

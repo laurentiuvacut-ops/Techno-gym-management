@@ -8,9 +8,10 @@ import { Dumbbell, Clock, Copy, Info, ChevronDown, ChevronUp, Users } from 'luci
 import { Button } from '@/components/ui/button';
 import { addDoc, serverTimestamp, CollectionReference } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import type { SharedWorkout } from '@/types/workout';
 
 interface WorkoutCommunityProps {
-  communityWorkouts: any[] | null;
+  communityWorkouts: SharedWorkout[];
   logsRef: CollectionReference | null;
   onCopied: () => void;
 }
@@ -19,7 +20,7 @@ export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied 
   const { toast } = useToast();
   const [expandedCommunityId, setExpandedCommunityId] = useState<string | null>(null);
 
-  const handleCopySharedWorkout = useCallback(async (sharedWorkout: any) => {
+  const handleCopySharedWorkout = useCallback(async (sharedWorkout: SharedWorkout) => {
     if (!logsRef) return;
     
     toast({ title: "Se copiază...", description: "Vă rugăm așteptați." });
@@ -125,3 +126,4 @@ export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied 
     </div>
   );
 }
+// FIX #17: Tipizare strictă pentru secțiunea comunitate

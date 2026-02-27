@@ -21,6 +21,7 @@ export default function FeedbackTab() {
   const [rating, setRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
 
   const handleSubmit = async () => {
     if (!firestore || !comment.trim() || rating === 0) {
@@ -31,6 +32,16 @@ export default function FeedbackTab() {
         });
       return;
     };
+
+    const now = Date.now();
+    if (now - lastSubmitTime < 60000) {
+      toast({
+        variant: "destructive",
+        title: "Prea repede",
+        description: "Poți trimite feedback o dată pe minut.",
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     try {
@@ -43,6 +54,8 @@ export default function FeedbackTab() {
         const feedbackCollection = collection(firestore, 'feedback');
         await addDoc(feedbackCollection, feedbackData);
         
+        setLastSubmitTime(Date.now());
+
         sendFeedbackEmail({ rating, comment }).then(result => {
           if (!result.success) {
             console.error("Failed to send feedback email:", result.error);
@@ -136,3 +149,4 @@ export default function FeedbackTab() {
     </motion.div>
   );
 }
+// FIX #14: Adăugat Rate Limiting pentru trimitere feedback (max 1/minut)
