@@ -1,131 +1,58 @@
+
 'use client';
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, LinkIcon, ArrowLeft } from "lucide-react";
+import { Check, Star, LinkIcon, ArrowLeft, Loader2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser, useFirestore, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
 import { useMember } from '@/contexts/member-context';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { doc, updateDoc } from "firebase/firestore";
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
-import { addDays, format, isValid, differenceInCalendarDays } from 'date-fns';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 
 export default function PlansTab() {
   const { user } = useUser();
   const { memberData, isLoading: memberLoading } = useMember();
   const { setActiveTab } = useDashboardNav();
-  const firestore = useFirestore();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [isWaitingForWebhook, setIsWaitingForWebhook] = useState(false);
+  const [webhookTimeout, setWebhookTimeout] = useState(false);
 
-  const paymentProcessedRef = useRef(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-
-  const memberDocRef = useMemo(() => {
-    if (!firestore || !user?.phoneNumber) return null;
-    return doc(firestore, 'members', user.phoneNumber);
-  }, [firestore, user]);
-
-  const currentSubscription = useMemo(() => {
-    if (!memberData || !memberData.subscriptionType) return null;
-    return subscriptions.find(sub => sub.title === memberData.subscriptionType);
-  }, [memberData]);
+  const paymentSuccess = searchParams.get('payment_success') === 'true';
+  const planIdParam = searchParams.get('plan_id');
 
   useEffect(() => {
-    const planId = searchParams.get('plan_id');
-    const paymentSuccess = searchParams.get('payment_success') === 'true';
+    if (paymentSuccess) {
+      setIsWaitingForWebhook(true);
+      
+      // Auto-hide the "Processing" message after 15 seconds if nothing happens
+      const timer = setTimeout(() => {
+        setWebhookTimeout(true);
+      }, 15000);
 
-    if (paymentSuccess && planId) {
-      sessionStorage.setItem('payment_processing_plan_id', planId);
-      return; 
+      return () => clearTimeout(timer);
     }
+  }, [paymentSuccess]);
 
-    const pendingPlanId = sessionStorage.getItem('payment_processing_plan_id');
-
-    if (!pendingPlanId || memberLoading || !memberData || !memberDocRef) {
-      return; 
+  // If memberData updates and reflects the active plan, stop waiting
+  useEffect(() => {
+    if (isWaitingForWebhook && memberData?.status === 'Activ' && memberData?.subscriptionType === subscriptions.find(s => s.id === planIdParam)?.title) {
+      setIsWaitingForWebhook(false);
+      toast({
+        title: "Abonament Activat!",
+        description: "Plata a fost procesată și accesul tău a fost actualizat.",
+        className: "bg-success text-success-foreground",
+      });
     }
-    
-    if (paymentProcessedRef.current) {
-      return;
-    }
-
-    paymentProcessedRef.current = true;
-    setIsProcessingPayment(true);
-    
-    const processPaymentUpdate = async () => {
-      const purchasedPlan = subscriptions.find(s => s.id === pendingPlanId);
-
-      if (!purchasedPlan) {
-        toast({
-          variant: "destructive",
-          title: "Eroare la procesare",
-          description: "Planul achiziționat nu a fost găsit.",
-        });
-        sessionStorage.removeItem('payment_processing_plan_id');
-        setIsProcessingPayment(false);
-        return;
-      }
-
-      const daysToAdd = purchasedPlan.durationDays || 30;
-      let startDate = new Date();
-      const expirationValue = memberData.expirationDate;
-      let currentExpirationDate;
-
-      if (expirationValue) {
-        if (typeof expirationValue === 'object' && expirationValue !== null && typeof (expirationValue as any).toDate === 'function') {
-          currentExpirationDate = (expirationValue as any).toDate();
-        } else if (typeof expirationValue === 'string') {
-          const parts = expirationValue.split('-').map(part => parseInt(part, 10));
-          if (parts.length === 3 && !parts.some(isNaN)) {
-            currentExpirationDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
-          }
-        }
-      }
-
-      const today = new Date();
-      const todayUtc = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
-
-      if (currentExpirationDate && isValid(currentExpirationDate) && differenceInCalendarDays(currentExpirationDate, todayUtc) >= 0) {
-        startDate = currentExpirationDate;
-      }
-
-      const newExpirationDate = addDays(startDate, daysToAdd);
-      const updatedData = {
-        expirationDate: format(newExpirationDate, 'yyyy-MM-dd'),
-        subscriptionType: purchasedPlan.title,
-        status: "Activ",
-      };
-
-      try {
-        await updateDoc(memberDocRef, updatedData);
-        toast({
-          title: "Plată reușită!",
-          description: `Abonamentul tău ${purchasedPlan.title} a fost activat.`,
-          className: "bg-success text-success-foreground",
-        });
-      } catch (error) {
-        const permissionError = new FirestorePermissionError({
-            path: memberDocRef.path,
-            operation: 'update',
-            requestResourceData: updatedData
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      } finally {
-        sessionStorage.removeItem('payment_processing_plan_id');
-        setIsProcessingPayment(false);
-      }
-    };
-    
-    processPaymentUpdate();
-  }, [searchParams, user, memberLoading, memberData, memberDocRef, firestore, toast]);
+  }, [memberData, isWaitingForWebhook, planIdParam, toast]);
 
   const handlePurchase = async (plan: any) => {
     setCheckoutUrl(null);
@@ -170,6 +97,7 @@ export default function PlansTab() {
     }
   };
   
+  const currentSubscription = memberData?.subscriptionType ? subscriptions.find(sub => sub.title === memberData.subscriptionType) : null;
   const currentPlanId = currentSubscription?.id;
 
   return (
@@ -196,10 +124,26 @@ export default function PlansTab() {
         </div>
       </div>
 
-      {isProcessingPayment && (
-          <div className="flex items-center justify-center p-8 glass rounded-3xl gap-3">
-              <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-sm font-medium">Se actualizează abonamentul...</p>
+      {isWaitingForWebhook && (
+          <div className="flex flex-col items-center justify-center p-8 glass rounded-3xl gap-4 border-primary/30 animate-in fade-in duration-500">
+              {webhookTimeout ? (
+                <>
+                  <Info className="w-10 h-10 text-warning" />
+                  <div className="text-center">
+                    <p className="text-lg font-bold">Procesarea durează mai mult...</p>
+                    <p className="text-sm text-muted-foreground">Plata a fost înregistrată, dar activarea poate dura câteva minute. Dacă abonamentul nu apare activ în curând, te rugăm să ne contactezi.</p>
+                  </div>
+                  <Button variant="outline" onClick={() => setIsWaitingForWebhook(false)} className="rounded-xl border-white/10">Închide Mesajul</Button>
+                </>
+              ) : (
+                <>
+                  <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                  <div className="text-center">
+                    <p className="text-lg font-bold">Plata a fost finalizată!</p>
+                    <p className="text-sm text-muted-foreground">Se activează abonamentul tău... Te rugăm să nu închizi pagina.</p>
+                  </div>
+                </>
+              )}
           </div>
       )}
 
@@ -266,7 +210,7 @@ export default function PlansTab() {
                 ) : (
                   <Button 
                     onClick={() => handlePurchase(plan)}
-                    disabled={isProcessingThisPlan}
+                    disabled={isProcessingThisPlan || isWaitingForWebhook}
                     className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")}
                   >
                     {isProcessingThisPlan 

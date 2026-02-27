@@ -10,11 +10,12 @@ service cloud.firestore {
                        request.auth.token.phone_number == phoneNumber &&
                        request.resource.data.id == request.auth.uid;
 
+      // Câmpurile sensibile (expirationDate, subscriptionType, status) 
+      // sunt acum actualizate DOAR prin Webhook-ul Stripe (Server-Side)
       allow update: if request.auth != null && 
                        request.auth.token.phone_number == phoneNumber &&
                        request.resource.data.diff(resource.data).affectedKeys()
-                         .hasOnly(['expirationDate', 'subscriptionType', 'status',
-                                   'id', 'name', 'email', 'phone', 'photoURL', 'qrCode', 'agreedToTermsAt']);
+                         .hasOnly(['id', 'name', 'email', 'phone', 'photoURL', 'qrCode', 'agreedToTermsAt']);
       
       allow list, delete: if false;
 
