@@ -45,11 +45,11 @@ const TransformationsSection = dynamic(
 );
 
 export default function LandingPage() {
-  const [currentYear, setCurrentYear] = useState<number | null>(null);
+  const [currentYear, setCurrentYear] = useState<string>('2024');
 
   useEffect(() => {
     // Setting year on the client to avoid hydration mismatch
-    setCurrentYear(new Date().getFullYear());
+    setCurrentYear(new Date().getFullYear().toString());
   }, []);
 
   return (
@@ -206,7 +206,7 @@ export default function LandingPage() {
                 <span className="text-lg font-bold tracking-tight"><span className="text-primary">TECHNO</span><span className="text-foreground">GYM</span></span>
             </Link>
             <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-              © {currentYear || '2024'} Techno Gym. Toate drepturile rezervate.
+              © {currentYear} Techno Gym. Toate drepturile rezervate.
             </p>
           </div>
         </div>
