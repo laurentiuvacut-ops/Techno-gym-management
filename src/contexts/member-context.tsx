@@ -1,9 +1,11 @@
-
 'use client';
 
 import { createContext, useContext, useMemo } from 'react';
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { doc } from 'firebase/firestore';
+
+// Numărul de telefon autorizat ca administrator
+export const ADMIN_PHONE = '+40753030493';
 
 type MemberData = {
   id: string;
@@ -21,11 +23,13 @@ type MemberData = {
 type MemberContextType = {
   memberData: MemberData | null;
   isLoading: boolean;
+  isAdmin: boolean;
 };
 
 const MemberContext = createContext<MemberContextType>({
   memberData: null,
   isLoading: true,
+  isAdmin: false,
 });
 
 export function MemberProvider({ children }: { children: React.ReactNode }) {
@@ -39,13 +43,15 @@ export function MemberProvider({ children }: { children: React.ReactNode }) {
 
   const { data: memberData, isLoading: docLoading } = useDoc(memberDocRef);
 
-  // Optimizăm starea de loading: nu blocăm aplicația dacă baza de date este lentă.
-  // Suntem în loading DOAR dacă Auth încă se verifică.
-  // Odată ce avem user, lăsăm tab-urile să se randeze cu Skeletons până vin datele din Firestore.
+  // Verificarea autoritară a calității de admin bazată pe numărul de telefon
+  const isAdmin = useMemo(() => {
+    return user?.phoneNumber === ADMIN_PHONE;
+  }, [user]);
+
   const isLoading = authLoading || (!!user && docLoading && !memberData);
 
   return (
-    <MemberContext.Provider value={{ memberData, isLoading }}>
+    <MemberContext.Provider value={{ memberData, isLoading, isAdmin }}>
       {children}
     </MemberContext.Provider>
   );

@@ -32,8 +32,7 @@ interface WorkoutFormProps {
 
 export default function WorkoutForm({ logsRef, initialData, editingId, onCancel, onSaved }: WorkoutFormProps) {
   const { toast } = useToast();
-  const { memberData } = useMember();
-  const isAdmin = memberData?.isAdmin === true;
+  const { isAdmin } = useMember();
   
   const [workoutName, setWorkoutName] = useState(initialData?.name || '');
   const [duration, setDuration] = useState(initialData?.duration ? initialData.duration.toString() : '');

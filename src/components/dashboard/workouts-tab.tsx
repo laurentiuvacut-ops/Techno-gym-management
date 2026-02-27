@@ -23,12 +23,10 @@ import type { WorkoutLog, SharedWorkout } from '@/types/workout';
 
 export default function WorkoutsTab() {
   const { user } = useUser();
-  const { memberData } = useMember();
+  const { memberData, isAdmin } = useMember();
   const firestore = useFirestore();
   const { setActiveTab } = useDashboardNav();
   const { toast } = useToast();
-  
-  const isAdmin = memberData?.isAdmin === true;
   
   const [activeSubTab, setActiveSubTab] = useState<'my-logs' | 'community'>('my-logs');
   const [showForm, setShowForm] = useState(false);
