@@ -1,18 +1,16 @@
-# Checkpoint: Versiune Stabilă 1.1
+# Checkpoint: Versiune Stabilă 1.2 - Securitate Stripe
 
-Acest fișier marchează momentul în care aplicația Techno Gym are toate funcționalitățile de bază implementate corect, layout-ul este optimizat și problemele de livrare SMS pe rețelele ISP restrictive au fost rezolvate.
+Acest fișier marchează implementarea fluxului securizat de plăți server-side.
 
 ## Funcționalități incluse și verificate:
-- **Autentificare (Fix ISP)**: Implementat flux rezistent la blocaje Digi/RDS folosind `reCAPTCHA SMS Defense` pe modul AUDIT.
-- **PWA Native Install**: Adăugat hook pentru `beforeinstallprompt` (Android) și dialog fallback pentru iOS.
-- **Profil**: Încărcare și redimensionare automată a pozei de profil (max 400px, JPEG), afișare beneficii abonament și navigare rapidă.
-- **Dashboard**: Layout optimizat (carduri mari, cifră zile 8xl/9xl), titlu cu tipul abonamentului și stare (Activ/Inactiv).
-- **Jurnal Antrenament**: Sistem complet de logare (Exerciții, Seturi, Kg, Reps) cu funcție de editare și utilizare șabloane/repetare antrenament.
-- **Comunitate**: Posibilitatea de a partaja antrenamentele cu alți membri și de a copia rutinele acestora în jurnalul personal.
-- **Progres & Măsurători**: Urmărirea evoluției corporale prin grafice interactive (Recharts) și istoric detaliat al măsurătorilor.
-- **Prezențe**: Calendar vizual pentru monitorizarea frecvenței la sală și statistici de consistență (streak).
-- **PWA**: Manifest și Service Worker configurate pentru instalare pe telefon.
-- **Navigare Instant**: Arhitectură Master-Subroute pentru eliminarea timpului de încărcare la accesarea directă a URL-urilor.
+- **Autentificare (v1.1 Fix)**: ReCAPTCHA SMS Defense activat pentru deblocare ISP Digi.
+- **Stripe Webhook (Nou)**: Actualizarea abonamentului se face acum DOAR pe server prin `src/app/api/stripe-webhook/route.ts`.
+- **Securitate Firestore**: Regulile de securitate au fost blocate pentru a preveni modificarea manuală a datei de expirare din browser.
+- **PWA Native Install**: Buton de instalare nativă pe Home Screen.
 
-**Data Snapshot:** 28 Februarie 2024
-**Status:** Perfect Stabil (v1.1)
+## Configurare necesară (.env.local):
+1. **STRIPE_WEBHOOK_SECRET**: Obținut din Stripe Dashboard -> Webhooks -> Signing Secret (whsec_...).
+2. **FIREBASE_SERVICE_ACCOUNT_KEY**: JSON-ul generat din Firebase Console -> Service Accounts -> Generate New Private Key.
+
+**Data Snapshot:** 28 Februarie 2024 (Actualizat)
+**Status:** Securizat (v1.2)
