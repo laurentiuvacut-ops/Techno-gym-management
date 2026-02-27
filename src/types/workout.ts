@@ -6,6 +6,8 @@ export interface WorkoutSet {
 export interface WorkoutExercise {
   name: string;
   sets: WorkoutSet[];
+  videoUrl?: string;
+  imageUrl?: string;
 }
 
 export interface WorkoutLog {
@@ -26,6 +28,6 @@ export interface SharedWorkout {
   creatorName: string;
   creatorId: string;
   createdAt?: any;
+  isOfficial?: boolean;
   workouts: Omit<WorkoutLog, 'id' | 'date' | 'createdAt'>[];
 }
-// FIX #17: Interfețe TypeScript pentru obiectele de antrenament

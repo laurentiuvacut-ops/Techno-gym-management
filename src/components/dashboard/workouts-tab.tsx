@@ -2,15 +2,17 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useUser, useFirestore, useCollection } from '@/firebase';
-import { collection, query, orderBy, limit, deleteDoc, doc } from 'firebase/firestore';
+import { collection, query, orderBy, limit, deleteDoc, doc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Edit2, Copy, Share2, Users, CheckSquare, Square, ArrowLeft, X } from 'lucide-react';
+import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Edit2, Copy, Share2, Users, CheckSquare, Square, ArrowLeft, X, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useMember } from '@/contexts/member-context';
@@ -26,6 +28,8 @@ export default function WorkoutsTab() {
   const { setActiveTab } = useDashboardNav();
   const { toast } = useToast();
   
+  const isAdmin = memberData?.isAdmin === true;
+  
   const [activeSubTab, setActiveSubTab] = useState<'my-logs' | 'community'>('my-logs');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -36,6 +40,7 @@ export default function WorkoutsTab() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [shareTitle, setShareTitle] = useState('');
   const [shareDescription, setShareDescription] = useState('');
+  const [isOfficial, setIsOfficial] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
   const logsRef = useMemo(() => {
@@ -57,7 +62,7 @@ export default function WorkoutsTab() {
 
   const sharedQuery = useMemo(() => {
     if (!sharedRef) return null;
-    return query(sharedRef, orderBy('createdAt', 'desc'), limit(20));
+    return query(sharedRef, orderBy('isOfficial', 'desc'), orderBy('createdAt', 'desc'), limit(30));
   }, [sharedRef]);
 
   const { data: communityWorkouts, isLoading: communityLoading } = useCollection<SharedWorkout>(sharedQuery);
@@ -108,18 +113,23 @@ export default function WorkoutsTab() {
     const selectedWorkouts = logs?.filter(l => selectedIds.includes(l.id)) || [];
 
     try {
-      const { addDoc, serverTimestamp } = await import('firebase/firestore');
       await addDoc(sharedRef, {
         title: shareTitle,
         description: shareDescription,
         creatorName: memberData.name || 'Membru',
         creatorId: user.uid,
         createdAt: serverTimestamp(),
+        isOfficial: isAdmin ? isOfficial : false,
         workouts: selectedWorkouts.map(w => ({
           name: w.name,
           duration: w.duration,
           notes: w.notes,
-          exercises: w.exercises
+          exercises: w.exercises.map(ex => ({
+            name: ex.name,
+            videoUrl: ex.videoUrl || '',
+            imageUrl: ex.imageUrl || '',
+            sets: ex.sets
+          }))
         }))
       });
       toast({ title: "Publicat!", description: "Antrenamentele tale sunt acum în comunitate.", className: "bg-success text-success-foreground" });
@@ -127,12 +137,13 @@ export default function WorkoutsTab() {
       setSelectedIds([]);
       setShareTitle('');
       setShareDescription('');
+      setIsOfficial(false);
     } catch (err) {
       toast({ variant: "destructive", title: "Eroare", description: "Nu s-a putut partaja." });
     } finally {
       setIsSharing(false);
     }
-  }, [sharedRef, user, memberData, selectedIds, shareTitle, shareDescription, logs, toast]);
+  }, [sharedRef, user, memberData, selectedIds, shareTitle, shareDescription, isOfficial, isAdmin, logs, toast]);
 
   if (logsLoading || (activeSubTab === 'community' && communityLoading)) {
     return (
@@ -218,8 +229,16 @@ export default function WorkoutsTab() {
                         className="bg-background border-primary/30 text-base h-12 min-h-[48px]"
                     />
                 </div>
+                {isAdmin && (
+                  <div className="flex items-center space-x-2 p-2 bg-primary/10 rounded-xl border border-primary/20">
+                    <Checkbox id="official" checked={isOfficial} onCheckedChange={(c) => setIsOfficial(!!c)} />
+                    <Label htmlFor="official" className="text-xs font-bold text-primary flex items-center gap-1 uppercase tracking-widest">
+                      <ShieldCheck className="w-4 h-4" /> Marchează ca Antrenament Oficial Techno Gym
+                    </Label>
+                  </div>
+                )}
                 <Button onClick={handleShareSelected} disabled={isSharing} className="h-12 px-6 rounded-xl bg-success hover:bg-success/80 text-white font-bold text-sm shadow-lg shadow-success/20">
-                  {isSharing ? 'Se publică...' : `Publică ${selectedIds.length} Antrenamente în Comunitate`}
+                  {isSharing ? 'Se publică...' : `Publică ${selectedIds.length} Antrenamente`}
                 </Button>
               </div>
             )}
@@ -331,4 +350,3 @@ export default function WorkoutsTab() {
     </motion.div>
   );
 }
-// FIX #17: Tipizare strictă pentru obiectele de antrenament

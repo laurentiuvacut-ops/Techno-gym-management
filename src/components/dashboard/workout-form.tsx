@@ -3,18 +3,22 @@
 import React, { useState, useCallback } from 'react';
 import { addDoc, serverTimestamp, doc, updateDoc, type CollectionReference } from 'firebase/firestore';
 import { format } from 'date-fns';
-import { motion } from 'framer-motion';
-import { Plus, Trash2, Save, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Trash2, Save, X, Video, Image as ImageIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useMember } from '@/contexts/member-context';
 import type { WorkoutLog } from '@/types/workout';
 
 interface InternalExercise {
   id: string;
   name: string;
+  videoUrl: string;
+  imageUrl: string;
+  showMediaInputs: boolean;
   sets: { weight: string; reps: string }[];
 }
 
@@ -28,24 +32,31 @@ interface WorkoutFormProps {
 
 export default function WorkoutForm({ logsRef, initialData, editingId, onCancel, onSaved }: WorkoutFormProps) {
   const { toast } = useToast();
+  const { memberData } = useMember();
+  const isAdmin = memberData?.isAdmin === true;
   
   const [workoutName, setWorkoutName] = useState(initialData?.name || '');
   const [duration, setDuration] = useState(initialData?.duration ? initialData.duration.toString() : '');
   const [notes, setNotes] = useState(initialData?.notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Am înlocuit Math.random() cu o indexare stabilă pentru a evita erorile de hidratare
   const [exercises, setExercises] = useState<InternalExercise[]>(() => {
     if (!initialData?.exercises || !Array.isArray(initialData.exercises)) {
       return [{ 
         id: 'new-exercise-0', 
         name: '', 
+        videoUrl: '',
+        imageUrl: '',
+        showMediaInputs: false,
         sets: [{ weight: '', reps: '' }] 
       }];
     }
     return initialData.exercises.map((ex: any, idx: number) => ({
       id: `existing-exercise-${idx}`,
       name: ex.name || '',
+      videoUrl: ex.videoUrl || '',
+      imageUrl: ex.imageUrl || '',
+      showMediaInputs: !!(ex.videoUrl || ex.imageUrl),
       sets: Array.isArray(ex.sets) ? ex.sets.map((s: any) => ({
         weight: s.weight ? s.weight.toString() : '',
         reps: s.reps ? s.reps.toString() : ''
@@ -57,6 +68,9 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
     setExercises(prev => [...prev, { 
       id: `new-exercise-${Date.now()}`, 
       name: '', 
+      videoUrl: '',
+      imageUrl: '',
+      showMediaInputs: false,
       sets: [{ weight: '', reps: '' }] 
     }]);
   }, []);
@@ -65,8 +79,8 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
     setExercises(prev => prev.filter(e => e.id !== exId));
   }, []);
 
-  const updateExerciseName = useCallback((exId: string, name: string) => {
-    setExercises(prev => prev.map(e => e.id === exId ? { ...e, name } : e));
+  const updateExerciseField = useCallback((exId: string, field: keyof InternalExercise, value: any) => {
+    setExercises(prev => prev.map(e => e.id === exId ? { ...e, [field]: value } : e));
   }, []);
 
   const addSet = useCallback((exId: string) => {
@@ -115,6 +129,8 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
       notes,
       exercises: exercises.map(e => ({
         name: e.name,
+        videoUrl: e.videoUrl,
+        imageUrl: e.imageUrl,
         sets: e.sets.map(s => ({
           weight: parseFloat(s.weight) || 0,
           reps: parseInt(s.reps) || 0
@@ -182,14 +198,56 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                 <div className="flex items-center gap-3">
                   <Input 
                     value={ex.name} 
-                    onChange={e => updateExerciseName(ex.id, e.target.value)} 
+                    onChange={e => updateExerciseField(ex.id, 'name', e.target.value)} 
                     placeholder="Nume exercițiu..." 
-                    className="bg-transparent border-none p-0 text-lg font-bold placeholder:opacity-30 focus-visible:ring-0 text-base" 
+                    className="bg-transparent border-none p-0 text-lg font-bold placeholder:opacity-30 focus-visible:ring-0 text-base flex-1" 
                   />
+                  {isAdmin && (
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => updateExerciseField(ex.id, 'showMediaInputs', !ex.showMediaInputs)}
+                      className={ex.showMediaInputs ? "text-primary" : "text-muted-foreground opacity-50"}
+                    >
+                      <Video className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button type="button" variant="ghost" size="icon" onClick={() => removeExercise(ex.id)} className="h-8 w-8 text-destructive/50 hover:text-destructive hover:bg-destructive/10">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
+
+                <AnimatePresence>
+                  {ex.showMediaInputs && isAdmin && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="grid grid-cols-1 gap-2 p-3 bg-black/20 rounded-xl border border-white/5 overflow-hidden"
+                    >
+                      <div className="space-y-1">
+                        <Label className="text-[9px] uppercase text-muted-foreground flex items-center gap-1"><Video className="w-3 h-3" /> URL Video (YouTube/Vimeo)</Label>
+                        <Input 
+                          value={ex.videoUrl} 
+                          onChange={e => updateExerciseField(ex.id, 'videoUrl', e.target.value)} 
+                          placeholder="https://..." 
+                          className="h-8 text-xs bg-background/50"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[9px] uppercase text-muted-foreground flex items-center gap-1"><ImageIcon className="w-3 h-3" /> URL Poză Tutorial</Label>
+                        <Input 
+                          value={ex.imageUrl} 
+                          onChange={e => updateExerciseField(ex.id, 'imageUrl', e.target.value)} 
+                          placeholder="https://..." 
+                          className="h-8 text-xs bg-background/50"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <div className="space-y-2">
                   {ex.sets.map((set, setIdx) => (
                     <div key={setIdx} className="flex items-center gap-2">
