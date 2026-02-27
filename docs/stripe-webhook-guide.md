@@ -1,6 +1,6 @@
 # Ghid Configurare Stripe Webhook - Techno Gym
 
-Pentru ca abonamentele să se activeze automat după plată, trebuie să configurezi manual Webhook-ul în panoul Stripe.
+Pentru ca abonamentele să se activeze automat după plată, trebuie să configurezi manual Webhook-ul în panoul Stripe și să adaugi cheile de securitate.
 
 ## Pasul 1: Adăugarea Endpoint-ului în Stripe
 1. Intră în [Stripe Dashboard -> Developers -> Webhooks](https://dashboard.stripe.com/webhooks).
@@ -8,31 +8,30 @@ Pentru ca abonamentele să se activeze automat după plată, trebuie să configu
 3. Apasă pe butonul **"+ Add endpoint"**.
 4. La **Endpoint URL**, introdu adresa site-ului tău urmată de calea webhook-ului:
    `https://technogymcraiova.com/api/stripe-webhook`
-   *(Dacă folosești un alt domeniu temporar, pune domeniul respectiv)*.
-5. La **Select events to listen to**, apasă pe **"+ Select events"** și caută:
-   - `checkout.session.completed` (Acesta este cel mai important).
-6. Apasă **"Add events"** și apoi **"Add endpoint"**.
+5. La **Select events to listen to**, caută și adaugă:
+   - `checkout.session.completed`
+6. Apasă **"Add endpoint"**.
 
-## Pasul 2: Obținerea Cheilor (Secretelor)
+## Pasul 2: Obținerea Secretelor (STRIPE_WEBHOOK_SECRET)
 După ce ai salvat endpoint-ul:
-1. Vei vedea o secțiune numită **"Signing secret"**. Apasă pe **"Reveal"**.
-2. Copiază acel cod (începe cu `whsec_...`).
-3. Deschide fișierul tău local `.env.local` (sau setările de mediu de pe serverul de hosting).
-4. Adaugă linia: `STRIPE_WEBHOOK_SECRET=codul_tau_copiat`
+1. Apasă pe **"Reveal"** la secțiunea **"Signing secret"**.
+2. Copiază codul (începe cu `whsec_...`).
+3. Adaugă-l în `.env.local`: `STRIPE_WEBHOOK_SECRET=whsec_...`
 
-## Pasul 3: Cheia Master Firebase (Service Account)
-Pentru ca serverul să poată scrie în baza de date fără restricții:
+## Pasul 3: Cheia Master Firebase (FIREBASE_SERVICE_ACCOUNT_KEY)
+Aceasta este cheia care permite serverului să scrie în baza de date. 
+
+**CUM SE SALVEAZĂ CORECT:**
 1. Mergi în [Consola Firebase -> Project Settings -> Service Accounts](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk).
-2. Apasă **"Generate new private key"**.
-3. Se va descărca un fișier JSON.
-4. **IMPORTANȚĂ MAXIMĂ:** Deschide fișierul JSON descărcat, copiază TOT conținutul și pune-l pe **UN SINGUR RÂND** în `.env.local` astfel:
+2. Apasă **"Generate new private key"**. Se va descărca un fișier `.json`.
+3. Deschide fișierul `.json` și copiază TOT conținutul.
+4. **IMPORTANT:** JSON-ul trebuie să fie pe un singur rând. Poți folosi un tool online de "Minify JSON" sau poți să îl lipești pur și simplu în `.env.local` între ghilimele simple, astfel:
 
-   `FIREBASE_SERVICE_ACCOUNT_KEY='{"type": "service_account", "project_id": "...", ...}'`
+```env
+FIREBASE_SERVICE_ACCOUNT_KEY='{"type": "service_account", "project_id": "...", "private_key": "-----BEGIN PRIVATE KEY-----\n..."}'
+```
 
-   *(Folosește ghilimele simple ' la începutul și sfârșitul JSON-ului pentru a nu intra în conflict cu ghilimelele duble din interior).*
+*(Notă: Ghilimelele simple `'` de la început și sfârșit sunt obligatorii pentru a proteja ghilimelele duble din interiorul JSON-ului).*
 
-## Cum verifici dacă funcționează?
-1. Mergi în Stripe Dashboard -> Webhooks.
-2. Apasă pe Webhook-ul creat.
-3. În tab-ul **"Succeeded"**, vei vedea log-urile tuturor plăților trimise către site-ul tău.
-4. Statusul trebuie să fie `200 OK`.
+## Verificare
+Dacă totul este corect, după o plată de test în Stripe, tab-ul **"Succeeded"** din Webhook-ul Stripe ar trebui să afișeze `Status 200 OK`, iar membrul va avea data de expirare actualizată automat în aplicație.
