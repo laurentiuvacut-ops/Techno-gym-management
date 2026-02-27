@@ -8,7 +8,7 @@ Pentru ca abonamentele să se activeze automat după plată, trebuie să configu
 3. Apasă pe butonul **"+ Add endpoint"**.
 4. La **Endpoint URL**, introdu adresa site-ului tău urmată de calea webhook-ului:
    `https://technogymcraiova.com/api/stripe-webhook`
-5. La **Select events to listen to**, caută și adaugă:
+5. La **Select events to listen to**, căută și adaugă:
    - `checkout.session.completed`
 6. Apasă **"Add endpoint"**.
 
@@ -18,14 +18,19 @@ După ce ai salvat endpoint-ul:
 2. Copiază codul (începe cu `whsec_...`).
 3. Adaugă-l în `.env.local`: `STRIPE_WEBHOOK_SECRET=whsec_...`
 
-## Pasul 3: Cheia Master Firebase (FIREBASE_SERVICE_ACCOUNT_KEY)
-Aceasta este cheia care permite serverului să scrie în baza de date. 
+## Pasul 3: Obținerea Cheii Firebase (FIREBASE_SERVICE_ACCOUNT_KEY)
+Aceasta este cheia care permite serverului să scrie în baza de date securizată.
 
-**CUM SE SALVEAZĂ CORECT:**
-1. Mergi în [Consola Firebase -> Project Settings -> Service Accounts](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk).
-2. Apasă **"Generate new private key"**. Se va descărca un fișier `.json`.
-3. Deschide fișierul `.json` și copiază TOT conținutul.
-4. **IMPORTANT:** JSON-ul trebuie să fie pe un singur rând. Poți folosi un tool online de "Minify JSON" sau poți să îl lipești pur și simplu în `.env.local` între ghilimele simple, astfel:
+**Cum o descarci din Consola Firebase:**
+1. Mergi în [Consola Firebase -> Project Settings](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk).
+2. Selectează tab-ul **Service accounts** (al treilea de sus).
+3. Apasă pe butonul albastru **"Generate new private key"**.
+4. Confirmă și salvează fișierul `.json` care se descarcă automat.
+
+**CUM SE SALVEAZĂ CORECT ÎN PROIECT:**
+1. Deschide fișierul `.json` descărcat cu un editor de text (Notepad, TextEdit, VS Code).
+2. Copiază TOT conținutul.
+3. **IMPORTANT:** JSON-ul trebuie să fie pe un singur rând în `.env.local`. Poți folosi un tool online de "Minify JSON" sau poți să îl lipești pur și simplu între ghilimele simple, astfel:
 
 ```env
 FIREBASE_SERVICE_ACCOUNT_KEY='{"type": "service_account", "project_id": "...", "private_key": "-----BEGIN PRIVATE KEY-----\n..."}'
