@@ -27,9 +27,15 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.qrserver.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
 
 export default nextConfig;
-// FIX #5: Activat verificări build (TS/ESLint) și eliminat remotePattern redundant
+// FIX #5: Activat verificări build (TS/ESLint) și păstrat api.qrserver.com pentru compatibilitate

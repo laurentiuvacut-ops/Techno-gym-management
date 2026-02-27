@@ -12,7 +12,6 @@ import { PwaInstallInstructions } from '@/components/pwa-install-instructions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { usePwaInstall } from '@/hooks/use-pwa-install';
-import QRCode from 'qrcode';
 
 export default function HomeTab() {
   const { user } = useUser();
@@ -21,7 +20,6 @@ export default function HomeTab() {
   const { canPromptNative, isIOS, showButton, promptInstall } = usePwaInstall();
 
   const [showInstallInstructions, setShowInstallInstructions] = useState(false);
-  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
 
   const [subscriptionInfo, setSubscriptionInfo] = useState({
     daysRemaining: 0,
@@ -82,20 +80,6 @@ export default function HomeTab() {
     }
   }, [memberData]);
 
-  useEffect(() => {
-    if (user?.phoneNumber) {
-      QRCode.toDataURL(user.phoneNumber, {
-        margin: 2,
-        width: 300,
-        color: {
-          dark: '#000000',
-          light: '#ffffff'
-        }
-      }).then(url => setQrCodeDataUrl(url))
-        .catch(err => console.error('QR Code generation error:', err));
-    }
-  }, [user?.phoneNumber]);
-
   const handleInstallClick = async () => {
     if (canPromptNative) {
       await promptInstall();
@@ -109,6 +93,7 @@ export default function HomeTab() {
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = memberData?.subscriptionType || 'Fără Abonament';
   const isActive = subscriptionInfo.status === "Activ";
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(user.phoneNumber || '')}`;
 
   return (
     <>
@@ -186,16 +171,17 @@ export default function HomeTab() {
         </div>
 
         <div className="p-6 glass rounded-3xl flex flex-col items-center justify-center text-center gap-4 min-h-[240px] md:min-h-[280px]">
-          {isActive && qrCodeDataUrl ? (
+          {isActive ? (
             <>
               <div className="p-3 bg-white rounded-[1.5rem] shadow-xl transition-transform hover:scale-105 duration-300">
                   <Image
-                      src={qrCodeDataUrl}
+                      src={qrUrl}
                       alt="QR Code"
                       width={140}
                       height={140}
                       className="rounded-lg"
                       priority
+                      unoptimized
                   />
               </div>
               <div className="space-y-0.5">
@@ -249,4 +235,3 @@ export default function HomeTab() {
     </>
   );
 }
-// FIX #3: Generare QR Code pe client pentru a evita dependența de API extern și a activa CSP mai strict

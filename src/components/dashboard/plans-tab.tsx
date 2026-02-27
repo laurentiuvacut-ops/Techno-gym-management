@@ -2,7 +2,7 @@
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, LinkIcon, ArrowLeft, Loader2, Info } from "lucide-react";
+import { Check, Star, LinkIcon, ArrowLeft, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from '@/firebase';
 import { useMember } from '@/contexts/member-context';
