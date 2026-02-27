@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Funcție helper pentru a verifica dacă utilizatorul este administratorul principal
+    // Funcție helper pentru a verifica dacă utilizatorul este administratorul principal (Laurentiu)
     function isAdmin() {
       return request.auth != null && request.auth.token.phone_number == '+40753030493';
     }
@@ -15,8 +15,7 @@ service cloud.firestore {
                        request.resource.data.id == request.auth.uid;
 
       // Câmpurile sensibile (expirationDate, subscriptionType, status, isAdmin) 
-      // sunt acum actualizate DOAR prin Webhook-ul Stripe sau manual în consolă.
-      // Am scos 'isAdmin' din lista de câmpuri ce pot fi modificate de utilizator.
+      // sunt actualizate DOAR prin Webhook-ul Stripe sau manual în consolă.
       allow update: if request.auth != null && 
                        request.auth.token.phone_number == phoneNumber &&
                        request.resource.data.diff(resource.data).affectedKeys()
@@ -51,18 +50,20 @@ service cloud.firestore {
 
     match /feedback/{feedbackId} {
       allow create: if request.auth != null;
-      allow get, list: if isAdmin(); // Doar adminul poate vedea feedback-ul
+      allow get, list: if isAdmin(); // Doar Laurentiu poate vedea feedback-ul
       allow update, delete: if false;
     }
 
     match /sharedWorkouts/{sharedId} {
-      allow get, list: if request.auth != null;
+      // Permitem oricărui utilizator logat să vadă lista de antrenamente partajate
+      allow read: if request.auth != null;
       
-      // Doar adminul poate crea antrenamente marcate ca 'isOfficial'
+      // Doar Laurentiu poate crea antrenamente marcate ca 'isOfficial'
       allow create: if request.auth != null && (
         request.resource.data.isOfficial == false || isAdmin()
       );
       
+      // Ștergerea permisă doar creatorului sau adminului
       allow delete: if request.auth != null && (
         resource.data.creatorId == request.auth.uid || isAdmin()
       );

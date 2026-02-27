@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "Member": {
@@ -7,199 +6,19 @@
       "type": "object",
       "description": "Represents a gym member.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the user (UID from Firebase Auth)."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the member."
-        },
-        "email": {
-          "type": "string",
-          "description": "Email of the member, can be null."
-        },
-        "phone": {
-          "type": "string",
-          "description": "Phone number of the member in E.164 format (e.g., +40...)."
-        },
-        "photoURL": {
-          "type": "string",
-          "description": "Photo URL of the member."
-        },
-        "qrCode": {
-          "type": "string",
-          "description": "The QR code value for the member, which is their full phone number in E.164 format."
-        },
-        "expirationDate": {
-          "type": "string",
-          "format": "date",
-          "description": "The date when the member's subscription expires, in YYYY-MM-DD format."
-        },
-        "subscriptionType": {
-          "type": "string",
-          "description": "The name of the subscription plan (e.g., 'Techno Pro')."
-        },
-        "status": {
-          "type": "string",
-          "description": "Subscription status, e.g., 'Active' or 'Expired'."
-        },
-        "agreedToTermsAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Timestamp of when the member agreed to the terms and conditions."
-        },
-        "isAdmin": {
-          "type": "boolean",
-          "description": "Whether the user has administrative privileges."
-        }
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "qrCode": { "type": "string" },
+        "expirationDate": { "type": "string", "format": "date" },
+        "subscriptionType": { "type": "string" },
+        "status": { "type": "string" },
+        "agreedToTermsAt": { "type": "string", "format": "date-time" },
+        "isAdmin": { "type": "boolean", "description": "Computed client-side based on phone number for safety." }
       },
-      "required": [
-        "id",
-        "name",
-        "phone"
-      ]
-    },
-    "Subscription": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Subscription",
-      "type": "object",
-      "description": "Represents a membership subscription tier.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the subscription tier."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the subscription tier (Day Pass, Monthly, Yearly)."
-        },
-        "price": {
-          "type": "number",
-          "description": "Price of the subscription tier."
-        },
-        "benefits": {
-          "type": "array",
-          "description": "List of benefits for the subscription tier.",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "price",
-        "benefits"
-      ]
-    },
-    "Workout": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Workout",
-      "type": "object",
-      "description": "Represents a workout in the workout library.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the workout."
-        },
-        "category": {
-          "type": "string",
-          "description": "Category of the workout (Strength, HIIT, Cardio, Recovery)."
-        },
-        "videoUrl": {
-          "type": "string",
-          "description": "URL of the instructional video.",
-          "format": "uri"
-        }
-      },
-      "required": [
-        "id",
-        "category",
-        "videoUrl"
-      ]
-    },
-    "Trainer": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Trainer",
-      "type": "object",
-      "description": "Represents a gym trainer.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the trainer."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the trainer."
-        },
-        "specialties": {
-          "type": "array",
-          "description": "List of trainer's specialties.",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "specialties"
-      ]
-    },
-    "Product": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Product",
-      "type": "object",
-      "description": "Represents a product in the gym shop.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the product."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the product."
-        },
-        "stockStatus": {
-          "type": "string",
-          "description": "Stock status of the product (In Stock, Low Stock)."
-        },
-        "price": {
-          "type": "number",
-          "description": "Price of the product."
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "stockStatus",
-        "price"
-      ]
-    },
-    "Feedback": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Feedback",
-      "type": "object",
-      "description": "Represents customer feedback. Submitted anonymously.",
-      "properties": {
-        "rating": {
-          "type": "number",
-          "description": "Star rating from 1 to 5."
-        },
-        "comment": {
-          "type": "string",
-          "description": "User's comment."
-        },
-        "createdAt": {
-          "type": "object",
-          "description": "The date and time the feedback was submitted."
-        }
-      },
-      "required": [
-        "rating",
-        "createdAt"
-      ]
+      "required": ["id", "name", "phone"]
     },
     "SharedWorkout": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -208,23 +27,39 @@
       "description": "A workout or bundle of workouts shared with the community.",
       "properties": {
         "title": { "type": "string" },
-        "description": { "type": "string", "description": "Notes or instructions from the creator." },
+        "description": { "type": "string" },
         "creatorName": { "type": "string" },
         "creatorId": { "type": "string" },
         "createdAt": { "type": "object" },
-        "isOfficial": { "type": "boolean" },
+        "isOfficial": { "type": "boolean", "description": "True if created by the main admin Laurentiu." },
         "workouts": {
           "type": "array",
-          "items": { "type": "object" }
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "duration": { "type": "number" },
+              "exercises": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" },
+                    "videoUrl": { "type": "string" },
+                    "imageUrl": { "type": "string" },
+                    "sets": { "type": "array" }
+                  }
+                }
+              }
+            }
+          }
         }
       },
       "required": ["title", "creatorName", "creatorId", "workouts"]
     }
   },
   "auth": {
-    "providers": [
-      "phone"
-    ]
+    "providers": ["phone"]
   },
   "firestore": {
     "structure": [
@@ -232,115 +67,18 @@
         "path": "/members/{phoneNumber}",
         "definition": {
           "entityName": "Member",
-          "schema": {
-            "$ref": "#/backend/entities/Member"
-          },
-          "description": "Stores gym member data. The document ID is the user's E.164 phone number from Firebase Auth.",
-          "params": [
-            {
-              "name": "phoneNumber",
-              "description": "The user's E.164 phone number, used as the document ID."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/subscriptions/{subscriptionId}",
-        "definition": {
-          "entityName": "Subscription",
-          "schema": {
-            "$ref": "#/backend/entities/Subscription"
-          },
-          "description": "Stores subscription tier information (Day Pass, Monthly, Yearly).",
-          "params": [
-            {
-              "name": "subscriptionId",
-              "description": "Unique identifier for the subscription tier."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/workouts/{workoutId}",
-        "definition": {
-          "entityName": "Workout",
-          "schema": {
-            "$ref": "#/backend/entities/Workout"
-          },
-          "description": "Stores workout details for the workout library, categorized by type (Strength, HIIT, Cardio, Recovery).",
-          "params": [
-            {
-              "name": "workoutId",
-              "description": "Unique identifier for the workout."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/trainers/{trainerId}",
-        "definition": {
-          "entityName": "Trainer",
-          "schema": {
-            "$ref": "#/backend/entities/Trainer"
-          },
-          "description": "Stores trainer profiles, including their specialties.",
-          "params": [
-            {
-              "name": "trainerId",
-              "description": "Unique identifier for the trainer."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/products/{productId}",
-        "definition": {
-          "entityName": "Product",
-          "schema": {
-            "$ref": "#/backend/entities/Product"
-          },
-          "description": "Stores product information for the gym shop, including stock status and price.",
-          "params": [
-            {
-              "name": "productId",
-              "description": "Unique identifier for the product."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/feedback/{feedbackId}",
-        "definition": {
-          "entityName": "Feedback",
-          "schema": {
-            "$ref": "#/backend/entities/Feedback"
-          },
-          "description": "Stores customer feedback entries.",
-          "params": [
-            {
-              "name": "feedbackId",
-              "description": "Unique identifier for the feedback entry."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/Member" },
+          "description": "User profile data."
         }
       },
       {
         "path": "/sharedWorkouts/{sharedId}",
         "definition": {
           "entityName": "SharedWorkout",
-          "schema": {
-            "$ref": "#/backend/entities/SharedWorkout"
-          },
-          "description": "Public workouts shared by members or trainers.",
-          "params": [
-            {
-              "name": "sharedId",
-              "description": "Unique identifier for the shared entry."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/SharedWorkout" },
+          "description": "Public workouts including official ones from Laurentiu."
         }
       }
-    ],
-    "reasoning": "The Firestore data structure is designed to support the Techno Gym app's core features. The structure emphasizes Authorization Independence by avoiding hierarchical authorization dependencies. It utilizes structural segregation for homogeneous security postures and access modeling for standardization. The design also prioritizes data clarity, predictability, and radical consistency.\n\nThe main collections are:\n\n*   `members`: Stores member data, with the document ID being the user's E.164 phone number for secure, direct access.\n*   `subscriptions`: Contains the details for each subscription tier.\n*   `workouts`: Holds the workout library, categorized for easy access.\n*   `trainers`: Stores trainer profiles and specialties.\n*   `products`: Manages gym shop product inventory.\n*   `feedback`: Stores customer feedback.\n*   `sharedWorkouts`: Community-driven collection for sharing routines."
+    ]
   }
 }
