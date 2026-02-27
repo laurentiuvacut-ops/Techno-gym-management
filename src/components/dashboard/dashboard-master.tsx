@@ -1,11 +1,11 @@
 'use client';
 
-import React, { motion, AnimatePresence } from 'framer-motion';
+import React, { Suspense } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import { useMember } from '@/contexts/member-context';
 import { Button } from '@/components/ui/button';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
-import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
