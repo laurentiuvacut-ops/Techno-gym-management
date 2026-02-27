@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Bebas_Neue } from 'next/font/google'
+import { Inter, Bebas_Neue } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
@@ -9,13 +9,14 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
-})
+});
+
 const bebas_neue = Bebas_Neue({
   subsets: ['latin'],
   weight: '400',
   display: 'swap',
   variable: '--font-bebas-neue',
-})
+});
 
 export const metadata: Metadata = {
   title: 'Techno Gym',
@@ -33,6 +34,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: '#09090b',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -42,7 +46,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ro" className={`dark ${inter.variable} ${bebas_neue.variable}`}>
-      <body className="antialiased">
+      <body className="antialiased min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
         <FirebaseClientProvider>
           {children}
           <Toaster />
@@ -52,4 +56,3 @@ export default function RootLayout({
     </html>
   );
 }
-// FIX #13: Eliminat manifest manual din metadata (Next.js îl detectează automat din manifest.ts)
