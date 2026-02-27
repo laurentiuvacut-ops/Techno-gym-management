@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { trainers } from "@/lib/data";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
 
+// Header and TransformationsSection remain dynamic to avoid hydration issues with auth/carousel
 const Header = dynamic(() => import('@/components/layout/header'), { ssr: false });
 
 const TransformationsSection = dynamic(
@@ -44,6 +45,13 @@ const TransformationsSection = dynamic(
 );
 
 export default function LandingPage() {
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Setting year on the client to avoid hydration mismatch
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+
   return (
     <div className="flex flex-col min-h-dvh">
       <Header />
@@ -145,17 +153,17 @@ export default function LandingPage() {
                         )}
                         <CardHeader className="pt-10">
                             <CardTitle>{plan.title}</CardTitle>
-                            <p>
-                                <span className={cn("text-4xl font-bold", plan.id !== 'pro' && "text-primary")}>{plan.price}</span>
-                                <span className="text-muted-foreground">{plan.period}</span>
-                            </p>
+                            <div className="flex items-baseline gap-1">
+                                <span className={cn("text-4xl font-bold", plan.id !== 'pro' && "text-primary")}>{plan.price.split(' ')[0]}</span>
+                                <span className="text-muted-foreground">{plan.price.split(' ')[1]}{plan.period}</span>
+                            </div>
                         </CardHeader>
                         <CardContent className="flex-grow">
                             <ul className="space-y-3">
                                 {plan.benefits.map((benefit, i) => (
                                 <li key={i} className="flex items-center gap-2">
                                     <Check className="w-5 h-5 text-primary" />
-                                    <span>{benefit}</span>
+                                    <span className="text-sm">{benefit}</span>
                                 </li>
                                 ))}
                             </ul>
@@ -197,8 +205,8 @@ export default function LandingPage() {
                 </div>
                 <span className="text-lg font-bold tracking-tight"><span className="text-primary">TECHNO</span><span className="text-foreground">GYM</span></span>
             </Link>
-            <p className="text-center text-sm leading-loose text-muted-foreground md:text-left" suppressHydrationWarning>
-              © {new Date().getFullYear()} Techno Gym. Toate drepturile rezervate.
+            <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+              © {currentYear || '2024'} Techno Gym. Toate drepturile rezervate.
             </p>
           </div>
         </div>
@@ -206,4 +214,3 @@ export default function LandingPage() {
     </div>
   );
 }
-// FIX #12: Optimizare Hero Image cu Next.js <Image> în loc de tag <img>

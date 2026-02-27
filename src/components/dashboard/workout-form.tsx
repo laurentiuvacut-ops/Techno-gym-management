@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import type { WorkoutLog, WorkoutExercise, WorkoutSet } from '@/types/workout';
+import type { WorkoutLog } from '@/types/workout';
 
 interface InternalExercise {
   id: string;
@@ -34,16 +34,17 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
   const [notes, setNotes] = useState(initialData?.notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Am înlocuit Math.random() cu o indexare stabilă pentru a evita erorile de hidratare
   const [exercises, setExercises] = useState<InternalExercise[]>(() => {
     if (!initialData?.exercises || !Array.isArray(initialData.exercises)) {
       return [{ 
-        id: Math.random().toString(36).substring(7), 
+        id: 'new-exercise-0', 
         name: '', 
         sets: [{ weight: '', reps: '' }] 
       }];
     }
-    return initialData.exercises.map((ex: any) => ({
-      id: Math.random().toString(36).substring(7),
+    return initialData.exercises.map((ex: any, idx: number) => ({
+      id: `existing-exercise-${idx}`,
       name: ex.name || '',
       sets: Array.isArray(ex.sets) ? ex.sets.map((s: any) => ({
         weight: s.weight ? s.weight.toString() : '',
@@ -54,7 +55,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
 
   const addExercise = useCallback(() => {
     setExercises(prev => [...prev, { 
-      id: Math.random().toString(36).substring(7), 
+      id: `new-exercise-${Date.now()}`, 
       name: '', 
       sets: [{ weight: '', reps: '' }] 
     }]);
@@ -242,4 +243,3 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
     </motion.div>
   );
 }
-// FIX #6 + #17: Uncontrolled sets (onBlur) pentru performanță + Tipizare strictă
