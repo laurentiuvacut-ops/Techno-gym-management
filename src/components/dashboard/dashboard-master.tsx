@@ -1,12 +1,15 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { motion, AnimatePresence } from 'framer-motion';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import { useMember } from '@/contexts/member-context';
 import { Button } from '@/components/ui/button';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
-// Importuri statice pentru viteză instantanee de navigare (Native Feel)
+// Importuri statice pentru viteză instantanee
 import HomeTab from '@/components/dashboard/home-tab';
 import ShopTab from '@/components/dashboard/shop-tab';
 import PlansTab from '@/components/dashboard/plans-tab';
@@ -30,6 +33,44 @@ const tabs = {
   progress: ProgressTab,
   checkins: CheckinsTab,
 } as const;
+
+class TabErrorBoundary extends React.Component<{ children: React.ReactNode, activeTab: string }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.activeTab !== this.props.activeTab) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center p-12 text-center glass rounded-3xl border-destructive/20 gap-4">
+          <AlertCircle className="w-12 h-12 text-destructive opacity-50" />
+          <h2 className="text-xl font-headline tracking-wide uppercase">Secțiune Indisponibilă</h2>
+          <p className="text-xs text-muted-foreground italic">Momentan nu putem încărca aceste date.</p>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => window.location.reload()}
+            className="text-[10px] uppercase font-bold tracking-widest gap-2"
+          >
+            <RefreshCw className="w-3 h-3" /> Reîncarcă Pagina
+          </Button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function DashboardMaster() {
   const { activeTab } = useDashboardNav();
@@ -59,7 +100,11 @@ export default function DashboardMaster() {
         exit={{ opacity: reduced ? 1 : 0 }}
         transition={{ duration: reduced ? 0 : 0.15 }}
       >
-        <ActiveComponent />
+        <TabErrorBoundary activeTab={activeTab}>
+          <Suspense fallback={<div className="space-y-4"><Skeleton className="h-12 w-1/2" /><Skeleton className="h-64 w-full" /></div>}>
+            <ActiveComponent />
+          </Suspense>
+        </TabErrorBoundary>
       </motion.div>
     </AnimatePresence>
   );

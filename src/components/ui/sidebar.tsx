@@ -168,20 +168,7 @@ export const Sidebar = React.forwardRef<
     }, [])
 
     if (!mounted) {
-      return (
-        <div
-          ref={ref}
-          className={cn(
-            "group peer hidden md:block text-sidebar-foreground",
-            className
-          )}
-          data-state="expanded"
-          data-variant={variant}
-          data-side={side}
-        >
-          <div className="duration-200 relative h-svh w-[--sidebar-width] bg-transparent" />
-        </div>
-      )
+      return null;
     }
 
     if (collapsible === "none") {

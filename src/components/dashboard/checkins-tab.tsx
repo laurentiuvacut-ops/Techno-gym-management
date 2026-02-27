@@ -158,7 +158,7 @@ export default function CheckinsTab() {
           </div>
 
           <div className="grid grid-cols-7 gap-1 md:gap-2 text-center">
-            {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => <div key={d} className="text-[10px] font-bold text-muted-foreground py-2">{d}</div>)}
+            {['Lu', 'Ma', 'Mi', 'Jo', 'Vi', 'Sâ', 'Du'].map(d => <div key={d} className="text-[10px] font-bold text-muted-foreground py-2">{d}</div>)}
             {daysInMonth.map((day, i) => {
               if (!day) return <div key={`pad-${i}`} className="aspect-square" />;
               
