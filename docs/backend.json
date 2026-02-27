@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Member": {
@@ -47,6 +48,10 @@
           "type": "string",
           "format": "date-time",
           "description": "Timestamp of when the member agreed to the terms and conditions."
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "description": "Whether the user has administrative privileges."
         }
       },
       "required": [
@@ -207,6 +212,7 @@
         "creatorName": { "type": "string" },
         "creatorId": { "type": "string" },
         "createdAt": { "type": "object" },
+        "isOfficial": { "type": "boolean" },
         "workouts": {
           "type": "array",
           "items": { "type": "object" }
