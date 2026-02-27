@@ -58,12 +58,23 @@ export default function WorkoutsTab() {
     return collection(firestore, 'sharedWorkouts');
   }, [firestore]);
 
+  // Simplificăm query-ul pentru a evita eroarea de index lipsă (Index Missing Error)
   const sharedQuery = useMemo(() => {
     if (!sharedRef) return null;
-    return query(sharedRef, orderBy('isOfficial', 'desc'), orderBy('createdAt', 'desc'), limit(30));
+    return query(sharedRef, orderBy('createdAt', 'desc'), limit(30));
   }, [sharedRef]);
 
-  const { data: communityWorkouts, isLoading: communityLoading } = useCollection<SharedWorkout>(sharedQuery);
+  const { data: communityData, isLoading: communityLoading } = useCollection<SharedWorkout>(sharedQuery);
+
+  // Sortăm manual pe client pentru a pune antrenamentele oficiale primele
+  const sortedCommunityWorkouts = useMemo(() => {
+    if (!communityData) return [];
+    return [...communityData].sort((a, b) => {
+      if (a.isOfficial && !b.isOfficial) return -1;
+      if (!a.isOfficial && b.isOfficial) return 1;
+      return 0;
+    });
+  }, [communityData]);
 
   const resetForm = useCallback(() => {
     setInitialFormData(null);
@@ -340,7 +351,7 @@ export default function WorkoutsTab() {
         </>
       ) : (
         <WorkoutCommunity 
-          communityWorkouts={communityWorkouts || []} 
+          communityWorkouts={sortedCommunityWorkouts} 
           logsRef={logsRef} 
           onCopied={() => setActiveSubTab('my-logs')} 
         />

@@ -4,11 +4,12 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
-import { Dumbbell, Clock, Copy, Info, ChevronDown, ChevronUp, Users, ShieldCheck, Video, Play, ExternalLink } from 'lucide-react';
+import { Dumbbell, Clock, Copy, Info, ChevronDown, ChevronUp, Users, ShieldCheck, Video, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { addDoc, serverTimestamp, CollectionReference } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { cn } from "@/lib/utils";
 import type { SharedWorkout } from '@/types/workout';
 
 interface WorkoutCommunityProps {
@@ -44,14 +45,12 @@ export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied 
 
   const openVideo = (url: string, title: string) => {
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      // Conversie link simplu in embed pentru a rula in dialog
       let videoId = '';
       if (url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0];
       else videoId = url.split('/').pop() || '';
       
       setActiveVideo({ url: `https://www.youtube.com/embed/${videoId}`, title });
     } else {
-      // Daca nu e youtube, deschidem extern
       window.open(url, '_blank');
     }
   };
@@ -69,7 +68,7 @@ export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied 
           {activeVideo?.url.includes('embed') ? (
             <iframe 
               src={activeVideo.url} 
-              className="w-full h-full" 
+              className="w-full h-full border-0" 
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
               allowFullScreen
             />
@@ -165,7 +164,7 @@ export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied 
                                      {ex.videoUrl && (
                                        <button 
                                         onClick={() => openVideo(ex.videoUrl, ex.name)}
-                                        className="p-1 hover:bg-primary/20 rounded-full transition-colors"
+                                        className="p-1 hover:bg-primary/20 rounded-full transition-colors ml-1"
                                        >
                                          <Video className="w-3 h-3" />
                                        </button>
