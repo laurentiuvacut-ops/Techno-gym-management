@@ -25,9 +25,11 @@ Pentru ca serverul să poată scrie în baza de date fără restricții:
 1. Mergi în [Consola Firebase -> Project Settings -> Service Accounts](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk).
 2. Apasă **"Generate new private key"**.
 3. Se va descărca un fișier JSON.
-4. Conținutul acelui JSON trebuie pus în `.env.local` sub variabila:
-   `FIREBASE_SERVICE_ACCOUNT_KEY='{"type": "service_account", ...}'`
-   *(Asigură-te că tot JSON-ul este pe un singur rând și cuprins între ghilimele simple)*.
+4. **IMPORTANȚĂ MAXIMĂ:** Deschide fișierul JSON descărcat, copiază TOT conținutul și pune-l pe **UN SINGUR RÂND** în `.env.local` astfel:
+
+   `FIREBASE_SERVICE_ACCOUNT_KEY='{"type": "service_account", "project_id": "...", ...}'`
+
+   *(Folosește ghilimele simple ' la începutul și sfârșitul JSON-ului pentru a nu intra în conflict cu ghilimelele duble din interior).*
 
 ## Cum verifici dacă funcționează?
 1. Mergi în Stripe Dashboard -> Webhooks.

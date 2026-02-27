@@ -17,17 +17,24 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 // Initialize Firebase Admin (Singleton pattern)
 if (!admin.apps.length) {
   try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}');
-    if (serviceAccount.project_id) {
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-        });
-        console.log('✅ Firebase Admin initialized successfully for Webhook');
+    const rawKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    if (!rawKey) {
+        console.error('❌ CRITIC: Lipsește variabila FIREBASE_SERVICE_ACCOUNT_KEY din .env.local');
     } else {
-        console.error('❌ Missing FIREBASE_SERVICE_ACCOUNT_KEY content');
+        // Încercăm să curățăm eventualele caractere de control dacă a fost copiat greșit
+        const serviceAccount = JSON.parse(rawKey);
+        
+        if (serviceAccount.project_id) {
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+            });
+            console.log('✅ Firebase Admin inițializat cu succes pentru Webhook');
+        } else {
+            console.error('❌ Format JSON invalid pentru FIREBASE_SERVICE_ACCOUNT_KEY');
+        }
     }
   } catch (error) {
-    console.error('❌ Firebase Admin initialization error:', error);
+    console.error('❌ Eroare la inițializarea Firebase Admin (Verifică formatul JSON):', error);
   }
 }
 
@@ -39,35 +46,40 @@ export async function POST(req: NextRequest) {
 
   try {
     if (!webhookSecret) {
-        console.error('❌ Missing STRIPE_WEBHOOK_SECRET in environment variables');
+        console.error('❌ Lipsă STRIPE_WEBHOOK_SECRET în variabilele de mediu');
         throw new Error('Missing STRIPE_WEBHOOK_SECRET');
     }
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
-    console.error(`❌ Webhook signature verification failed: ${err.message}`);
+    console.error(`❌ Verificarea semnăturii Webhook a eșuat: ${err.message}`);
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
   }
 
-  console.log(`🚀 Received Stripe event: ${event.type}`);
+  console.log(`🚀 Eveniment Stripe recepționat: ${event.type}`);
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.CheckoutSession;
     const userId = session.client_reference_id;
     
-    // Extragem plan_id din URL-ul de succes configurat în sesiune
-    const successUrl = new URL(session.success_url || '');
-    const planId = successUrl.searchParams.get('plan_id');
+    // Extragem plan_id din URL-ul de succes
+    let planId = null;
+    try {
+        const successUrl = new URL(session.success_url || '');
+        planId = successUrl.searchParams.get('plan_id');
+    } catch (e) {
+        console.error('❌ Nu s-a putut extrage plan_id din success_url');
+    }
 
-    console.log(`📦 Processing completion for User: ${userId}, Plan: ${planId}`);
+    console.log(`📦 Procesare plată pentru User: ${userId}, Plan: ${planId}`);
 
     if (!userId || !planId) {
-      console.error('❌ Missing userId or planId in session metadata');
+      console.error('❌ Lipsesc metadatele necesare (userId sau planId)');
       return NextResponse.json({ error: 'Missing metadata' }, { status: 400 });
     }
 
     const purchasedPlan = subscriptions.find(s => s.id === planId);
     if (!purchasedPlan) {
-      console.error(`❌ Plan not found in local data: ${planId}`);
+      console.error(`❌ Planul nu a fost găsit în datele locale: ${planId}`);
       return NextResponse.json({ error: 'Plan not found' }, { status: 400 });
     }
 
@@ -75,44 +87,42 @@ export async function POST(req: NextRequest) {
       const db = admin.firestore();
       const membersRef = db.collection('members');
       
-      // Căutăm membrul după câmpul 'id' (care este UID-ul Firebase)
+      // Căutăm membrul după câmpul 'id' (UID-ul Firebase)
       const querySnapshot = await membersRef.where('id', '==', userId).limit(1).get();
 
       if (querySnapshot.empty) {
-        console.error(`❌ Member document NOT found for UID: ${userId}`);
+        console.error(`❌ Nu s-a găsit documentul membrului pentru UID: ${userId}`);
         return NextResponse.json({ error: 'Member not found' }, { status: 404 });
       }
 
       const memberDoc = querySnapshot.docs[0];
       const memberData = memberDoc.data();
-      const docId = memberDoc.id; // Acesta este numărul de telefon (document ID)
+      const docId = memberDoc.id; // Acesta este numărul de telefon
 
-      console.log(`👤 Found member document: ${docId}`);
+      console.log(`👤 Membru identificat: ${docId}`);
 
       const daysToAdd = purchasedPlan.durationDays || 30;
       let startDate = new Date();
       
-      // Verificăm dacă abonamentul curent este încă activ pentru a face prelungire
+      // Verificăm dacă are un abonament activ pentru prelungire
       const expirationValue = memberData.expirationDate;
       let currentExpirationDate: Date | null = null;
 
-      if (expirationValue) {
-        if (typeof expirationValue === 'string') {
+      if (expirationValue && typeof expirationValue === 'string') {
           const parts = expirationValue.split('-').map(part => parseInt(part, 10));
           if (parts.length === 3 && !parts.some(isNaN)) {
             currentExpirationDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
           }
-        }
       }
 
       const today = new Date();
       const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 
       if (currentExpirationDate && isValid(currentExpirationDate) && differenceInCalendarDays(currentExpirationDate, todayUtc) >= 0) {
-        console.log(`⏳ Current subscription still active. Extending from: ${format(currentExpirationDate, 'yyyy-MM-dd')}`);
+        console.log(`⏳ Abonament activ. Prelungim de la: ${format(currentExpirationDate, 'yyyy-MM-dd')}`);
         startDate = currentExpirationDate;
       } else {
-        console.log(`🆕 Starting new subscription from today: ${format(todayUtc, 'yyyy-MM-dd')}`);
+        console.log(`🆕 Abonament nou. Începem de azi: ${format(todayUtc, 'yyyy-MM-dd')}`);
         startDate = todayUtc;
       }
 
@@ -125,14 +135,14 @@ export async function POST(req: NextRequest) {
         lastPaymentAt: admin.firestore.FieldValue.serverTimestamp(),
       };
 
-      console.log(`💾 Updating member ${docId} with expiration: ${updatedData.expirationDate}`);
+      console.log(`💾 Actualizare Firestore pentru ${docId}: Expiră la ${updatedData.expirationDate}`);
       
       await membersRef.doc(docId).update(updatedData);
 
-      console.log('✅ Member updated successfully in Firestore');
+      console.log('✅ Abonament actualizat cu succes în Firestore');
       return NextResponse.json({ success: true });
     } catch (error: any) {
-      console.error('❌ Error updating member in Firestore:', error);
+      console.error('❌ Eroare la actualizarea bazei de date:', error);
       return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
     }
   }
