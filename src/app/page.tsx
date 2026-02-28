@@ -73,16 +73,19 @@ export default function LandingPage() {
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl font-medium italic">
                     Eliberează-ți potențialul la Techno Gym Craiova. 24/7 non-stop pentru succesul tău.
                 </p>
-                <div className="flex flex-col items-center gap-6">
-                    <Button asChild size="lg" className="glow-primary h-14 px-8 text-lg font-bold rounded-2xl uppercase tracking-widest">
+                <div className="flex flex-col items-center gap-8">
+                    <Button asChild size="lg" className="glow-primary h-12 px-10 text-sm font-bold rounded-xl uppercase tracking-[0.2em]">
                         <Link href="/login">Alătură-te Acum</Link>
                     </Button>
                     
-                    <div className="inline-flex items-center gap-4 rounded-2xl p-4 glass shadow-2xl">
-                        <Clock className="w-10 h-10 text-primary" />
+                    <div className="relative group inline-flex items-center gap-5 rounded-3xl p-6 glass shadow-2xl overflow-hidden min-w-[200px] transition-transform duration-300 hover:scale-105">
+                        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-primary/20 rounded-full blur-[60px] -z-10 group-hover:bg-primary/30 transition-colors" />
+                        <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/20 shadow-[0_0_20px_rgba(20,184,166,0.3)]">
+                            <Clock className="w-6 h-6 text-primary" />
+                        </div>
                         <div className="text-left">
-                            <p className="text-3xl font-headline leading-none">24/7</p>
-                            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Deschis Non-Stop</p>
+                            <p className="text-4xl font-headline leading-none text-white tracking-wider">24/7</p>
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold mt-1">Deschis Non-Stop</p>
                         </div>
                     </div>
                 </div>
