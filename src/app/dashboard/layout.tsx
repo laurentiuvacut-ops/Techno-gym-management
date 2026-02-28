@@ -30,7 +30,7 @@ export default function DashboardLayout({
   // Handle initial auth loading state
   if (isUserLoading && !user) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background">
+      <div className="flex items-center justify-center h-dvh bg-background">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -42,9 +42,9 @@ export default function DashboardLayout({
     <DashboardNavProvider>
       <SidebarProvider defaultOpen={true}>
         <MemberProvider>
-          <div className="flex min-h-screen w-full bg-background">
+          <div className="flex min-h-dvh w-full bg-background">
             <DashboardSidebar />
-            <div className="flex flex-1 flex-col h-screen overflow-hidden">
+            <div className="flex flex-1 flex-col h-dvh overflow-hidden">
               <DashboardHeader />
               <main className="flex-1 overflow-y-auto relative outline-none overscroll-contain scroll-smooth">
                 <div className="w-full px-4 md:px-8 py-4 md:py-6 mx-auto selectable-text">
