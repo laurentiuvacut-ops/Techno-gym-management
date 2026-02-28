@@ -46,7 +46,7 @@ export const subscriptions = [
   },
   {
     id: "student",
-    title: "Techno Elevi",
+    title: "Techno Elevi/Studenti",
     price: "130 RON",
     description: "Valabil cu carnet de elev/student",
     period: "/lună",
@@ -55,7 +55,7 @@ export const subscriptions = [
       "Acces în intervalul 08:00 - 22:00",
       "Toate beneficiile Pro",
     ],
-    cta: "Cumpără Acum",
+    cta: "Se cumpără în locație",
   },
   {
     id: "nonstop",
@@ -111,4 +111,3 @@ export const transformations = Array.from({ length: 28 }, (_, i) => ({
   before: getImage(`transformation-before-${i + 1}`),
   after: getImage(`transformation-after-${i + 1}`),
 }));
-// FIX #15: Eliminat shopItems static (acum se citește din Firestore)

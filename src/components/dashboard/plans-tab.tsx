@@ -111,6 +111,7 @@ export default function PlansTab() {
           const isPopular = (plan as any).popular;
           const isFeatured = isCurrent || isPopular;
           const isProcessingThisPlan = isUpdating === plan.id;
+          const isOfflinePlan = ['nonstop', 'student'].includes(plan.id);
 
           return (
             <div
@@ -151,7 +152,7 @@ export default function PlansTab() {
               </div>
 
               <div className="mt-8">
-                {plan.id === 'nonstop' ? (
+                {isOfflinePlan ? (
                     <Button 
                         disabled
                         className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary" : "bg-primary/20 text-primary")}
@@ -186,4 +187,3 @@ export default function PlansTab() {
     </motion.div>
   );
 }
-// FIX #7: Eliminat logică nesigură de plată pe client. Actualizarea se face acum prin Webhook (Server-Side)
