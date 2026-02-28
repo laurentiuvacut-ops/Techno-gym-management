@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { trainers, subscriptions } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Dynamic imports with SSR disabled for heavy/client-dependent sections
+// Dynamic imports with SSR disabled to prevent hydration errors for these specific components
 const Header = dynamic(() => import('@/components/layout/header'), { 
   ssr: false,
   loading: () => <div className="h-16 w-full bg-background/80 border-b border-border/50 fixed top-0 z-50" />
@@ -50,7 +50,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-dvh">
+    <div className="flex flex-col min-h-dvh" suppressHydrationWarning>
       <Header />
       
       <main className="flex-1">
@@ -64,11 +64,13 @@ export default function LandingPage() {
                 className="object-cover z-0 blur-sm scale-105"
                 sizes="100vw"
             />
-            <div className="absolute inset-0 bg-black/75 z-10" />
+            <div className="absolute inset-0 bg-black/80 z-10" />
+            
             <div className="container relative z-20 px-4 md:px-6 text-center">
-                <div className="flex flex-col items-center gap-10 md:gap-14">
-                  <div className="space-y-6">
-                    <h1 className="text-5xl font-bold tracking-tight sm:text-7xl md:text-8xl lg:text-9xl text-gradient uppercase font-headline leading-[0.9]">
+                <div className="flex flex-col items-center gap-12 md:gap-16">
+                  {/* Titlu - Cel mai mare element */}
+                  <div className="space-y-4">
+                    <h1 className="text-6xl font-bold tracking-tight sm:text-8xl md:text-9xl lg:text-[10rem] text-gradient uppercase font-headline leading-[0.85]">
                         Transformă-ți <br/> Corpul
                     </h1>
                     <p className="mx-auto max-w-[600px] text-muted-foreground/80 md:text-lg font-medium italic">
@@ -76,29 +78,28 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  <div className="flex flex-col items-center gap-12">
-                      <Button asChild size="lg" className="glow-primary h-16 md:h-20 px-12 md:px-16 text-2xl md:text-3xl font-headline uppercase tracking-widest rounded-2xl transition-transform hover:scale-105 active:scale-95 shadow-2xl">
-                          <Link href="/login">Alătură-te Acum</Link>
-                      </Button>
+                  {/* Buton - Dimensiune medie, Font Headline */}
+                  <Button asChild size="lg" className="glow-primary h-16 md:h-24 px-12 md:px-20 text-3xl md:text-5xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-transform hover:scale-105 active:scale-95 shadow-2xl">
+                      <Link href="/login">Alătură-te Acum</Link>
+                  </Button>
+                  
+                  {/* Card 24/7 - Cel mai mic element din ierarhie */}
+                  <div className="relative group inline-flex items-center gap-5 rounded-[2rem] p-6 glass shadow-2xl overflow-hidden min-w-[220px] transition-all duration-300 hover:border-primary/50">
+                      <div className="absolute -inset-4 bg-primary/20 rounded-full blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity -z-10" />
                       
-                      <div className="relative group inline-flex items-center gap-5 rounded-[2rem] p-6 glass shadow-2xl overflow-hidden min-w-[220px] transition-all duration-300 hover:border-primary/50">
-                          {/* Glow background effect */}
-                          <div className="absolute -inset-4 bg-primary/20 rounded-full blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity -z-10" />
-                          
-                          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/20 shadow-[0_0_20px_rgba(20,184,166,0.3)]">
-                              <Clock className="w-6 h-6 text-primary" />
-                          </div>
-                          <div className="text-left">
-                              <p className="text-4xl font-headline leading-none text-white tracking-widest">24/7</p>
-                              <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold mt-1">Deschis Non-Stop</p>
-                          </div>
+                      <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/20 shadow-[0_0_20px_rgba(20,184,166,0.3)]">
+                          <Clock className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="text-left">
+                          <p className="text-4xl font-headline leading-none text-white tracking-widest">24/7</p>
+                          <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold mt-1">Deschis Non-Stop</p>
                       </div>
                   </div>
                 </div>
             </div>
         </section>
 
-        {/* Transformations Section */}
+        {/* Transformations Section - Moved above Trainers */}
         <TransformationsSection />
 
         {/* Trainers Section */}
@@ -132,7 +133,7 @@ export default function LandingPage() {
           </div>
         </section>
         
-        {/* Subscriptions Preview */}
+        {/* Subscriptions Preview - Matched with Dashboard design */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card/30">
             <div className="container px-4 md:px-6">
                 <div className="text-center space-y-3 mb-16">
