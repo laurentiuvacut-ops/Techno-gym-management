@@ -2,20 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { trainers, subscriptions } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Check, Clock, Star } from "lucide-react";
+import { Check, Clock, Star, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Componente încărcate dinamic cu stări de loading stabile pentru a preveni mismatch-ul de hidratare
+// Sincronizăm tag-urile skeleton-ului cu componentele reale pentru a evita Hydration Mismatch
 const Header = dynamic(() => import('@/components/layout/header'), { 
   ssr: false,
-  loading: () => <div className="h-16 w-full bg-background/80 border-b border-border/50 fixed top-0 z-50" />
+  loading: () => (
+    <header className="fixed top-0 left-0 right-0 z-50 flex h-[64px] w-full bg-background/80 border-b border-border/50 backdrop-blur-md" />
+  )
 });
 
 const TransformationsSection = dynamic(
@@ -24,10 +25,10 @@ const TransformationsSection = dynamic(
     ssr: false,
     loading: () => (
       <section className="w-full py-12 md:py-24 lg:py-32">
-        <div className="container px-4 md:px-6">
+        <div className="container px-4 md:px-6 mx-auto">
           <div className="space-y-3 text-center mb-12">
-            <Skeleton className="h-10 w-64 mx-auto" />
-            <Skeleton className="h-4 w-96 mx-auto" />
+            <Skeleton className="h-10 w-64 mx-auto rounded-xl" />
+            <Skeleton className="h-4 w-96 mx-auto rounded-lg" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
@@ -50,60 +51,61 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-dvh">
+    <div className="flex flex-col min-h-dvh bg-background">
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section - Ierarhie vizuală rafinată */}
-        <section className="relative w-full h-[90vh] flex items-center justify-center overflow-hidden">
+        {/* Hero Section - Optimizat pentru Mobile Wrap și Ierarhie */}
+        <section className="relative w-full min-h-[95vh] pt-24 pb-12 flex items-center justify-center overflow-hidden">
             <Image
                 src="https://i.imgur.com/6N8o2LA.jpg"
                 alt="Modern gym interior"
                 fill
                 priority
-                className="object-cover z-0 blur-sm scale-105"
+                className="object-cover z-0 blur-sm scale-105 pointer-events-none"
                 sizes="100vw"
             />
             <div className="absolute inset-0 bg-black/80 z-10" />
             
-            <div className="container relative z-20 px-4 md:px-6 text-center">
-                <div className="flex flex-col items-center gap-12 md:gap-16">
-                  {/* Titlu - Elementul Principal (Gigant) */}
-                  <div className="space-y-4">
-                    <h1 className="text-6xl font-bold tracking-tight sm:text-8xl md:text-9xl lg:text-[10rem] text-gradient uppercase font-headline leading-[0.85]">
-                        Transformă-ți <br/> Corpul
+            <div className="container relative z-20 px-4 md:px-6 text-center mx-auto">
+                <div className="flex flex-col items-center gap-10 md:gap-16">
+                  {/* Titlu - Cel mai mare element */}
+                  <div className="space-y-6">
+                    <h1 className="text-5xl font-bold tracking-tight sm:text-8xl md:text-9xl lg:text-[10rem] text-gradient uppercase font-headline leading-[0.9] sm:leading-[0.85] max-w-[1200px] mx-auto select-none">
+                        Transformă-ți <br className="sm:hidden" /> Corpul
                     </h1>
-                    <p className="mx-auto max-w-[600px] text-muted-foreground/80 md:text-lg font-medium italic">
+                    <p className="mx-auto max-w-[600px] text-muted-foreground/80 text-sm md:text-lg font-medium italic px-4">
                         Eliberează-ți potențialul la Techno Gym Craiova. <br className="hidden sm:block"/> 24/7 non-stop pentru succesul tău.
                     </p>
                   </div>
 
-                  {/* Buton - Elementul Secundar (Mediu, Headline font) */}
-                  <Button asChild size="lg" className="glow-primary h-16 md:h-24 px-12 md:px-20 text-3xl md:text-5xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-transform hover:scale-105 active:scale-95 shadow-2xl">
+                  {/* Buton - Elementul secundar ca mărime, Font Headline */}
+                  <Button asChild className="glow-primary h-16 md:h-24 px-12 md:px-20 text-3xl md:text-5xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl bg-gradient-primary text-primary-foreground border-none">
                       <Link href="/login">Alătură-te Acum</Link>
                   </Button>
                   
-                  {/* Card 24/7 - Elementul Terțiar (Efect Glow) */}
-                  <div className="relative group inline-flex items-center gap-5 rounded-[2rem] p-6 glass shadow-2xl overflow-hidden min-w-[220px] transition-all duration-300 hover:border-primary/50">
+                  {/* Card 24/7 - Al treilea element (look inspirat din Dashboard) */}
+                  <div className="relative group inline-flex items-center gap-4 rounded-3xl p-5 glass shadow-2xl overflow-hidden min-w-[180px] transition-all duration-300 hover:border-primary/50">
                       <div className="absolute -inset-4 bg-primary/20 rounded-full blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity -z-10" />
                       
-                      <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/20 shadow-[0_0_20px_rgba(20,184,166,0.3)]">
-                          <Clock className="w-6 h-6 text-primary" />
+                      <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-primary/20 shadow-[0_0_20px_rgba(20,184,166,0.3)]">
+                          <Clock className="w-5 h-5 text-primary" />
                       </div>
                       <div className="text-left">
-                          <p className="text-4xl font-headline leading-none text-white tracking-widest">24/7</p>
-                          <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold mt-1">Deschis Non-Stop</p>
+                          <p className="text-2xl md:text-3xl font-headline leading-none text-white tracking-widest">24/7</p>
+                          <p className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] text-primary font-bold mt-1">Deschis Non-Stop</p>
                       </div>
                   </div>
                 </div>
             </div>
         </section>
 
-        {/* Secțiunile următoare reordonate conform PRD-ului nou */}
+        {/* Secțiunea Transformări - Prima după Hero conform noii ierarhii */}
         <TransformationsSection />
 
+        {/* Antrenori */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
-          <div className="container px-4 md:px-6">
+          <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl uppercase font-headline">Cunoaște-ne Antrenorii</h2>
               <p className="max-w-[700px] text-muted-foreground md:text-xl italic">
@@ -113,7 +115,7 @@ export default function LandingPage() {
             <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
               {trainers.map((trainer) => (
                 <a href={trainer.instagramUrl} target="_blank" rel="noopener noreferrer" key={trainer.id} className="group">
-                    <Card className="overflow-hidden relative aspect-square border-0 rounded-3xl transition-all duration-500 hover:scale-[1.02] shadow-xl">
+                    <div className="overflow-hidden relative aspect-square border-0 rounded-3xl transition-all duration-500 hover:scale-[1.02] shadow-xl bg-card">
                         <Image
                             src={trainer.image.imageUrl}
                             alt={trainer.name}
@@ -125,15 +127,16 @@ export default function LandingPage() {
                             <h3 className="text-2xl font-headline text-white tracking-wide">{trainer.name}</h3>
                             <p className="text-primary font-bold text-[10px] uppercase tracking-widest">{trainer.specialty}</p>
                         </div>
-                    </Card>
+                    </div>
                 </a>
               ))}
             </div>
           </div>
         </section>
         
+        {/* Abonamente - Look uniformizat cu Dashboard-ul */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card/30">
-            <div className="container px-4 md:px-6">
+            <div className="container px-4 md:px-6 mx-auto">
                 <div className="text-center space-y-3 mb-16">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl uppercase font-headline">Abonamente</h2>
                     <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl italic">
@@ -147,12 +150,14 @@ export default function LandingPage() {
                         <div
                             key={plan.id}
                             className={cn(
-                                "relative flex h-full flex-col rounded-[2rem] p-6 transition-all duration-300 glass",
-                                isPopular ? "bg-gradient-primary text-primary-foreground glow-primary scale-[1.02] z-10 border-0" : "hover:border-primary/30"
+                                "relative flex h-full flex-col rounded-3xl p-6 transition-all duration-300",
+                                isPopular 
+                                  ? "bg-gradient-primary text-primary-foreground glow-primary scale-[1.05] z-10 border-none shadow-[0_0_40px_-10px_hsl(var(--glow-primary)/0.6)]" 
+                                  : "glass hover:border-primary/30"
                             )}
                         >
                             {isPopular && (
-                              <Badge variant="secondary" className="absolute top-4 right-4 flex items-center gap-1 shadow-lg">
+                              <Badge variant="secondary" className="absolute top-4 right-4 flex items-center gap-1 shadow-lg bg-white/20 text-white border-none backdrop-blur-sm">
                                 <Star className="w-3 h-3 fill-current"/> Popular
                               </Badge>
                             )}
@@ -176,7 +181,7 @@ export default function LandingPage() {
                                     {plan.benefits.map((benefit, i) => (
                                     <li key={i} className="flex items-center gap-3">
                                         <div className={cn("h-5 w-5 rounded-full flex items-center justify-center shrink-0", isPopular ? "bg-white/20" : "bg-primary/20")}>
-                                          <Check className={cn("w-3 h-3", isPopular ? "text-primary-foreground" : "text-primary")} />
+                                          <Check className={cn("w-3.5 h-3.5", isPopular ? "text-primary-foreground" : "text-primary")} />
                                         </div>
                                         <span className="text-sm font-medium">{benefit}</span>
                                     </li>
@@ -185,7 +190,7 @@ export default function LandingPage() {
                             </div>
                             
                             <div className="pt-4 mt-auto">
-                                <Button asChild className={cn("w-full h-12 rounded-xl font-bold uppercase tracking-widest transition-all", isPopular ? "bg-white text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")} variant="default">
+                                <Button asChild className={cn("w-full h-12 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg", isPopular ? "bg-white text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")} variant="default">
                                    <Link href="/login">{plan.cta}</Link>
                                 </Button>
                             </div>
@@ -198,7 +203,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="bg-background border-t border-border/50">
-        <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row px-4 md:px-6">
+        <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row px-4 md:px-6 mx-auto">
           <div className="flex flex-col items-center gap-4 md:flex-row">
             <Link href="/" className="flex items-center gap-2">
                 <div className="relative w-8 h-8">
@@ -209,13 +214,13 @@ export default function LandingPage() {
                   <span className="text-foreground">GYM</span>
                 </span>
             </Link>
-            <p className="text-sm text-muted-foreground italic">
+            <p className="text-sm text-muted-foreground italic" suppressHydrationWarning>
               © {mounted ? currentYear : '2024'} Techno Gym Craiova. Dezvoltat pentru performanță.
             </p>
           </div>
           <div className="flex items-center gap-6">
              <Link href="/login" className="text-xs font-bold uppercase tracking-widest hover:text-primary transition-colors">Acces Membri</Link>
-             <a href="https://instagram.com" target="_blank" className="text-xs font-bold uppercase tracking-widest hover:text-primary transition-colors">Instagram</a>
+             <a href="https://www.instagram.com/technogymcraiova/" target="_blank" className="text-xs font-bold uppercase tracking-widest hover:text-primary transition-colors">Instagram</a>
           </div>
         </div>
       </footer>
