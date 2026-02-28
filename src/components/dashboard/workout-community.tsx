@@ -4,12 +4,14 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
-import { Dumbbell, Clock, Copy, Info, ChevronDown, ChevronUp, Users, ShieldCheck, Video, Play } from 'lucide-react';
+import { Dumbbell, Clock, Copy, Info, ChevronDown, ChevronUp, Users, ShieldCheck, Video, Play, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { addDoc, serverTimestamp, CollectionReference } from 'firebase/firestore';
+import { addDoc, serverTimestamp, CollectionReference, doc, deleteDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from "@/lib/utils";
+import { useUser, useFirestore } from '@/firebase';
+import { useMember } from '@/contexts/member-context';
 import type { SharedWorkout } from '@/types/workout';
 
 interface WorkoutCommunityProps {
@@ -19,9 +21,13 @@ interface WorkoutCommunityProps {
 }
 
 export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied }: WorkoutCommunityProps) {
+  const { user } = useUser();
+  const { isAdmin } = useMember();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const [expandedCommunityId, setExpandedCommunityId] = useState<string | null>(null);
   const [activeVideo, setActiveVideo] = useState<{ url: string, title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   const handleCopySharedWorkout = useCallback(async (sharedWorkout: SharedWorkout) => {
     if (!logsRef) return;
@@ -43,7 +49,22 @@ export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied 
     }
   }, [logsRef, toast, onCopied]);
 
+  const handleDeleteShared = async (id: string) => {
+    if (!firestore || !confirm("Ești sigur că vrei să ștergi această postare din comunitate?")) return;
+    
+    setIsDeleting(id);
+    try {
+      await deleteDoc(doc(firestore, 'sharedWorkouts', id));
+      toast({ title: "Șters", description: "Antrenamentul a fost eliminat din comunitate." });
+    } catch (err) {
+      toast({ variant: "destructive", title: "Eroare", description: "Nu ai permisiunea de a șterge această postare." });
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
   const openVideo = (url: string, title: string) => {
+    if (!url) return;
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       let videoId = '';
       if (url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0];
@@ -86,6 +107,7 @@ export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied 
         communityWorkouts.map((shared) => {
           const isExpanded = expandedCommunityId === shared.id;
           const isOfficial = shared.isOfficial;
+          const canDelete = isAdmin || (user && user.uid === shared.creatorId);
           
           return (
             <div 
@@ -113,16 +135,26 @@ export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied 
                       )}
                     </p>
                   </div>
-                  <Button 
-                    size="sm" 
-                    onClick={() => handleCopySharedWorkout(shared)}
-                    className={cn(
-                      "rounded-xl h-10 px-4 font-bold text-xs shadow-lg shrink-0",
-                      isOfficial ? "bg-primary text-primary-foreground shadow-primary/20" : "bg-white/10 hover:bg-white/20"
+                  <div className="flex flex-col gap-2 shrink-0">
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleCopySharedWorkout(shared)}
+                      className="glow-primary bg-gradient-primary text-primary-foreground rounded-xl h-10 px-4 font-bold text-xs shadow-lg"
+                    >
+                      <Copy className="w-4 h-4 mr-2" /> Copiază
+                    </Button>
+                    {canDelete && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleDeleteShared(shared.id)}
+                        disabled={isDeleting === shared.id}
+                        className="text-destructive/50 hover:text-destructive hover:bg-destructive/10 h-8 text-[10px] uppercase font-bold"
+                      >
+                        <Trash2 className="w-3 h-3 mr-1" /> {isDeleting === shared.id ? 'Se șterge...' : 'Șterge'}
+                      </Button>
                     )}
-                  >
-                    <Copy className="w-4 h-4 mr-2" /> Copiază
-                  </Button>
+                  </div>
                 </div>
               </div>
               <div className="p-6 flex-1 space-y-4">
@@ -159,14 +191,15 @@ export default function WorkoutCommunity({ communityWorkouts, logsRef, onCopied 
                               <p className="text-sm font-bold text-white mb-2 uppercase tracking-tight">{w.name}</p>
                               <div className="flex flex-wrap gap-2">
                                  {w.exercises.map((ex: any, eIdx: number) => (
-                                   <div key={eIdx} className="flex items-center gap-1 bg-primary/10 text-primary pl-2 pr-1 py-0.5 rounded-full">
-                                     <span className="text-[10px] font-medium">{ex.name}</span>
+                                   <div key={eIdx} className="flex items-center gap-1 bg-primary/10 text-primary pl-2 pr-1 py-0.5 rounded-full border border-primary/20">
+                                     <span className="text-[10px] font-bold">{ex.name}</span>
                                      {ex.videoUrl && (
                                        <button 
-                                        onClick={() => openVideo(ex.videoUrl, ex.name)}
-                                        className="p-1 hover:bg-primary/20 rounded-full transition-colors ml-1"
+                                        onClick={(e) => { e.stopPropagation(); openVideo(ex.videoUrl, ex.name); }}
+                                        className="flex items-center gap-1 bg-primary text-primary-foreground px-2 py-0.5 rounded-full ml-1 hover:opacity-90 transition-all shadow-sm"
                                        >
-                                         <Video className="w-3 h-3" />
+                                         <Video className="w-2.5 h-2.5" />
+                                         <span className="text-[8px] font-black uppercase">VIDEO</span>
                                        </button>
                                      )}
                                    </div>

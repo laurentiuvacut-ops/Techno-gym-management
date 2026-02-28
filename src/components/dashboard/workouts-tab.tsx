@@ -6,13 +6,14 @@ import { collection, query, orderBy, limit, deleteDoc, doc, addDoc, serverTimest
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Edit2, Copy, Share2, Users, CheckSquare, Square, ArrowLeft, X, ShieldCheck } from 'lucide-react';
+import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Edit2, Copy, Share2, Users, CheckSquare, Square, ArrowLeft, X, ShieldCheck, Video, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useMember } from '@/contexts/member-context';
@@ -33,6 +34,7 @@ export default function WorkoutsTab() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [initialFormData, setInitialFormData] = useState<WorkoutLog | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [activeVideo, setActiveVideo] = useState<{ url: string, title: string } | null>(null);
 
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -58,7 +60,6 @@ export default function WorkoutsTab() {
     return collection(firestore, 'sharedWorkouts');
   }, [firestore]);
 
-  // Simplificăm query-ul pentru a evita eroarea de index lipsă (Index Missing Error)
   const sharedQuery = useMemo(() => {
     if (!sharedRef) return null;
     return query(sharedRef, orderBy('createdAt', 'desc'), limit(30));
@@ -66,7 +67,6 @@ export default function WorkoutsTab() {
 
   const { data: communityData, isLoading: communityLoading } = useCollection<SharedWorkout>(sharedQuery);
 
-  // Sortăm manual pe client pentru a pune antrenamentele oficiale primele
   const sortedCommunityWorkouts = useMemo(() => {
     if (!communityData) return [];
     return [...communityData].sort((a, b) => {
@@ -100,6 +100,7 @@ export default function WorkoutsTab() {
   const handleDeleteLog = useCallback(async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     if (!logsRef) return;
+    if (!confirm("Sigur vrei să ștergi acest antrenament din jurnal?")) return;
     try {
       await deleteDoc(doc(logsRef, id));
       toast({ title: "Șters", description: "Înregistrarea a fost eliminată." });
@@ -107,6 +108,19 @@ export default function WorkoutsTab() {
       toast({ variant: "destructive", title: "Eroare", description: "Nu s-a putut șterge." });
     }
   }, [logsRef, toast]);
+
+  const openVideo = (url: string, title: string) => {
+    if (!url) return;
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      let videoId = '';
+      if (url.includes('v=')) videoId = url.split('v=')[1]?.split('&')[0];
+      else videoId = url.split('/').pop() || '';
+      
+      setActiveVideo({ url: `https://www.youtube.com/embed/${videoId}`, title });
+    } else {
+      window.open(url, '_blank');
+    }
+  };
 
   const toggleSelection = useCallback((id: string) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -168,6 +182,30 @@ export default function WorkoutsTab() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 pb-20">
+      <Dialog open={!!activeVideo} onOpenChange={(o) => !o && setActiveVideo(null)}>
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden bg-black border-primary/20">
+          <DialogHeader className="p-4 bg-background/80 backdrop-blur-md">
+            <DialogTitle className="flex items-center gap-2 text-primary uppercase font-headline">
+              <Play className="w-5 h-5" /> {activeVideo?.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video w-full">
+            {activeVideo?.url.includes('embed') ? (
+              <iframe 
+                src={activeVideo.url} 
+                className="w-full h-full border-0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground text-center p-10">
+                <p>Se deschide în tab nou...</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Button 
         variant="ghost" 
         size="sm" 
@@ -319,7 +357,18 @@ export default function WorkoutsTab() {
                             <div className="space-y-6">
                               {log.exercises?.map((ex: any, i: number) => (
                                 <div key={i} className="space-y-2">
-                                  <h4 className="font-bold text-primary text-sm uppercase tracking-wide">{ex.name}</h4>
+                                  <div className="flex items-center gap-3">
+                                    <h4 className="font-bold text-primary text-sm uppercase tracking-wide">{ex.name}</h4>
+                                    {ex.videoUrl && (
+                                      <button 
+                                        onClick={() => openVideo(ex.videoUrl, ex.name)}
+                                        className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3 py-1 rounded-full hover:opacity-90 transition-all shadow-md active:scale-95"
+                                      >
+                                        <Video className="w-3.5 h-3.5" />
+                                        <span className="text-[10px] font-black uppercase tracking-wider">Tutorial Video</span>
+                                      </button>
+                                    )}
+                                  </div>
                                   <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
                                     {ex.sets?.map((s: any, j: number) => (
                                       <div key={j} className="p-2 rounded-xl bg-white/5 border border-white/5 text-center">
