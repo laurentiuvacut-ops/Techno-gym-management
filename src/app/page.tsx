@@ -6,6 +6,7 @@ import { trainers, subscriptions } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Check, Clock, Star, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
@@ -79,7 +80,7 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Buton central - Micșorat pentru armonie pe telefon */}
+                  {/* Buton central - Optimizat pentru mobil */}
                   <Button asChild className="glow-primary h-14 md:h-20 px-10 md:px-16 text-xl md:text-4xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl bg-gradient-primary text-primary-foreground border-none">
                       <Link href="/login">Alătură-te Acum</Link>
                   </Button>
@@ -100,7 +101,7 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* Secțiunea Transformări */}
+        {/* Secțiunea Transformări - Mutată deasupra Antrenorilor */}
         <TransformationsSection />
 
         {/* Antrenori */}
@@ -115,7 +116,7 @@ export default function LandingPage() {
             <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
               {trainers.map((trainer) => (
                 <a href={trainer.instagramUrl} target="_blank" rel="noopener noreferrer" key={trainer.id} className="group">
-                    <div className="overflow-hidden relative aspect-square border-0 rounded-3xl transition-all duration-500 hover:scale-[1.02] shadow-xl bg-card">
+                    <Card className="overflow-hidden relative aspect-square border-0 rounded-3xl transition-all duration-500 hover:scale-[1.02] shadow-xl bg-card">
                         <Image
                             src={trainer.image.imageUrl}
                             alt={trainer.name}
@@ -127,14 +128,14 @@ export default function LandingPage() {
                             <h3 className="text-2xl font-headline text-white tracking-wide">{trainer.name}</h3>
                             <p className="text-primary font-bold text-[10px] uppercase tracking-widest">{trainer.specialty}</p>
                         </div>
-                    </div>
+                    </Card>
                 </a>
               ))}
             </div>
           </div>
         </section>
         
-        {/* Abonamente - Glow uniformizat cu Dashboard */}
+        {/* Abonamente - Glow sincronizat cu Dashboard */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card/30">
             <div className="container px-4 md:px-6 mx-auto">
                 <div className="text-center space-y-3 mb-16">
@@ -145,7 +146,7 @@ export default function LandingPage() {
                 </div>
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
                     {subscriptions.map((plan) => {
-                      const isPopular = (plan as any).popular;
+                      const isPopular = plan.id === 'pro';
                       return (
                         <div
                             key={plan.id}
