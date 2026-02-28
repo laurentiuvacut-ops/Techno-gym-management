@@ -55,8 +55,8 @@ export default function LandingPage() {
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section - Optimizat pentru Mobile Wrap și Ierarhie */}
-        <section className="relative w-full min-h-[95vh] pt-24 pb-12 flex items-center justify-center overflow-hidden">
+        {/* Hero Section - Ierarhie vizuală rafinată pentru mobil */}
+        <section className="relative w-full min-h-[90vh] pt-20 pb-10 flex items-center justify-center overflow-hidden">
             <Image
                 src="https://i.imgur.com/6N8o2LA.jpg"
                 alt="Modern gym interior"
@@ -68,39 +68,39 @@ export default function LandingPage() {
             <div className="absolute inset-0 bg-black/80 z-10" />
             
             <div className="container relative z-20 px-4 md:px-6 text-center mx-auto">
-                <div className="flex flex-col items-center gap-10 md:gap-16">
-                  {/* Titlu - Cel mai mare element */}
-                  <div className="space-y-6">
-                    <h1 className="text-5xl font-bold tracking-tight sm:text-8xl md:text-9xl lg:text-[10rem] text-gradient uppercase font-headline leading-[0.9] sm:leading-[0.85] max-w-[1200px] mx-auto select-none">
+                <div className="flex flex-col items-center gap-8 md:gap-14">
+                  {/* Titlu principal */}
+                  <div className="space-y-4">
+                    <h1 className="text-5xl font-bold tracking-tight sm:text-8xl md:text-9xl text-gradient uppercase font-headline leading-[0.9] sm:leading-[0.85] max-w-[1000px] mx-auto select-none">
                         Transformă-ți <br className="sm:hidden" /> Corpul
                     </h1>
-                    <p className="mx-auto max-w-[600px] text-muted-foreground/80 text-sm md:text-lg font-medium italic px-4">
+                    <p className="mx-auto max-w-[500px] text-muted-foreground/80 text-xs md:text-base font-medium italic px-4">
                         Eliberează-ți potențialul la Techno Gym Craiova. <br className="hidden sm:block"/> 24/7 non-stop pentru succesul tău.
                     </p>
                   </div>
 
-                  {/* Buton - Elementul secundar ca mărime, Font Headline */}
-                  <Button asChild className="glow-primary h-16 md:h-24 px-12 md:px-20 text-3xl md:text-5xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl bg-gradient-primary text-primary-foreground border-none">
+                  {/* Buton central - Micșorat pentru armonie pe telefon */}
+                  <Button asChild className="glow-primary h-14 md:h-20 px-10 md:px-16 text-xl md:text-4xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl bg-gradient-primary text-primary-foreground border-none">
                       <Link href="/login">Alătură-te Acum</Link>
                   </Button>
                   
-                  {/* Card 24/7 - Al treilea element (look inspirat din Dashboard) */}
-                  <div className="relative group inline-flex items-center gap-4 rounded-3xl p-5 glass shadow-2xl overflow-hidden min-w-[180px] transition-all duration-300 hover:border-primary/50">
-                      <div className="absolute -inset-4 bg-primary/20 rounded-full blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity -z-10" />
+                  {/* Card 24/7 - Micșorat și stilizat */}
+                  <div className="relative group inline-flex items-center gap-3 rounded-2xl p-4 glass shadow-2xl overflow-hidden min-w-[150px] transition-all duration-300 hover:border-primary/50">
+                      <div className="absolute -inset-4 bg-primary/20 rounded-full blur-[30px] opacity-40 group-hover:opacity-100 transition-opacity -z-10" />
                       
-                      <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-primary/20 shadow-[0_0_20px_rgba(20,184,166,0.3)]">
-                          <Clock className="w-5 h-5 text-primary" />
+                      <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary/20 shadow-[0_0_15px_rgba(20,184,166,0.3)]">
+                          <Clock className="w-4 h-4 text-primary" />
                       </div>
                       <div className="text-left">
-                          <p className="text-2xl md:text-3xl font-headline leading-none text-white tracking-widest">24/7</p>
-                          <p className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] text-primary font-bold mt-1">Deschis Non-Stop</p>
+                          <p className="text-xl md:text-2xl font-headline leading-none text-white tracking-wider">24/7</p>
+                          <p className="text-[7px] md:text-[9px] uppercase tracking-[0.2em] text-primary font-bold mt-0.5">Deschis Non-Stop</p>
                       </div>
                   </div>
                 </div>
             </div>
         </section>
 
-        {/* Secțiunea Transformări - Prima după Hero conform noii ierarhii */}
+        {/* Secțiunea Transformări */}
         <TransformationsSection />
 
         {/* Antrenori */}
@@ -134,7 +134,7 @@ export default function LandingPage() {
           </div>
         </section>
         
-        {/* Abonamente - Look uniformizat cu Dashboard-ul */}
+        {/* Abonamente - Glow uniformizat cu Dashboard */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card/30">
             <div className="container px-4 md:px-6 mx-auto">
                 <div className="text-center space-y-3 mb-16">
