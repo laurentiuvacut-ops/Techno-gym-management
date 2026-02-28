@@ -68,15 +68,8 @@ export default function LandingPage() {
             <div className="absolute inset-0 bg-black/75 z-10" />
             
             <div className="relative z-20 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
-                {/* Badge 24/7 */}
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white mb-6">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <span className="font-bold">24/7</span>
-                    <span className="opacity-60">Non-Stop</span>
-                </div>
-
                 {/* Titlu h1 */}
-                <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold uppercase tracking-tight leading-[0.9] text-white mb-5">
+                <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold uppercase tracking-tight leading-[0.9] text-gradient font-headline mb-4">
                     Transformă-ți <br/> Corpul
                 </h1>
 
@@ -86,11 +79,22 @@ export default function LandingPage() {
                 </p>
 
                 {/* Buton CTA */}
-                <Button asChild className="h-14 px-10 text-lg rounded-xl glow-primary bg-gradient-primary text-primary-foreground font-bold hover:scale-105 active:scale-95 shadow-2xl transition-all border-none">
+                <Button asChild className="h-12 px-8 text-base sm:text-lg rounded-xl glow-primary bg-gradient-primary font-headline uppercase tracking-[0.15em] hover:scale-105 active:scale-95 shadow-2xl transition-all border-none mb-10">
                     <Link href="/login">
                         Alătură-te Acum <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                 </Button>
+
+                {/* Badge 24/7 */}
+                <div className="inline-flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary/10 backdrop-blur-sm px-5 py-3 shadow-[0_0_20px_rgba(20,184,166,0.15)]">
+                    <div className="bg-primary/20 p-2 rounded-full shadow-[0_0_10px_rgba(20,184,166,0.3)] flex items-center justify-center shrink-0">
+                        <Clock className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex flex-col items-start leading-none">
+                        <span className="text-xl font-bold text-white mb-0.5">24/7</span>
+                        <span className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold">Deschis Non-Stop</span>
+                    </div>
+                </div>
             </div>
         </section>
 
