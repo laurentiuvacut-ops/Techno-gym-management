@@ -7,7 +7,7 @@ import { trainers, subscriptions } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Check, Clock } from "lucide-react";
+import { Check, Clock, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -134,42 +134,57 @@ export default function LandingPage() {
                     </p>
                 </div>
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-                    {subscriptions.map((plan) => (
-                    <Card
-                        key={plan.id}
-                        className={cn(
-                            "flex h-full flex-col rounded-3xl glass transition-all duration-300 hover:border-primary/30",
-                            plan.id === 'pro' && "border-primary/50 shadow-[0_0_30px_-10px_rgba(20,184,166,0.3)]"
-                        )}
-                    >
-                        <CardHeader className="pt-8 text-center">
-                            <CardTitle className="text-2xl font-headline tracking-widest uppercase mb-4">{plan.title}</CardTitle>
-                            <div className="flex items-center justify-center gap-1">
-                                <span className={cn("text-5xl font-bold", plan.id === 'pro' ? "text-white" : "text-primary")}>
-                                  {plan.price.split(' ')[0]}
-                                </span>
-                                <span className="text-muted-foreground font-medium">{plan.price.split(' ')[1]}{plan.period}</span>
+                    {subscriptions.map((plan) => {
+                      const isPopular = (plan as any).popular;
+                      return (
+                        <div
+                            key={plan.id}
+                            className={cn(
+                                "relative flex h-full flex-col rounded-3xl p-6 transition-all duration-300",
+                                isPopular ? "bg-gradient-primary text-primary-foreground glow-primary scale-[1.02] z-10" : "glass hover:border-primary/30"
+                            )}
+                        >
+                            {isPopular && (
+                              <Badge variant="secondary" className="absolute top-4 right-4 flex items-center gap-1 shadow-lg">
+                                <Star className="w-3 h-3 fill-current"/> Popular
+                              </Badge>
+                            )}
+                            
+                            <div className="flex-grow pt-4">
+                                <h3 className="text-2xl font-headline tracking-widest uppercase mb-2">{plan.title}</h3>
+                                <p className={cn("text-xs mb-6", isPopular ? "text-primary-foreground/80" : "text-muted-foreground italic")}>
+                                  {plan.description}
+                                </p>
+                                
+                                <div className="flex items-baseline gap-1 mb-8">
+                                    <span className={cn("text-5xl font-bold", isPopular ? "text-white" : "text-gradient")}>
+                                      {plan.price.split(' ')[0]}
+                                    </span>
+                                    <span className={cn("text-sm font-medium opacity-70", isPopular ? "text-primary-foreground" : "text-muted-foreground")}>
+                                      {plan.price.split(' ')[1]}{plan.period}
+                                    </span>
+                                </div>
+
+                                <ul className="space-y-4 mb-8">
+                                    {plan.benefits.map((benefit, i) => (
+                                    <li key={i} className="flex items-center gap-3">
+                                        <div className={cn("h-5 w-5 rounded-full flex items-center justify-center shrink-0", isPopular ? "bg-white/20" : "bg-primary/20")}>
+                                          <Check className={cn("w-3 h-3", isPopular ? "text-primary-foreground" : "text-primary")} />
+                                        </div>
+                                        <span className="text-sm font-medium">{benefit}</span>
+                                    </li>
+                                    ))}
+                                </ul>
                             </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow pt-6">
-                            <ul className="space-y-4">
-                                {plan.benefits.map((benefit, i) => (
-                                <li key={i} className="flex items-center gap-3">
-                                    <div className="h-5 w-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                                      <Check className="w-3 h-3 text-primary" />
-                                    </div>
-                                    <span className="text-sm font-medium">{benefit}</span>
-                                </li>
-                                ))}
-                            </ul>
-                        </CardContent>
-                        <CardFooter className="pb-8">
-                            <Button asChild className="w-full h-12 rounded-xl font-bold uppercase tracking-widest" variant={plan.id === 'pro' ? "default" : "secondary"}>
-                               <Link href="/login">Înscrie-te</Link>
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                    ))}
+                            
+                            <div className="pt-4 mt-auto">
+                                <Button asChild className={cn("w-full h-12 rounded-xl font-bold uppercase tracking-widest transition-all", isPopular ? "bg-white text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")} variant="default">
+                                   <Link href="/login">{plan.cta}</Link>
+                                </Button>
+                            </div>
+                        </div>
+                      );
+                    })}
                 </div>
             </div>
         </section>
