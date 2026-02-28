@@ -55,40 +55,45 @@ export default function LandingPage() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-[90vh] flex items-center justify-center">
+        <section className="relative w-full h-[90vh] flex items-center justify-center overflow-hidden">
             <Image
                 src="https://i.imgur.com/6N8o2LA.jpg"
                 alt="Modern gym with equipment"
                 fill
                 priority
-                className="object-cover z-0 blur-sm"
+                className="object-cover z-0 blur-sm scale-105"
                 sizes="100vw"
             />
-            <div className="absolute inset-0 bg-black/70 z-10" />
+            <div className="absolute inset-0 bg-black/75 z-10" />
             <div className="container relative z-20 px-4 md:px-6 text-center">
-                <div className="space-y-6">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-6xl md:text-7xl lg:text-8xl text-gradient uppercase font-headline">
-                    Transformă-ți Corpul
-                </h1>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl font-medium italic">
-                    Eliberează-ți potențialul la Techno Gym Craiova. 24/7 non-stop pentru succesul tău.
-                </p>
-                <div className="flex flex-col items-center gap-8">
-                    <Button asChild size="lg" className="glow-primary h-12 px-10 text-sm font-bold rounded-xl uppercase tracking-[0.2em]">
-                        <Link href="/login">Alătură-te Acum</Link>
-                    </Button>
-                    
-                    <div className="relative group inline-flex items-center gap-5 rounded-3xl p-6 glass shadow-2xl overflow-hidden min-w-[200px] transition-transform duration-300 hover:scale-105">
-                        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-primary/20 rounded-full blur-[60px] -z-10 group-hover:bg-primary/30 transition-colors" />
-                        <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/20 shadow-[0_0_20px_rgba(20,184,166,0.3)]">
-                            <Clock className="w-6 h-6 text-primary" />
-                        </div>
-                        <div className="text-left">
-                            <p className="text-4xl font-headline leading-none text-white tracking-wider">24/7</p>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold mt-1">Deschis Non-Stop</p>
-                        </div>
-                    </div>
-                </div>
+                <div className="flex flex-col items-center gap-10 md:gap-14">
+                  <div className="space-y-6">
+                    <h1 className="text-5xl font-bold tracking-tight sm:text-7xl md:text-8xl lg:text-9xl text-gradient uppercase font-headline leading-[0.9]">
+                        Transformă-ți <br/> Corpul
+                    </h1>
+                    <p className="mx-auto max-w-[600px] text-muted-foreground/80 md:text-lg font-medium italic">
+                        Eliberează-ți potențialul la Techno Gym Craiova. <br className="hidden sm:block"/> 24/7 non-stop pentru succesul tău.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-12">
+                      <Button asChild size="lg" className="glow-primary h-16 md:h-20 px-12 md:px-16 text-2xl md:text-3xl font-headline uppercase tracking-widest rounded-2xl transition-transform hover:scale-105 active:scale-95 shadow-2xl">
+                          <Link href="/login">Alătură-te Acum</Link>
+                      </Button>
+                      
+                      <div className="relative group inline-flex items-center gap-5 rounded-[2rem] p-6 glass shadow-2xl overflow-hidden min-w-[220px] transition-all duration-300 hover:border-primary/50">
+                          {/* Glow background effect */}
+                          <div className="absolute -inset-4 bg-primary/20 rounded-full blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity -z-10" />
+                          
+                          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/20 shadow-[0_0_20px_rgba(20,184,166,0.3)]">
+                              <Clock className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="text-left">
+                              <p className="text-4xl font-headline leading-none text-white tracking-widest">24/7</p>
+                              <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold mt-1">Deschis Non-Stop</p>
+                          </div>
+                      </div>
+                  </div>
                 </div>
             </div>
         </section>
@@ -143,8 +148,8 @@ export default function LandingPage() {
                         <div
                             key={plan.id}
                             className={cn(
-                                "relative flex h-full flex-col rounded-3xl p-6 transition-all duration-300",
-                                isPopular ? "bg-gradient-primary text-primary-foreground glow-primary scale-[1.02] z-10" : "glass hover:border-primary/30"
+                                "relative flex h-full flex-col rounded-[2rem] p-6 transition-all duration-300 glass",
+                                isPopular ? "bg-gradient-primary text-primary-foreground glow-primary scale-[1.02] z-10 border-0" : "hover:border-primary/30"
                             )}
                         >
                             {isPopular && (
