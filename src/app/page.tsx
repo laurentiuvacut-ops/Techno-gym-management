@@ -55,8 +55,8 @@ export default function LandingPage() {
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section - Ierarhie vizuală rafinată */}
-        <section className="relative w-full min-h-[90vh] pt-24 pb-12 flex items-center justify-center overflow-hidden">
+        {/* Hero Section */}
+        <section className="relative w-full h-[100dvh] flex items-center justify-center overflow-hidden">
             <Image
                 src="https://i.imgur.com/6N8o2LA.jpg"
                 alt="Modern gym interior"
@@ -65,38 +65,32 @@ export default function LandingPage() {
                 className="object-cover z-0 blur-sm scale-105 pointer-events-none"
                 sizes="100vw"
             />
-            <div className="absolute inset-0 bg-black/80 z-10" />
+            <div className="absolute inset-0 bg-black/75 z-10" />
             
-            <div className="container relative z-20 px-4 md:px-6 text-center mx-auto">
-                <div className="flex flex-col items-center gap-10 md:gap-16">
-                  {/* Titlu principal - Cel mai mare */}
-                  <div className="space-y-4">
-                    <h1 className="text-5xl font-bold tracking-tight sm:text-8xl md:text-9xl text-gradient uppercase font-headline leading-[0.9] sm:leading-[0.85] max-w-[1000px] mx-auto select-none">
-                        Transformă-ți <br className="sm:hidden" /> Corpul
-                    </h1>
-                    <p className="mx-auto max-w-[500px] text-muted-foreground/80 text-xs md:text-base font-medium italic px-4">
-                        Eliberează-ți potențialul la Techno Gym Craiova. <br className="hidden sm:block"/> 24/7 non-stop pentru succesul tău.
-                    </p>
-                  </div>
-
-                  {/* Buton central - Dimensiune medie spre mare pentru impact */}
-                  <Button asChild className="glow-primary h-16 md:h-24 px-12 md:px-20 text-2xl md:text-5xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl bg-gradient-primary text-primary-foreground border-none">
-                      <Link href="/login">Alătură-te Acum</Link>
-                  </Button>
-                  
-                  {/* Card 24/7 - Cel mai mic element din ierarhie */}
-                  <div className="relative group inline-flex items-center gap-3 rounded-2xl p-4 glass shadow-2xl overflow-hidden min-w-[160px] transition-all duration-300 hover:border-primary/50">
-                      <div className="absolute -inset-4 bg-primary/20 rounded-full blur-[30px] opacity-40 group-hover:opacity-100 transition-opacity -z-10" />
-                      
-                      <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary/20 shadow-[0_0_15px_rgba(20,184,166,0.3)]">
-                          <Clock className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="text-left">
-                          <p className="text-xl md:text-2xl font-headline leading-none text-white tracking-wider">24/7</p>
-                          <p className="text-[7px] md:text-[9px] uppercase tracking-[0.2em] text-primary font-bold mt-0.5">Deschis Non-Stop</p>
-                      </div>
-                  </div>
+            <div className="relative z-20 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
+                {/* Badge 24/7 */}
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white mb-6">
+                    <Clock className="w-4 h-4 text-primary" />
+                    <span className="font-bold">24/7</span>
+                    <span className="opacity-60">Non-Stop</span>
                 </div>
+
+                {/* Titlu h1 */}
+                <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold uppercase tracking-tight leading-[0.9] text-white mb-5">
+                    Transformă-ți <br/> Corpul
+                </h1>
+
+                {/* Subtitlu p */}
+                <p className="max-w-md text-sm md:text-base italic text-muted-foreground/70 mb-10">
+                    Eliberează-ți potențialul la Techno Gym Craiova.
+                </p>
+
+                {/* Buton CTA */}
+                <Button asChild className="h-14 px-10 text-lg rounded-xl glow-primary bg-gradient-primary text-primary-foreground font-bold hover:scale-105 active:scale-95 shadow-2xl transition-all border-none">
+                    <Link href="/login">
+                        Alătură-te Acum <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                </Button>
             </div>
         </section>
 
@@ -134,7 +128,7 @@ export default function LandingPage() {
           </div>
         </section>
         
-        {/* Abonamente - Sincronizat cu stilul Dashboard */}
+        {/* Abonamente */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card/30">
             <div className="container px-4 md:px-6 mx-auto">
                 <div className="text-center space-y-3 mb-16">
