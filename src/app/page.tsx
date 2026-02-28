@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Dynamic imports with SSR disabled to prevent hydration errors for these specific components
+// Componente încărcate dinamic cu stări de loading stabile pentru a preveni mismatch-ul de hidratare
 const Header = dynamic(() => import('@/components/layout/header'), { 
   ssr: false,
   loading: () => <div className="h-16 w-full bg-background/80 border-b border-border/50 fixed top-0 z-50" />
@@ -50,15 +50,15 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-dvh" suppressHydrationWarning>
+    <div className="flex flex-col min-h-dvh">
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section */}
+        {/* Hero Section - Ierarhie vizuală rafinată */}
         <section className="relative w-full h-[90vh] flex items-center justify-center overflow-hidden">
             <Image
                 src="https://i.imgur.com/6N8o2LA.jpg"
-                alt="Modern gym with equipment"
+                alt="Modern gym interior"
                 fill
                 priority
                 className="object-cover z-0 blur-sm scale-105"
@@ -68,7 +68,7 @@ export default function LandingPage() {
             
             <div className="container relative z-20 px-4 md:px-6 text-center">
                 <div className="flex flex-col items-center gap-12 md:gap-16">
-                  {/* Titlu - Cel mai mare element */}
+                  {/* Titlu - Elementul Principal (Gigant) */}
                   <div className="space-y-4">
                     <h1 className="text-6xl font-bold tracking-tight sm:text-8xl md:text-9xl lg:text-[10rem] text-gradient uppercase font-headline leading-[0.85]">
                         Transformă-ți <br/> Corpul
@@ -78,12 +78,12 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Buton - Dimensiune medie, Font Headline */}
+                  {/* Buton - Elementul Secundar (Mediu, Headline font) */}
                   <Button asChild size="lg" className="glow-primary h-16 md:h-24 px-12 md:px-20 text-3xl md:text-5xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-transform hover:scale-105 active:scale-95 shadow-2xl">
                       <Link href="/login">Alătură-te Acum</Link>
                   </Button>
                   
-                  {/* Card 24/7 - Cel mai mic element din ierarhie */}
+                  {/* Card 24/7 - Elementul Terțiar (Efect Glow) */}
                   <div className="relative group inline-flex items-center gap-5 rounded-[2rem] p-6 glass shadow-2xl overflow-hidden min-w-[220px] transition-all duration-300 hover:border-primary/50">
                       <div className="absolute -inset-4 bg-primary/20 rounded-full blur-[40px] opacity-50 group-hover:opacity-100 transition-opacity -z-10" />
                       
@@ -99,10 +99,9 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* Transformations Section - Moved above Trainers */}
+        {/* Secțiunile următoare reordonate conform PRD-ului nou */}
         <TransformationsSection />
 
-        {/* Trainers Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
@@ -133,7 +132,6 @@ export default function LandingPage() {
           </div>
         </section>
         
-        {/* Subscriptions Preview - Matched with Dashboard design */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card/30">
             <div className="container px-4 md:px-6">
                 <div className="text-center space-y-3 mb-16">
@@ -204,15 +202,15 @@ export default function LandingPage() {
           <div className="flex flex-col items-center gap-4 md:flex-row">
             <Link href="/" className="flex items-center gap-2">
                 <div className="relative w-8 h-8">
-                  <Image src="https://i.imgur.com/9W1ye1w.png" alt="Logo" fill className="object-contain" />
+                  <Image src="https://i.imgur.com/9W1ye1w.png" alt="Techno Gym Logo" fill className="object-contain" />
                 </div>
                 <span className="text-lg font-bold tracking-tight uppercase font-headline">
                   <span className="text-primary">TECHNO</span>
                   <span className="text-foreground">GYM</span>
                 </span>
             </Link>
-            <p className="text-sm text-muted-foreground italic" suppressHydrationWarning>
-              © {currentYear} Techno Gym Craiova. Dezvoltat pentru performanță.
+            <p className="text-sm text-muted-foreground italic">
+              © {mounted ? currentYear : '2024'} Techno Gym Craiova. Dezvoltat pentru performanță.
             </p>
           </div>
           <div className="flex items-center gap-6">
