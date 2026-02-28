@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Sincronizăm tag-urile skeleton-ului cu componentele reale pentru a evita Hydration Mismatch
 const Header = dynamic(() => import('@/components/layout/header'), { 
   ssr: false,
   loading: () => (
@@ -56,8 +55,8 @@ export default function LandingPage() {
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section - Ierarhie vizuală rafinată pentru mobil */}
-        <section className="relative w-full min-h-[90vh] pt-20 pb-10 flex items-center justify-center overflow-hidden">
+        {/* Hero Section - Ierarhie vizuală rafinată */}
+        <section className="relative w-full min-h-[90vh] pt-24 pb-12 flex items-center justify-center overflow-hidden">
             <Image
                 src="https://i.imgur.com/6N8o2LA.jpg"
                 alt="Modern gym interior"
@@ -69,8 +68,8 @@ export default function LandingPage() {
             <div className="absolute inset-0 bg-black/80 z-10" />
             
             <div className="container relative z-20 px-4 md:px-6 text-center mx-auto">
-                <div className="flex flex-col items-center gap-8 md:gap-14">
-                  {/* Titlu principal */}
+                <div className="flex flex-col items-center gap-10 md:gap-16">
+                  {/* Titlu principal - Cel mai mare */}
                   <div className="space-y-4">
                     <h1 className="text-5xl font-bold tracking-tight sm:text-8xl md:text-9xl text-gradient uppercase font-headline leading-[0.9] sm:leading-[0.85] max-w-[1000px] mx-auto select-none">
                         Transformă-ți <br className="sm:hidden" /> Corpul
@@ -80,13 +79,13 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Buton central - Optimizat pentru mobil */}
-                  <Button asChild className="glow-primary h-14 md:h-20 px-10 md:px-16 text-xl md:text-4xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl bg-gradient-primary text-primary-foreground border-none">
+                  {/* Buton central - Dimensiune medie spre mare pentru impact */}
+                  <Button asChild className="glow-primary h-16 md:h-24 px-12 md:px-20 text-2xl md:text-5xl font-headline uppercase tracking-[0.1em] rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl bg-gradient-primary text-primary-foreground border-none">
                       <Link href="/login">Alătură-te Acum</Link>
                   </Button>
                   
-                  {/* Card 24/7 - Micșorat și stilizat */}
-                  <div className="relative group inline-flex items-center gap-3 rounded-2xl p-4 glass shadow-2xl overflow-hidden min-w-[150px] transition-all duration-300 hover:border-primary/50">
+                  {/* Card 24/7 - Cel mai mic element din ierarhie */}
+                  <div className="relative group inline-flex items-center gap-3 rounded-2xl p-4 glass shadow-2xl overflow-hidden min-w-[160px] transition-all duration-300 hover:border-primary/50">
                       <div className="absolute -inset-4 bg-primary/20 rounded-full blur-[30px] opacity-40 group-hover:opacity-100 transition-opacity -z-10" />
                       
                       <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary/20 shadow-[0_0_15px_rgba(20,184,166,0.3)]">
@@ -101,7 +100,7 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* Secțiunea Transformări - Mutată deasupra Antrenorilor */}
+        {/* Secțiunea Transformări */}
         <TransformationsSection />
 
         {/* Antrenori */}
@@ -135,7 +134,7 @@ export default function LandingPage() {
           </div>
         </section>
         
-        {/* Abonamente - Glow sincronizat cu Dashboard */}
+        {/* Abonamente - Sincronizat cu stilul Dashboard */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card/30">
             <div className="container px-4 md:px-6 mx-auto">
                 <div className="text-center space-y-3 mb-16">
