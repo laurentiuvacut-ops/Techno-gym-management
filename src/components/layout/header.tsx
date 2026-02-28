@@ -25,7 +25,7 @@ export default function Header() {
 
   const { data: memberData } = useDoc(memberDocRef);
 
-  const displayPhotoUrl = memberData?.photoURL || user?.photoURL || '';
+  const displayPhotoUrl = memberData?.photoURL || user?.photoURL || undefined;
   const displayName = memberData?.name || user?.displayName || 'U';
 
   return (

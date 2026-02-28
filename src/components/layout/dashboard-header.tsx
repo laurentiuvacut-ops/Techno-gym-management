@@ -39,7 +39,7 @@ export default function DashboardHeader() {
     };
   }, []);
 
-  const displayPhotoUrl = memberData?.photoURL || user?.photoURL || '';
+  const displayPhotoUrl = memberData?.photoURL || user?.photoURL || undefined;
   const displayName = memberData?.name || user?.displayName || 'U';
 
   return (

@@ -50,7 +50,7 @@ export default function DashboardSidebar() {
     }
   };
 
-  const displayPhotoUrl = memberData?.photoURL || user?.photoURL || '';
+  const displayPhotoUrl = memberData?.photoURL || user?.photoURL || undefined;
   const displayName = memberData?.name || user?.displayName || 'Membru';
 
   return (

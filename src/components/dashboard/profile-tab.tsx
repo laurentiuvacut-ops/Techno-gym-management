@@ -122,7 +122,7 @@ export default function ProfileTab() {
 
     const displayName = memberData?.name || user?.displayName || 'Membru';
     const displayPhone = memberData?.phone || user?.phoneNumber;
-    const displayPhotoUrl = memberData?.photoURL || user?.photoURL;
+    const displayPhotoUrl = memberData?.photoURL || user?.photoURL || undefined;
 
     return (
         <motion.div 
@@ -145,7 +145,7 @@ export default function ProfileTab() {
                 <CardHeader className="items-center text-center pb-2 bg-foreground/5 pt-6">
                     <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
                         <Avatar className="w-20 h-20 border-3 border-primary/20 shadow-lg transition-all duration-300 group-hover:border-primary">
-                            <AvatarImage src={displayPhotoUrl || ''} alt={displayName || ''} className="object-cover" />
+                            <AvatarImage src={displayPhotoUrl} alt={displayName || ''} className="object-cover" />
                             <AvatarFallback className="text-3xl bg-muted font-headline">
                                 {displayName?.charAt(0) || 'T'}
                             </AvatarFallback>
