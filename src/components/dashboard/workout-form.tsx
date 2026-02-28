@@ -248,6 +248,18 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                 </AnimatePresence>
 
                 <div className="space-y-2">
+                  {/* Column Headers for clarity */}
+                  {ex.sets.length > 0 && (
+                    <div className="flex items-center gap-2 mb-1 px-1">
+                      <span className="w-4" /> {/* spacer for index */}
+                      <div className="flex-1 grid grid-cols-2 gap-2">
+                        <span className="text-[9px] uppercase font-bold text-muted-foreground text-center">Greutate (kg)</span>
+                        <span className="text-[9px] uppercase font-bold text-muted-foreground text-center">Repetări</span>
+                      </div>
+                      <span className="w-10" /> {/* spacer for delete icon */}
+                    </div>
+                  )}
+
                   {ex.sets.map((set, setIdx) => (
                     <div key={setIdx} className="flex items-center gap-2">
                       <span className="text-[10px] text-muted-foreground w-4">{setIdx + 1}</span>
