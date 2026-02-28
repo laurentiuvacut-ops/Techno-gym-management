@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 // Dynamic imports with SSR disabled for heavy/client-dependent sections
 const Header = dynamic(() => import('@/components/layout/header'), { 
   ssr: false,
-  loading: () => <div className="h-16 w-full bg-background/80 border-b border-border/50 fixed top-0 z-50 animate-pulse" />
+  loading: () => <div className="h-16 w-full bg-background/80 border-b border-border/50 fixed top-0 z-50" />
 });
 
 const TransformationsSection = dynamic(
@@ -41,9 +41,11 @@ const TransformationsSection = dynamic(
 );
 
 export default function LandingPage() {
+  const [mounted, setMounted] = useState(false);
   const [currentYear, setCurrentYear] = useState('2024');
 
   useEffect(() => {
+    setMounted(true);
     setCurrentYear(new Date().getFullYear().toString());
   }, []);
 
@@ -88,7 +90,7 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* Transformations Section - Moved up */}
+        {/* Transformations Section */}
         <TransformationsSection />
 
         {/* Trainers Section */}
@@ -185,7 +187,7 @@ export default function LandingPage() {
                   <span className="text-foreground">GYM</span>
                 </span>
             </Link>
-            <p className="text-sm text-muted-foreground italic">
+            <p className="text-sm text-muted-foreground italic" suppressHydrationWarning>
               © {currentYear} Techno Gym Craiova. Dezvoltat pentru performanță.
             </p>
           </div>
