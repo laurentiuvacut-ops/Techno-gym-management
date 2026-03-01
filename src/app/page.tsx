@@ -62,7 +62,7 @@ export default function LandingPage() {
                 alt="Modern gym interior"
                 fill
                 priority
-                className="object-cover z-0 blur-sm scale-105 pointer-events-none"
+                className="object-cover z-0 blur-sm pointer-events-none"
                 sizes="100vw"
             />
             <div className="absolute inset-0 bg-black/75 z-10" />
