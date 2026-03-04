@@ -20,6 +20,7 @@ import { useMember } from '@/contexts/member-context';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import WorkoutForm from './workout-form';
 import WorkoutCommunity from './workout-community';
+import WorkoutShareCard from './workout-share-card';
 import type { WorkoutLog, SharedWorkout } from '@/types/workout';
 
 export default function WorkoutsTab() {
@@ -35,6 +36,7 @@ export default function WorkoutsTab() {
   const [initialFormData, setInitialFormData] = useState<WorkoutLog | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeVideo, setActiveVideo] = useState<{ url: string, title: string } | null>(null);
+  const [shareLog, setShareLog] = useState<WorkoutLog | null>(null);
 
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -352,6 +354,14 @@ export default function WorkoutsTab() {
                             <div className="flex flex-wrap gap-2">
                                <Button variant="outline" size="sm" onClick={() => handleRepeatLog(log)} className="rounded-xl border-primary/30 text-primary hover:bg-primary/10 h-10 px-4 text-xs font-bold uppercase"><Copy className="h-4 w-4 mr-2" /> Repetă</Button>
                                <Button variant="outline" size="sm" onClick={() => handleEditLog(log)} className="rounded-xl border-white/10 text-white hover:bg-white/5 h-10 px-4 text-xs font-bold uppercase"><Edit2 className="h-4 w-4 mr-2" /> Editează</Button>
+                               <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => setShareLog(log)} 
+                                  className="rounded-xl border-purple-500/30 text-purple-400 hover:bg-purple-500/10 h-10 px-4 text-xs font-bold uppercase"
+                                >
+                                  <Share2 className="h-4 w-4 mr-2" /> Story
+                                </Button>
                             </div>
                             {log.notes && <div className="p-4 bg-primary/5 border-l-4 border-primary rounded-r-xl text-sm italic opacity-80 leading-relaxed">"{log.notes}"</div>}
                             <div className="space-y-6">
@@ -405,6 +415,12 @@ export default function WorkoutsTab() {
           onCopied={() => setActiveSubTab('my-logs')} 
         />
       )}
+
+      <AnimatePresence>
+        {shareLog && (
+          <WorkoutShareCard log={shareLog} onClose={() => setShareLog(null)} />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
