@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Download, Instagram, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Download, Instagram, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
@@ -43,22 +43,22 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
 
     const margin = 40;
     const cardX = margin;
-    const cardY = 1200;
+    const cardY = 1150; // Pozitionat mai sus pentru a face loc la seturi
     const cardW = 1080 - margin * 2;
-    const cardH = 660;
+    const cardH = 720;
     const radius = 40;
 
-    // 1. Background Card (Gradient)
+    // 1. Background Card (Gradient transparent premium)
     const gradient = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardH);
-    gradient.addColorStop(0, 'rgba(9, 9, 11, 0.88)');
-    gradient.addColorStop(1, 'rgba(9, 9, 11, 0.95)');
+    gradient.addColorStop(0, 'rgba(9, 9, 11, 0.92)');
+    gradient.addColorStop(1, 'rgba(9, 9, 11, 0.98)');
     
     ctx.fillStyle = gradient;
     roundedRect(ctx, cardX, cardY, cardW, cardH, radius);
     ctx.fill();
 
-    // 2. Border
-    ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
+    // 2. Border subtil cyan
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.2)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -66,12 +66,12 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
     ctx.beginPath();
     ctx.moveTo(cardX + radius, cardY);
     ctx.lineTo(cardX + cardW - radius, cardY);
-    ctx.strokeStyle = 'rgba(0, 255, 255, 0.4)';
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
     ctx.lineWidth = 4;
     ctx.lineCap = 'round';
     ctx.stroke();
 
-    // 4. Logo
+    // 4. Logo "TECHNO GYM"
     ctx.textBaseline = 'top';
     ctx.font = 'bold 28px "Bebas Neue", sans-serif';
     const logoY = cardY + 40;
@@ -83,17 +83,9 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText(' GYM', cardX + 40 + technoWidth, logoY);
 
-    // Separator sub logo
-    ctx.beginPath();
-    ctx.moveTo(cardX + 40, logoY + 45);
-    ctx.lineTo(cardX + 140, logoY + 45);
-    ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // 5. Workout Name
+    // 5. Nume Antrenament
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 52px "Bebas Neue", sans-serif';
+    ctx.font = 'bold 56px "Bebas Neue", sans-serif';
     let workoutName = log.name.toUpperCase();
     if (ctx.measureText(workoutName).width > cardW - 80) {
         while (ctx.measureText(workoutName + '...').width > cardW - 80 && workoutName.length > 0) {
@@ -101,110 +93,61 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         }
         workoutName += '...';
     }
-    ctx.fillText(workoutName, cardX + 40, cardY + 110);
+    ctx.fillText(workoutName, cardX + 40, cardY + 100);
 
     // 6. Data
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.font = '22px "Inter", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.font = '20px "Inter", sans-serif';
     const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
-    ctx.fillText(dateStr.charAt(0).toUpperCase() + dateStr.slice(1), cardX + 40, cardY + 175);
+    ctx.fillText(dateStr.charAt(0).toUpperCase() + dateStr.slice(1), cardX + 40, cardY + 165);
 
-    // 7. Stats
-    const statsY = cardY + 240;
-    const colW = cardW / 3;
-
-    const totalVolume = log.exercises?.reduce((sum, ex) =>
-      sum + (ex.sets?.reduce((sSum, s) =>
-        sSum + ((s.weight || 0) * (s.reps || 0)), 0) || 0), 0) || 0;
-    const totalSets = log.exercises?.reduce((sum, ex) => sum + (ex.sets?.length || 0), 0) || 0;
-
-    const formatVolume = (val: number) => {
-        if (val >= 1000) return (val / 1000).toFixed(1) + 'K';
-        return val.toString();
-    };
-
-    ctx.textAlign = 'center';
-    // Durată
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 56px "Bebas Neue", sans-serif';
-    ctx.fillText(log.duration.toString(), cardX + colW / 2, statsY);
-    ctx.fillStyle = '#00FFFF';
-    ctx.font = 'bold 12px "Inter", sans-serif';
-    ctx.fillText('MIN', cardX + colW / 2, statsY + 65);
-
-    // Separator vertical 1
+    // Linie separatoare
     ctx.beginPath();
-    ctx.moveTo(cardX + colW, statsY + 10);
-    ctx.lineTo(cardX + colW, statsY + 60);
+    ctx.moveTo(cardX + 40, cardY + 210);
+    ctx.lineTo(cardX + cardW - 40, cardY + 210);
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Volum
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 56px "Bebas Neue", sans-serif';
-    ctx.fillText(formatVolume(totalVolume), cardX + colW + colW / 2, statsY);
-    ctx.fillStyle = '#00FFFF';
-    ctx.font = 'bold 12px "Inter", sans-serif';
-    ctx.fillText('KG VOLUM', cardX + colW + colW / 2, statsY + 65);
-
-    // Separator vertical 2
-    ctx.beginPath();
-    ctx.moveTo(cardX + colW * 2, statsY + 10);
-    ctx.lineTo(cardX + colW * 2, statsY + 60);
-    ctx.stroke();
-
-    // Seturi
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 56px "Bebas Neue", sans-serif';
-    ctx.fillText(totalSets.toString(), cardX + colW * 2 + colW / 2, statsY);
-    ctx.fillStyle = '#00FFFF';
-    ctx.font = 'bold 12px "Inter", sans-serif';
-    ctx.fillText('SETURI', cardX + colW * 2 + colW / 2, statsY + 65);
-
-    // 8. Lista Exerciții
-    ctx.textAlign = 'left';
-    const exercisesY = cardY + 360;
-    const maxEx = 5;
+    // 7. Lista Exerciții și Seturi
+    const contentY = cardY + 240;
+    const maxEx = 4;
     const exerciseList = log.exercises?.slice(0, maxEx) || [];
 
     exerciseList.forEach((ex, i) => {
-        const itemY = exercisesY + i * 45;
+        const itemY = contentY + i * 110;
         
         // Bullet
         ctx.fillStyle = '#00FFFF';
         ctx.beginPath();
-        ctx.arc(cardX + 45, itemY + 15, 4, 0, Math.PI * 2);
+        ctx.arc(cardX + 45, itemY + 15, 5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Nume
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        ctx.font = '20px "Inter", sans-serif';
+        // Nume Exercițiu
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 24px "Inter", sans-serif';
         let exName = ex.name;
-        if (ctx.measureText(exName).width > 600) {
-            exName = exName.slice(0, 40) + '...';
+        if (ctx.measureText(exName).width > cardW - 100) {
+            exName = exName.slice(0, 35) + '...';
         }
         ctx.fillText(exName, cardX + 70, itemY + 5);
 
-        // Best Set
-        const bestSet = ex.sets?.reduce((prev, curr) => (curr.weight > prev.weight ? curr : prev), ex.sets[0]);
-        if (bestSet) {
-            ctx.textAlign = 'right';
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.7)';
-            ctx.font = '18px "monospace"'; 
-            ctx.fillText(`${bestSet.weight}kg × ${bestSet.reps}`, cardX + cardW - 40, itemY + 7);
-            ctx.textAlign = 'left';
-        }
+        // Seturi (Greutate x Repetări)
+        const setsStr = ex.sets.map(s => `${s.weight}kg × ${s.reps}`).join('  •  ');
+        ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
+        ctx.font = '18px "monospace"'; 
+        ctx.fillText(setsStr, cardX + 70, itemY + 45);
     });
 
     if (log.exercises?.length > maxEx) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.font = 'italic 18px "Inter", sans-serif';
-        ctx.fillText(`+ încă ${log.exercises.length - maxEx} exerciții`, cardX + 70, exercisesY + maxEx * 45 + 5);
+        ctx.fillText(`+ încă ${log.exercises.length - maxEx} exerciții în jurnal`, cardX + 70, contentY + maxEx * 110 + 10);
     }
 
-    // 9. Watermark
+    // 8. Watermark
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.font = '14px "Inter", sans-serif';
     ctx.fillText('technogymcraiova.com', 1080 / 2, cardY + cardH - 30);
 
@@ -212,8 +155,7 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
   }, [log, ro]);
 
   useEffect(() => {
-    // Așteptăm puțin pentru a ne asigura că fonturile sunt încărcate în browser
-    const timer = setTimeout(generateImage, 300);
+    const timer = setTimeout(generateImage, 400);
     return () => clearTimeout(timer);
   }, [generateImage]);
 
@@ -228,11 +170,9 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         await navigator.share({ 
             files: [file], 
             title: `${log.name} — Techno Gym`,
-            text: `Uite antrenamentul meu de azi de la Techno Gym!`
+            text: `Antrenamentul meu de azi la Techno Gym!`
         });
-      } catch (e) {
-        // Fallback la download dacă share-ul e anulat
-      }
+      } catch (e) {}
     } else {
       handleDownload();
     }
@@ -251,7 +191,6 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
         onClick={onClose}
         className="absolute inset-0 bg-black/80 backdrop-blur-lg"
       />
