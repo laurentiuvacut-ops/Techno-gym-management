@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -87,8 +88,10 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         ctx.fillStyle = '#FFFFFF';
         ctx.fillText(ex.name, 540, currentY);
         
-        // Seturi (kg x reps)
-        const setsStr = ex.sets?.map(s => `${s.weight}kg×${s.reps}`).join(' • ') || '';
+        // Doar ULTIMUL set (kg x reps)
+        const lastSet = ex.sets && ex.sets.length > 0 ? ex.sets[ex.sets.length - 1] : null;
+        const setsStr = lastSet ? `${lastSet.weight}kg × ${lastSet.reps}` : '';
+        
         ctx.font = '400 26px "Inter", sans-serif';
         ctx.fillStyle = 'rgba(0, 255, 255, 0.9)';
         ctx.fillText(setsStr, 540, currentY + 50);
