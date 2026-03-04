@@ -13,20 +13,6 @@ interface WorkoutShareCardProps {
   onClose: () => void;
 }
 
-function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
-}
-
 export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -38,155 +24,101 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Dimensiuni Story: 1080x1920
-    ctx.clearRect(0, 0, 1080, 1920);
+    const W = 1080;
+    const H = 1920;
 
-    // --- BRANDING SUS (STIL STRAVA) ---
+    // 1. CLEAR — Fundal complet transparent (Esential pentru stil Strava)
+    ctx.clearRect(0, 0, W, H);
+
+    // Calcule date
+    const totalVolume = log.exercises?.reduce((sum, ex) =>
+      sum + (ex.sets?.reduce((sSum, s) =>
+        sSum + ((s.weight || 0) * (s.reps || 0)), 0) || 0), 0) || 0;
+
+    // 2. SHADOW SETTINGS — Pentru vizibilitate pe orice poză
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+    ctx.shadowBlur = 25;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 6;
+
+    // --- STATISTICI CENTRATE ---
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.font = 'bold 48px "Bebas Neue", sans-serif';
+
+    // STAT 1: Durată
+    ctx.font = '500 24px "Inter", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillText('DURATĂ', 540, 550);
+
+    ctx.font = '400 130px "Bebas Neue", sans-serif';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(`${log.duration} MIN`, 540, 680);
+
+    // STAT 2: Volum
+    ctx.font = '500 24px "Inter", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillText('VOLUM TOTAL', 540, 800);
+
+    const volStr = totalVolume >= 1000 
+      ? `${(totalVolume/1000).toFixed(1)}K KG` 
+      : `${totalVolume} KG`;
+    ctx.font = '400 130px "Bebas Neue", sans-serif';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(volStr, 540, 930);
+
+    // STAT 3: Exerciții
+    ctx.font = '500 24px "Inter", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillText('EXERCIȚII', 540, 1050);
+
+    ctx.font = '400 130px "Bebas Neue", sans-serif';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(`${log.exercises?.length || 0}`, 540, 1180);
+
+    // 3. LINIE SEPARATOARE
+    ctx.shadowBlur = 10;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(440, 1250);
+    ctx.lineTo(640, 1250);
+    ctx.stroke();
+
+    // 4. NUME ANTRENAMENT
+    ctx.shadowBlur = 20;
+    ctx.font = '400 72px "Bebas Neue", sans-serif';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(log.name.toUpperCase(), 540, 1350);
+
+    // 5. DATA
+    ctx.font = '400 32px "Inter", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
+    ctx.fillText(dateStr.charAt(0).toUpperCase() + dateStr.slice(1), 540, 1410);
+
+    // 6. LOGO TECHNO GYM (JOS)
+    ctx.shadowBlur = 15;
+    ctx.font = '400 48px "Bebas Neue", sans-serif';
     
-    const headerY = 80;
     const technoText = "TECHNO";
     const gymText = " GYM";
-    const technoWidth = ctx.measureText(technoText).width;
-    const gymWidth = ctx.measureText(gymText).width;
-    const totalHeaderWidth = technoWidth + gymWidth;
-    const startX = (1080 - totalHeaderWidth) / 2;
+    const technoW = ctx.measureText(technoText).width;
+    const gymW = ctx.measureText(gymText).width;
+    const totalLogoW = technoW + gymW;
+    const startX = (W - totalLogoW) / 2;
 
-    // Drop shadow subtil pentru textul de sus (ca să fie vizibil pe orice poză)
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
-
-    ctx.fillStyle = '#00FFFF';
     ctx.textAlign = 'left';
-    ctx.fillText(technoText, startX, headerY);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText(gymText, startX + technoWidth, headerY);
-
-    // Reset shadow pentru restul elementelor
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-
-    // --- CARD JOS ---
-    const margin = 40;
-    const cardX = margin;
-    const cardY = 1150; 
-    const cardW = 1080 - margin * 2;
-    const cardH = 720;
-    const radius = 40;
-
-    // 1. Background Card (Gradient transparent premium)
-    const gradient = ctx.createLinearGradient(cardX, cardY, cardX, cardY + cardH);
-    gradient.addColorStop(0, 'rgba(9, 9, 11, 0.92)');
-    gradient.addColorStop(1, 'rgba(9, 9, 11, 0.98)');
-    
-    ctx.fillStyle = gradient;
-    roundedRect(ctx, cardX, cardY, cardW, cardH, radius);
-    ctx.fill();
-
-    // 2. Border subtil cyan
-    ctx.strokeStyle = 'rgba(0, 255, 255, 0.2)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // 3. Top Glow Line
-    ctx.beginPath();
-    ctx.moveTo(cardX + radius, cardY);
-    ctx.lineTo(cardX + cardW - radius, cardY);
-    ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
-    ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    // 4. Logo în interiorul cardului (mic)
-    ctx.textBaseline = 'top';
-    ctx.font = 'bold 28px "Bebas Neue", sans-serif';
-    const logoInsideY = cardY + 40;
-    
     ctx.fillStyle = '#00FFFF';
-    ctx.fillText('TECHNO', cardX + 40, logoInsideY);
-    const technoInsideWidth = ctx.measureText('TECHNO').width;
-    
+    ctx.fillText(technoText, startX, 1780);
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText(' GYM', cardX + 40 + technoInsideWidth, logoInsideY);
+    ctx.fillText(gymText, startX + technoW, 1780);
 
-    // 5. Nume Antrenament
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 56px "Bebas Neue", sans-serif';
-    let workoutName = log.name.toUpperCase();
-    if (ctx.measureText(workoutName).width > cardW - 80) {
-        while (ctx.measureText(workoutName + '...').width > cardW - 80 && workoutName.length > 0) {
-            workoutName = workoutName.slice(0, -1);
-        }
-        workoutName += '...';
-    }
-    ctx.fillText(workoutName, cardX + 40, cardY + 100);
-
-    // 6. Data
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.font = '20px "Inter", sans-serif';
-    const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
-    ctx.fillText(dateStr.charAt(0).toUpperCase() + dateStr.slice(1), cardX + 40, cardY + 165);
-
-    // Linie separatoare
-    ctx.beginPath();
-    ctx.moveTo(cardX + 40, cardY + 210);
-    ctx.lineTo(cardX + cardW - 40, cardY + 210);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // 7. Lista Exerciții și Seturi
-    const contentY = cardY + 240;
-    const maxEx = 4;
-    const exerciseList = log.exercises?.slice(0, maxEx) || [];
-
-    exerciseList.forEach((ex, i) => {
-        const itemY = contentY + i * 110;
-        
-        // Bullet
-        ctx.fillStyle = '#00FFFF';
-        ctx.beginPath();
-        ctx.arc(cardX + 45, itemY + 15, 5, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Nume Exercițiu
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 24px "Inter", sans-serif';
-        let exName = ex.name;
-        if (ctx.measureText(exName).width > cardW - 100) {
-            exName = exName.slice(0, 35) + '...';
-        }
-        ctx.fillText(exName, cardX + 70, itemY + 5);
-
-        // Seturi (Greutate x Repetări)
-        const setsStr = ex.sets.map(s => `${s.weight}kg × ${s.reps}`).join('  •  ');
-        ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
-        ctx.font = '18px "monospace"'; 
-        ctx.fillText(setsStr, cardX + 70, itemY + 45);
-    });
-
-    if (log.exercises?.length > maxEx) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.font = 'italic 18px "Inter", sans-serif';
-        ctx.fillText(`+ încă ${log.exercises.length - maxEx} exerciții în jurnal`, cardX + 70, contentY + maxEx * 110 + 10);
-    }
-
-    // 8. Watermark Jos
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.font = '14px "Inter", sans-serif';
-    ctx.fillText('technogymcraiova.com', 1080 / 2, cardY + cardH - 30);
-
+    // Finalizare
     setImageUri(canvas.toDataURL('image/png'));
-  }, [log, ro]);
+  }, [log]);
 
   useEffect(() => {
-    const timer = setTimeout(generateImage, 400);
+    // Așteptăm puțin pentru a ne asigura că fonturile sunt încărcate
+    const timer = setTimeout(generateImage, 500);
     return () => clearTimeout(timer);
   }, [generateImage]);
 
@@ -223,7 +155,7 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/80 backdrop-blur-lg"
+        className="absolute inset-0 bg-black/90 backdrop-blur-md"
       />
       
       <motion.div 
@@ -232,25 +164,27 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         className="relative w-full max-w-sm bg-card rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col"
       >
         <div className="flex justify-between items-center p-6 pb-2">
-            <h3 className="text-xl font-headline tracking-widest uppercase">Preview Story</h3>
+            <h3 className="text-xl font-headline tracking-widest uppercase">Preview Overlay</h3>
             <button onClick={onClose} className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors">
                 <X className="w-5 h-5" />
             </button>
         </div>
 
         <div className="p-6 pt-2 space-y-6">
-            <div className="relative aspect-[9/16] w-full rounded-3xl bg-neutral-900 border border-white/5 overflow-hidden group">
+            <div className="relative aspect-[9/16] w-full rounded-3xl overflow-hidden group shadow-inner">
+                {/* Fundal simulat (Gradient care imită o poză de sală) */}
+                <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <p className="text-white/10 font-headline text-3xl uppercase tracking-tighter text-center px-10 leading-none">
-                        Poza ta de la antrenament apare aici
+                    <p className="text-white/5 font-headline text-4xl uppercase tracking-tighter text-center px-10 leading-none">
+                        Textul va pluti direct peste poza ta
                     </p>
                 </div>
                 
                 {imageUri && (
                     <img 
                         src={imageUri} 
-                        alt="Workout Card" 
-                        className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl"
+                        alt="Workout Overlay" 
+                        className="absolute inset-0 w-full h-full object-contain"
                     />
                 )}
             </div>
@@ -270,6 +204,9 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
                     <Download className="w-5 h-5" /> Download
                 </Button>
             </div>
+            <p className="text-[10px] text-center text-muted-foreground uppercase tracking-widest opacity-50">
+                Fundalul este 100% transparent în fișierul final
+            </p>
         </div>
 
         <canvas 
