@@ -41,9 +41,40 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
     // Dimensiuni Story: 1080x1920
     ctx.clearRect(0, 0, 1080, 1920);
 
+    // --- BRANDING SUS (STIL STRAVA) ---
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.font = 'bold 48px "Bebas Neue", sans-serif';
+    
+    const headerY = 80;
+    const technoText = "TECHNO";
+    const gymText = " GYM";
+    const technoWidth = ctx.measureText(technoText).width;
+    const gymWidth = ctx.measureText(gymText).width;
+    const totalHeaderWidth = technoWidth + gymWidth;
+    const startX = (1080 - totalHeaderWidth) / 2;
+
+    // Drop shadow subtil pentru textul de sus (ca să fie vizibil pe orice poză)
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+
+    ctx.fillStyle = '#00FFFF';
+    ctx.textAlign = 'left';
+    ctx.fillText(technoText, startX, headerY);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(gymText, startX + technoWidth, headerY);
+
+    // Reset shadow pentru restul elementelor
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    // --- CARD JOS ---
     const margin = 40;
     const cardX = margin;
-    const cardY = 1150; // Pozitionat mai sus pentru a face loc la seturi
+    const cardY = 1150; 
     const cardW = 1080 - margin * 2;
     const cardH = 720;
     const radius = 40;
@@ -71,17 +102,17 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
     ctx.lineCap = 'round';
     ctx.stroke();
 
-    // 4. Logo "TECHNO GYM"
+    // 4. Logo în interiorul cardului (mic)
     ctx.textBaseline = 'top';
     ctx.font = 'bold 28px "Bebas Neue", sans-serif';
-    const logoY = cardY + 40;
+    const logoInsideY = cardY + 40;
     
     ctx.fillStyle = '#00FFFF';
-    ctx.fillText('TECHNO', cardX + 40, logoY);
-    const technoWidth = ctx.measureText('TECHNO').width;
+    ctx.fillText('TECHNO', cardX + 40, logoInsideY);
+    const technoInsideWidth = ctx.measureText('TECHNO').width;
     
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText(' GYM', cardX + 40 + technoWidth, logoY);
+    ctx.fillText(' GYM', cardX + 40 + technoInsideWidth, logoInsideY);
 
     // 5. Nume Antrenament
     ctx.fillStyle = '#FFFFFF';
@@ -145,7 +176,7 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         ctx.fillText(`+ încă ${log.exercises.length - maxEx} exerciții în jurnal`, cardX + 70, contentY + maxEx * 110 + 10);
     }
 
-    // 8. Watermark
+    // 8. Watermark Jos
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.font = '14px "Inter", sans-serif';
