@@ -175,11 +175,11 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Nume Antrenament</Label>
-            <Input value={workoutName} onChange={e => setWorkoutName(e.target.value)} placeholder="ex: Push Day..." className="bg-background/50 border-white/10 text-base" required />
+            <Input value={workoutName} onChange={e => setWorkoutName(e.target.value)} placeholder="ex: Push Day..." className="bg-background/50 border-white/10 text-base text-white" required />
           </div>
           <div className="space-y-2">
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Durată (minute)</Label>
-            <Input type="number" value={duration} onChange={e => setDuration(e.target.value)} placeholder="60" className="bg-background/50 border-white/10 text-base" />
+            <Input type="number" value={duration} onChange={e => setDuration(e.target.value)} placeholder="60" className="bg-background/50 border-white/10 text-base text-white" />
           </div>
         </div>
 
@@ -199,7 +199,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                     value={ex.name} 
                     onChange={e => updateExerciseField(ex.id, 'name', e.target.value)} 
                     placeholder="Nume exercițiu..." 
-                    className="bg-transparent border-none p-0 text-lg font-bold placeholder:opacity-30 focus-visible:ring-0 text-base flex-1" 
+                    className="bg-transparent border-none p-0 text-lg font-bold placeholder:opacity-30 focus-visible:ring-0 text-white flex-1" 
                   />
                   {isAdmin && (
                     <Button 
@@ -231,7 +231,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                           value={ex.videoUrl} 
                           onChange={e => updateExerciseField(ex.id, 'videoUrl', e.target.value)} 
                           placeholder="https://..." 
-                          className="h-8 text-xs bg-background/50"
+                          className="h-8 text-xs bg-background/50 text-white"
                         />
                       </div>
                       <div className="space-y-1">
@@ -240,7 +240,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                           value={ex.imageUrl} 
                           onChange={e => updateExerciseField(ex.id, 'imageUrl', e.target.value)} 
                           placeholder="https://..." 
-                          className="h-8 text-xs bg-background/50"
+                          className="h-8 text-xs bg-background/50 text-white"
                         />
                       </div>
                     </motion.div>
@@ -248,15 +248,14 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                 </AnimatePresence>
 
                 <div className="space-y-2">
-                  {/* Column Headers for clarity */}
                   {ex.sets.length > 0 && (
                     <div className="flex items-center gap-2 mb-1 px-1">
-                      <span className="w-4" /> {/* spacer for index */}
+                      <span className="w-4" />
                       <div className="flex-1 grid grid-cols-2 gap-2">
                         <span className="text-[9px] uppercase font-bold text-muted-foreground text-center">Greutate (kg)</span>
                         <span className="text-[9px] uppercase font-bold text-muted-foreground text-center">Repetări</span>
                       </div>
-                      <span className="w-10" /> {/* spacer for delete icon */}
+                      <span className="w-10" />
                     </div>
                   )}
 
@@ -270,14 +269,14 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                           defaultValue={set.weight} 
                           onBlur={e => updateSet(ex.id, setIdx, 'weight', e.target.value)} 
                           placeholder="kg" 
-                          className="h-12 bg-background/50 border-white/5 text-base text-center" 
+                          className="h-12 bg-background/50 border-white/5 text-base text-center text-white" 
                         />
                         <Input 
                           type="number" 
                           defaultValue={set.reps} 
                           onBlur={e => updateSet(ex.id, setIdx, 'reps', e.target.value)} 
                           placeholder="reps" 
-                          className="h-12 bg-background/50 border-white/5 text-base text-center" 
+                          className="h-12 bg-background/50 border-white/5 text-base text-center text-white" 
                         />
                       </div>
                       <Button type="button" variant="ghost" size="icon" onClick={() => removeSet(ex.id, setIdx)} className="h-10 w-10 opacity-30 hover:opacity-100 hover:text-destructive">
@@ -302,7 +301,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
 
         <div className="space-y-2">
           <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Note Sesiune</Label>
-          <Textarea value={notes} onChange={e => setNotes(e.target.value)} className="bg-background/50 border-white/10 h-24 text-base" placeholder="Cum a fost?" />
+          <Textarea value={notes} onChange={e => setNotes(e.target.value)} className="bg-background/50 border-white/10 h-24 text-base text-white" placeholder="Cum a fost?" />
         </div>
 
         <Button type="submit" disabled={isSubmitting} className="w-full h-14 bg-gradient-primary text-primary-foreground font-bold uppercase tracking-widest text-base shadow-lg shadow-primary/20">
