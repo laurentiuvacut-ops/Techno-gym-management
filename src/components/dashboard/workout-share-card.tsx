@@ -44,76 +44,116 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
 
       ctx.textAlign = 'center';
 
-      // 3. LOGO SUPERIOR (Text pentru simetrie stil Strava)
+      // 3. LOGO SUPERIOR (Stil Strava)
       ctx.font = '400 42px "Bebas Neue", Impact, sans-serif';
-      const topLogoX = 540;
-      const topLogoY = 180;
-      
       const technoW = ctx.measureText('TECHNO').width;
       const gymW = ctx.measureText(' GYM').width;
       const totalTopW = technoW + gymW;
       
       ctx.textAlign = 'left';
       ctx.fillStyle = '#00FFFF';
-      ctx.fillText('TECHNO', 540 - totalTopW / 2, topLogoY);
+      ctx.fillText('TECHNO', 540 - totalTopW / 2, 180);
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(' GYM', 540 - totalTopW / 2 + technoW, topLogoY);
+      ctx.fillText(' GYM', 540 - totalTopW / 2 + technoW, 180);
 
-      // 4. NUME ANTRENAMENT (CENTRAL)
+      // 4. ELEMENT CENTRAL (EMOJI sau NUME)
       ctx.textAlign = 'center';
-      ctx.font = '400 110px "Bebas Neue", Impact, sans-serif';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(log.name.toUpperCase(), 540, 520);
+      
+      if (log.isQuickLog) {
+        // Stil "Watch" - Emoticon mare central
+        const emojiMap: Record<string, string> = {
+          'Cardio': '🏃',
+          'Strength Training': '🏋️',
+          'HIIT': '🤸',
+          'ABS': '🧘'
+        };
+        const emoji = emojiMap[log.activityType || 'Strength Training'] || '🏋️';
+        
+        ctx.font = '180px "Inter", sans-serif';
+        ctx.fillText(emoji, 540, 550);
 
-      // Linie separatoare subtilă
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(440, 580);
-      ctx.lineTo(640, 580);
-      ctx.stroke();
+        // Activitate sub emoji
+        ctx.font = '400 80px "Bebas Neue", Impact, sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(log.activityType?.toUpperCase() || 'FITNESS', 540, 700);
 
-      // 5. DATA
-      ctx.font = '400 32px "Inter", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
-      ctx.fillText(dateStr.charAt(0).toUpperCase() + dateStr.slice(1), 540, 640);
+        // Statistici mari stil Strava sub activitate
+        ctx.font = '400 32px "Inter", sans-serif';
+        ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
+        ctx.fillText('DURATĂ', 540, 850);
+        
+        ctx.font = '400 120px "Bebas Neue", Impact, sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(`${log.duration} MIN`, 540, 970);
 
-      // 6. LISTA EXERCITII (Focus pe ultimul set)
-      let currentY = 820;
-      const exercisesToShow = log.exercises?.slice(0, 7) || [];
+        ctx.font = '400 32px "Inter", sans-serif';
+        ctx.fillStyle = 'rgba(255, 120, 0, 0.8)'; // Portocaliu pentru calorii
+        ctx.fillText('CALORII ARSE', 540, 1100);
+        
+        ctx.font = '400 120px "Bebas Neue", Impact, sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(`${log.calories || 0} KCAL`, 540, 1220);
 
-      exercisesToShow.forEach((ex) => {
-          // Nume Exercitiu
-          ctx.font = '600 42px "Inter", sans-serif';
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillText(ex.name, 540, currentY);
-          
-          // DOAR ULTIMUL SET
-          const lastSet = ex.sets && ex.sets.length > 0 ? ex.sets[ex.sets.length - 1] : null;
-          const setsStr = lastSet ? `${lastSet.weight}kg × ${lastSet.reps}` : '';
-          
-          ctx.font = '500 28px "Inter", sans-serif';
-          ctx.fillStyle = 'rgba(0, 255, 255, 0.9)';
-          ctx.fillText(setsStr, 540, currentY + 55);
-          
-          currentY += 140;
-      });
+      } else {
+        // Stil detaliat - Nume Antrenament + Exerciții
+        ctx.font = '400 110px "Bebas Neue", Impact, sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(log.name.toUpperCase(), 540, 520);
 
-      if ((log.exercises?.length || 0) > 7) {
-          ctx.font = 'italic 26px "Inter", sans-serif';
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-          ctx.fillText(`+ încă ${log.exercises.length - 7} exerciții`, 540, currentY);
+        // Linie separatoare subtilă
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(440, 580);
+        ctx.lineTo(640, 580);
+        ctx.stroke();
+
+        // Data
+        ctx.font = '400 32px "Inter", sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
+        ctx.fillText(dateStr.charAt(0).toUpperCase() + dateStr.slice(1), 540, 640);
+
+        // LISTA EXERCITII (Doar ultimul set)
+        let currentY = 820;
+        const exercisesToShow = log.exercises?.slice(0, 7) || [];
+
+        exercisesToShow.forEach((ex) => {
+            ctx.font = '600 42px "Inter", sans-serif';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText(ex.name, 540, currentY);
+            
+            const lastSet = ex.sets && ex.sets.length > 0 ? ex.sets[ex.sets.length - 1] : null;
+            const setsStr = lastSet ? `${lastSet.weight}kg × ${lastSet.reps}` : '';
+            
+            ctx.font = '500 28px "Inter", sans-serif';
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.9)';
+            ctx.fillText(setsStr, 540, currentY + 55);
+            
+            currentY += 140;
+        });
+
+        if ((log.exercises?.length || 0) > 7) {
+            ctx.font = 'italic 26px "Inter", sans-serif';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.fillText(`+ încă ${log.exercises.length - 7} exerciții`, 540, currentY);
+        }
       }
 
-      // 7. BRANDING JOS CU LOGO IMAGINE
+      // 5. DATA (Pentru Quick Log, o mutăm mai jos)
+      if (log.isQuickLog) {
+        ctx.font = '400 32px "Inter", sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
+        ctx.fillText(dateStr.charAt(0).toUpperCase() + dateStr.slice(1), 540, 1350);
+      }
+
+      // 6. BRANDING JOS CU LOGO IMAGINE
       const logoSize = 100;
       const logoY = 1750;
       
-      // Desenăm imaginea logo
       ctx.drawImage(logoImg, 540 - logoSize / 2, logoY - 120, logoSize, logoSize);
       
-      // Text branding sub logo
       ctx.font = '400 48px "Bebas Neue", Impact, sans-serif';
       const bottomTextY = logoY + 20;
       
@@ -127,7 +167,6 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
       ctx.fillStyle = '#FFFFFF';
       ctx.fillText(' GYM', 540 - totalBottomW / 2 + bTechnoW, bottomTextY);
 
-      // Finalizare imagine
       setImageUri(canvas.toDataURL('image/png'));
     };
   }, [log]);
@@ -187,7 +226,6 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
 
         <div className="p-6 pt-2 space-y-6">
             <div className="relative aspect-[9/16] w-full rounded-3xl overflow-hidden group shadow-inner">
-                {/* Fundal simulat */}
                 <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
                 <div className="absolute inset-0 flex items-center justify-center">
                     <p className="text-white/5 font-headline text-4xl uppercase tracking-tighter text-center px-10 leading-none">

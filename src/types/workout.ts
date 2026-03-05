@@ -19,6 +19,10 @@ export interface WorkoutLog {
   exercises: WorkoutExercise[];
   createdAt?: any; // Firestore Timestamp
   updatedAt?: any;
+  // Date pentru Quick Log (Ceas)
+  isQuickLog?: boolean;
+  activityType?: 'Cardio' | 'Strength Training' | 'HIIT' | 'ABS';
+  calories?: number;
 }
 
 export interface SharedWorkout {

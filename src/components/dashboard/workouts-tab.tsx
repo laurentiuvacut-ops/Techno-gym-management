@@ -6,7 +6,7 @@ import { collection, query, orderBy, limit, deleteDoc, doc, addDoc, serverTimest
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Edit2, Copy, Share2, Users, CheckSquare, Square, ArrowLeft, X, ShieldCheck, Video, Play } from 'lucide-react';
+import { Dumbbell, Plus, Trash2, ChevronDown, ChevronUp, Edit2, Copy, Share2, Users, CheckSquare, Square, ArrowLeft, X, ShieldCheck, Video, Play, Watch, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,6 +32,7 @@ export default function WorkoutsTab() {
   
   const [activeSubTab, setActiveSubTab] = useState<'my-logs' | 'community'>('my-logs');
   const [showForm, setShowForm] = useState(false);
+  const [isQuickLogMode, setIsQuickLogMode] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [initialFormData, setInitialFormData] = useState<WorkoutLog | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -82,11 +83,13 @@ export default function WorkoutsTab() {
     setInitialFormData(null);
     setEditingId(null);
     setShowForm(false);
+    setIsQuickLogMode(false);
   }, []);
 
   const handleEditLog = useCallback((log: WorkoutLog) => {
     setInitialFormData(log);
     setEditingId(log.id);
+    setIsQuickLogMode(!!log.isQuickLog);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
@@ -94,9 +97,10 @@ export default function WorkoutsTab() {
   const handleRepeatLog = useCallback((log: WorkoutLog) => {
     setInitialFormData(log);
     setEditingId(null);
+    setIsQuickLogMode(!!log.isQuickLog);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    toast({ title: "Șablon încărcat", description: "Modifică greutățile pentru azi." });
+    toast({ title: "Șablon încărcat", description: "Modifică datele pentru azi." });
   }, [toast]);
 
   const handleDeleteLog = useCallback(async (e: React.MouseEvent, id: string) => {
@@ -149,12 +153,15 @@ export default function WorkoutsTab() {
           name: w.name,
           duration: w.duration,
           notes: w.notes,
-          exercises: w.exercises.map(ex => ({
+          isQuickLog: w.isQuickLog || false,
+          activityType: w.activityType || null,
+          calories: w.calories || null,
+          exercises: w.exercises?.map(ex => ({
             name: ex.name,
             videoUrl: ex.videoUrl || '',
             imageUrl: ex.imageUrl || '',
             sets: ex.sets
-          }))
+          })) || []
         }))
       });
       toast({ title: "Publicat!", description: "Antrenamentele tale sunt acum în comunitate.", className: "bg-success text-success-foreground" });
@@ -249,10 +256,16 @@ export default function WorkoutsTab() {
           <div className="flex flex-col gap-4 bg-white/5 p-4 rounded-2xl">
             <div className="flex flex-wrap gap-2">
               <Button 
-                onClick={() => { if(showForm) resetForm(); else setShowForm(true); }} 
+                onClick={() => { if(showForm && !isQuickLogMode) resetForm(); else { setIsQuickLogMode(false); setShowForm(true); } }} 
                 className="glow-primary rounded-xl h-10 px-4 font-bold uppercase tracking-wider text-xs"
               >
-                {showForm ? <><X className="mr-2 h-4 w-4" /> Anulează</> : <><Plus className="mr-2 h-4 w-4" /> Nou</>}
+                {showForm && !isQuickLogMode ? <><X className="mr-2 h-4 w-4" /> Anulează</> : <><Plus className="mr-2 h-4 w-4" /> Nou</>}
+              </Button>
+              <Button 
+                onClick={() => { if(showForm && isQuickLogMode) resetForm(); else { setIsQuickLogMode(true); setShowForm(true); } }} 
+                className="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 border border-cyan-500/30 rounded-xl h-10 px-4 font-bold uppercase tracking-wider text-xs"
+              >
+                {showForm && isQuickLogMode ? <><X className="mr-2 h-4 w-4" /> Anulează</> : <><Watch className="mr-2 h-4 w-4" /> Date Ceas</>}
               </Button>
               <Button 
                 variant="outline"
@@ -296,10 +309,11 @@ export default function WorkoutsTab() {
           <AnimatePresence>
             {showForm && (
               <WorkoutForm 
-                key={editingId || 'new'}
+                key={editingId || (isQuickLogMode ? 'quick' : 'new')}
                 logsRef={logsRef} 
                 initialData={initialFormData || undefined} 
                 editingId={editingId} 
+                isQuick={isQuickLogMode}
                 onCancel={resetForm} 
                 onSaved={resetForm} 
               />
@@ -309,6 +323,7 @@ export default function WorkoutsTab() {
           <div className="space-y-4">
             {logs && logs.length > 0 ? (
               logs.map((log) => {
+                const isQuick = !!log.isQuickLog;
                 const totalVolume = log.exercises?.reduce((sum: number, ex: any) => 
                   sum + (ex.sets?.reduce((sSum: number, s: any) => 
                     sSum + ((parseFloat(s.weight) || 0) * (parseInt(s.reps) || 0)), 0) || 0), 0) || 0;
@@ -331,15 +346,24 @@ export default function WorkoutsTab() {
                         <div className="flex items-center justify-between gap-4">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <h3 className="text-lg font-bold leading-none">{log.name}</h3>
-                              <span className="text-[10px] py-0.5 px-2 bg-primary/20 text-primary rounded-full font-bold uppercase tracking-wider">{totalVolume} KG Volum</span>
+                              <h3 className="text-lg font-bold leading-none flex items-center gap-2">
+                                {isQuick && <Watch className="w-4 h-4 text-cyan-400" />}
+                                {log.name}
+                              </h3>
+                              {isQuick ? (
+                                <span className="text-[10px] py-0.5 px-2 bg-cyan-500/20 text-cyan-400 rounded-full font-bold uppercase tracking-wider">{log.calories} KCAL</span>
+                              ) : (
+                                <span className="text-[10px] py-0.5 px-2 bg-primary/20 text-primary rounded-full font-bold uppercase tracking-wider">{totalVolume} KG Volum</span>
+                              )}
                             </div>
                             <p className="text-xs text-muted-foreground">{format(new Date(log.date), 'EEEE, dd MMMM', { locale: ro })}</p>
                           </div>
                           <div className="flex items-center gap-4">
                              <div className="hidden md:flex flex-col items-end text-[10px] uppercase font-bold text-muted-foreground">
                                 <div>{log.duration} min</div>
-                                <div className="text-primary">{log.exercises?.length || 0} Exerciții</div>
+                                <div className={isQuick ? "text-cyan-400" : "text-primary"}>
+                                  {isQuick ? log.activityType : `${log.exercises?.length || 0} Exerciții`}
+                                </div>
                              </div>
                              {isExpanded ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
                           </div>
@@ -363,33 +387,53 @@ export default function WorkoutsTab() {
                                   <Share2 className="h-4 w-4 mr-2" /> Story
                                 </Button>
                             </div>
+                            
                             {log.notes && <div className="p-4 bg-primary/5 border-l-4 border-primary rounded-r-xl text-sm italic opacity-80 leading-relaxed">"{log.notes}"</div>}
-                            <div className="space-y-6">
-                              {log.exercises?.map((ex: any, i: number) => (
-                                <div key={i} className="space-y-2">
-                                  <div className="flex items-center gap-3">
-                                    <h4 className="font-bold text-primary text-sm uppercase tracking-wide">{ex.name}</h4>
-                                    {ex.videoUrl && (
-                                      <button 
-                                        onClick={() => openVideo(ex.videoUrl, ex.name)}
-                                        className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3 py-1 rounded-full hover:opacity-90 transition-all shadow-md active:scale-95"
-                                      >
-                                        <Video className="w-3.5 h-3.5" />
-                                        <span className="text-[10px] font-black uppercase tracking-wider">Tutorial Video</span>
-                                      </button>
-                                    )}
-                                  </div>
-                                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                                    {ex.sets?.map((s: any, j: number) => (
-                                      <div key={j} className="p-2 rounded-xl bg-white/5 border border-white/5 text-center">
-                                        <span className="text-[9px] text-muted-foreground block uppercase">Set {j + 1}</span>
-                                        <span className="text-xs font-bold">{s.weight}kg × {s.reps}</span>
-                                      </div>
-                                    ))}
-                                  </div>
+                            
+                            {isQuick ? (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                <div className="p-4 rounded-2xl bg-cyan-500/5 border border-cyan-500/10 text-center">
+                                  <span className="text-[10px] text-cyan-400 block uppercase font-bold mb-1">Durată</span>
+                                  <span className="text-2xl font-headline text-white">{log.duration} MIN</span>
                                 </div>
-                              ))}
-                            </div>
+                                <div className="p-4 rounded-2xl bg-orange-500/5 border border-orange-500/10 text-center">
+                                  <span className="text-[10px] text-orange-400 block uppercase font-bold mb-1">Calorii</span>
+                                  <span className="text-2xl font-headline text-white">{log.calories} KCAL</span>
+                                </div>
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center">
+                                  <span className="text-[10px] text-white/50 block uppercase font-bold mb-1">Activitate</span>
+                                  <span className="text-xl font-headline text-white uppercase">{log.activityType}</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-6">
+                                {log.exercises?.map((ex: any, i: number) => (
+                                  <div key={i} className="space-y-2">
+                                    <div className="flex items-center gap-3">
+                                      <h4 className="font-bold text-primary text-sm uppercase tracking-wide">{ex.name}</h4>
+                                      {ex.videoUrl && (
+                                        <button 
+                                          onClick={() => openVideo(ex.videoUrl, ex.name)}
+                                          className="flex items-center gap-1.5 bg-primary text-primary-foreground px-3 py-1 rounded-full hover:opacity-90 transition-all shadow-md active:scale-95"
+                                        >
+                                          <Video className="w-3.5 h-3.5" />
+                                          <span className="text-[10px] font-black uppercase tracking-wider">Tutorial Video</span>
+                                        </button>
+                                      )}
+                                    </div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                                      {ex.sets?.map((s: any, j: number) => (
+                                        <div key={j} className="p-2 rounded-xl bg-white/5 border border-white/5 text-center">
+                                          <span className="text-[9px] text-muted-foreground block uppercase">Set {j + 1}</span>
+                                          <span className="text-xs font-bold">{s.weight}kg × {s.reps}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
                             <div className="pt-4 flex justify-end">
                               <Button variant="ghost" size="sm" onClick={(e) => handleDeleteLog(e, log.id)} className="text-destructive/60 hover:text-destructive h-8 px-3 text-[10px] uppercase font-bold tracking-widest"><Trash2 className="h-4 w-4 mr-2" /> Șterge</Button>
                             </div>
