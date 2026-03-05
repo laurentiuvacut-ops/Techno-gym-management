@@ -174,23 +174,23 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Nume Antrenament</Label>
+            <Label className="text-[10px] uppercase tracking-widest text-white/70">Nume Antrenament</Label>
             <Input 
               value={workoutName} 
               onChange={e => setWorkoutName(e.target.value)} 
               placeholder="ex: Push Day..." 
-              className="bg-background/50 border-white/10 text-base text-white placeholder:text-white/40" 
+              className="bg-background/50 border-white/10 text-base text-white placeholder:text-white/60" 
               required 
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Durată (minute)</Label>
+            <Label className="text-[10px] uppercase tracking-widest text-white/70">Durată (minute)</Label>
             <Input 
               type="number" 
               value={duration} 
               onChange={e => setDuration(e.target.value)} 
               placeholder="60" 
-              className="bg-background/50 border-white/10 text-base text-white placeholder:text-white/40" 
+              className="bg-background/50 border-white/10 text-base text-white placeholder:text-white/60" 
             />
           </div>
         </div>
@@ -211,7 +211,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                     value={ex.name} 
                     onChange={e => updateExerciseField(ex.id, 'name', e.target.value)} 
                     placeholder="Nume exercițiu..." 
-                    className="bg-transparent border-none p-0 text-lg font-bold placeholder:text-white/30 focus-visible:ring-0 text-white flex-1" 
+                    className="bg-transparent border-none p-0 text-lg font-bold placeholder:text-white/50 focus-visible:ring-0 text-white flex-1" 
                   />
                   {isAdmin && (
                     <Button 
@@ -219,7 +219,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                       variant="ghost" 
                       size="icon" 
                       onClick={() => updateExerciseField(ex.id, 'showMediaInputs', !ex.showMediaInputs)}
-                      className={ex.showMediaInputs ? "text-primary" : "text-muted-foreground opacity-50"}
+                      className={ex.showMediaInputs ? "text-primary" : "text-white/40"}
                     >
                       <Video className="h-4 w-4" />
                     </Button>
@@ -238,21 +238,21 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                       className="grid grid-cols-1 gap-2 p-3 bg-black/20 rounded-xl border border-white/5 overflow-hidden"
                     >
                       <div className="space-y-1">
-                        <Label className="text-[9px] uppercase text-muted-foreground flex items-center gap-1"><Video className="w-3 h-3" /> URL Video (YouTube/Vimeo)</Label>
+                        <Label className="text-[9px] uppercase text-white/60 flex items-center gap-1"><Video className="w-3 h-3" /> URL Video (YouTube/Vimeo)</Label>
                         <Input 
                           value={ex.videoUrl} 
                           onChange={e => updateExerciseField(ex.id, 'videoUrl', e.target.value)} 
                           placeholder="https://..." 
-                          className="h-8 text-xs bg-background/50 text-white placeholder:text-white/40"
+                          className="h-8 text-xs bg-background/50 text-white placeholder:text-white/50"
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-[9px] uppercase text-muted-foreground flex items-center gap-1"><ImageIcon className="w-3 h-3" /> URL Poză Tutorial</Label>
+                        <Label className="text-[9px] uppercase text-white/60 flex items-center gap-1"><ImageIcon className="w-3 h-3" /> URL Poză Tutorial</Label>
                         <Input 
                           value={ex.imageUrl} 
                           onChange={e => updateExerciseField(ex.id, 'imageUrl', e.target.value)} 
                           placeholder="https://..." 
-                          className="h-8 text-xs bg-background/50 text-white placeholder:text-white/40"
+                          className="h-8 text-xs bg-background/50 text-white placeholder:text-white/50"
                         />
                       </div>
                     </motion.div>
@@ -264,8 +264,8 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                     <div className="flex items-center gap-2 mb-1 px-1">
                       <span className="w-4" />
                       <div className="flex-1 grid grid-cols-2 gap-2">
-                        <span className="text-[9px] uppercase font-bold text-muted-foreground text-center">Greutate (kg)</span>
-                        <span className="text-[9px] uppercase font-bold text-muted-foreground text-center">Repetări</span>
+                        <span className="text-[9px] uppercase font-bold text-white/60 text-center">Greutate (kg)</span>
+                        <span className="text-[9px] uppercase font-bold text-white/60 text-center">Repetări</span>
                       </div>
                       <span className="w-10" />
                     </div>
@@ -273,7 +273,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
 
                   {ex.sets.map((set, setIdx) => (
                     <div key={setIdx} className="flex items-center gap-2">
-                      <span className="text-[10px] text-muted-foreground w-4">{setIdx + 1}</span>
+                      <span className="text-[10px] text-white/50 w-4">{setIdx + 1}</span>
                       <div className="flex-1 grid grid-cols-2 gap-2">
                         <Input 
                           type="number" 
@@ -281,14 +281,14 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                           defaultValue={set.weight} 
                           onBlur={e => updateSet(ex.id, setIdx, 'weight', e.target.value)} 
                           placeholder="kg" 
-                          className="h-12 bg-background/50 border-white/5 text-base text-center text-white placeholder:text-white/40" 
+                          className="h-12 bg-background/50 border-white/5 text-base text-center text-white placeholder:text-white/60" 
                         />
                         <Input 
                           type="number" 
                           defaultValue={set.reps} 
                           onBlur={e => updateSet(ex.id, setIdx, 'reps', e.target.value)} 
                           placeholder="reps" 
-                          className="h-12 bg-background/50 border-white/5 text-base text-center text-white placeholder:text-white/40" 
+                          className="h-12 bg-background/50 border-white/5 text-base text-center text-white placeholder:text-white/60" 
                         />
                       </div>
                       <Button type="button" variant="ghost" size="icon" onClick={() => removeSet(ex.id, setIdx)} className="h-10 w-10 opacity-30 hover:opacity-100 hover:text-destructive">
@@ -301,7 +301,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
                     variant="ghost" 
                     size="sm" 
                     onClick={() => addSet(ex.id)} 
-                    className="w-full h-10 text-[10px] uppercase tracking-wider text-muted-foreground hover:bg-white/5 border border-dashed border-white/10 mt-2"
+                    className="w-full h-10 text-[10px] uppercase tracking-wider text-white/60 hover:bg-white/5 border border-dashed border-white/10 mt-2"
                   >
                     + Adaugă Set
                   </Button>
@@ -312,12 +312,12 @@ export default function WorkoutForm({ logsRef, initialData, editingId, onCancel,
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Note Sesiune</Label>
+          <Label className="text-[10px] uppercase tracking-widest text-white/70">Note Sesiune</Label>
           <Textarea 
             value={notes} 
             onChange={e => setNotes(e.target.value)} 
-            className="bg-background/50 border-white/10 h-24 text-base text-white placeholder:text-white/40" 
-            placeholder="Cum a fost?" 
+            className="bg-background/50 border-white/10 h-24 text-base text-white placeholder:text-white/60" 
+            placeholder="Cum a fost antrenamentul azi?" 
           />
         </div>
 
