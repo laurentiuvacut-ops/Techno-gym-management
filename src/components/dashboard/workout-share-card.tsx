@@ -27,141 +27,175 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
     const W = 1080;
     const H = 1920;
 
-    // Încărcăm logo-ul înainte de a desena
+    // Încărcăm logo-ul pentru watermark-ul de jos
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
     logoImg.src = "https://i.imgur.com/9W1ye1w.png";
 
     logoImg.onload = () => {
-      // 1. CLEAR — Fundal complet transparent
+      // 1. CLEAR — Fundal 100% transparent
       ctx.clearRect(0, 0, W, H);
 
-      // 2. SHADOW SETTINGS — Pentru vizibilitate maximă pe orice poză
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-      ctx.shadowBlur = 25;
+      // 2. SHADOW SETTINGS — Drop shadow consistent pe tot textul
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+      ctx.shadowBlur = 15;
       ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 6;
+      ctx.shadowOffsetY = 3;
 
       ctx.textAlign = 'center';
 
-      // 3. LOGO SUPERIOR (Stil Strava)
-      ctx.font = '400 42px "Bebas Neue", Impact, sans-serif';
-      const technoW = ctx.measureText('TECHNO').width;
-      const gymW = ctx.measureText(' GYM').width;
-      const totalTopW = technoW + gymW;
+      // 3. Calcule date
+      const totalVolume = log.exercises?.reduce((sum, ex) => 
+        sum + (ex.sets?.reduce((sSum, s) => sSum + ((s.weight || 0) * (s.reps || 0)), 0) || 0), 0) || 0;
+      const volStr = totalVolume >= 1000 
+        ? `${(totalVolume / 1000).toFixed(1)}K KG` 
+        : `${totalVolume} KG`;
       
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#00FFFF';
-      ctx.fillText('TECHNO', 540 - totalTopW / 2, 180);
+      const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
+      const formattedDate = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+
+      // 4. HEADER: Nume Antrenament & Dată (Sus)
+      // Y = 280 -> Nume (80px)
+      ctx.font = '400 80px "Bebas Neue", Impact, sans-serif';
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(' GYM', 540 - totalTopW / 2 + technoW, 180);
+      ctx.fillText(log.name.toUpperCase(), 540, 280);
 
-      // 4. ELEMENTE CENTRALE
-      ctx.textAlign = 'center';
+      // Y = 340 -> Data (26px)
+      ctx.font = '400 26px "Inter", sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillText(formattedDate, 540, 340);
+
+      // 5. STATISTICI (Zona Centrală)
       
+      // --- STAT 1: DURATĂ ---
+      // Y = 520 -> Label (28px, cyan)
+      ctx.font = '600 28px "Inter", sans-serif';
+      ctx.fillStyle = '#00FFFF';
+      // @ts-ignore - letterSpacing is supported in modern canvas but TS might complain
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
+      ctx.fillText('DURATĂ', 540, 520);
+
+      // Y = 610 -> Valoare (90px, alb)
+      ctx.font = '400 90px "Bebas Neue", Impact, sans-serif';
+      ctx.fillStyle = '#FFFFFF';
+      // @ts-ignore
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+      ctx.fillText(`${log.duration} MIN`, 540, 610);
+
+      // --- STAT 2: VOLUM / CALORII ---
       if (log.isQuickLog) {
-        // Stil "Watch" FĂRĂ EMOJI - Text foarte mare
-        
-        // Tip Activitate
-        ctx.font = '400 100px "Bebas Neue", Impact, sans-serif';
+        // Label CALORII
+        ctx.font = '600 28px "Inter", sans-serif';
+        ctx.fillStyle = '#00FFFF';
+        // @ts-ignore
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
+        ctx.fillText('CALORII ARSE', 540, 740);
+
+        // Valoare CALORII
+        ctx.font = '400 90px "Bebas Neue", Impact, sans-serif';
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(log.activityType?.toUpperCase() || 'FITNESS', 540, 500);
+        // @ts-ignore
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+        ctx.fillText(`${log.calories || 0} KCAL`, 540, 830);
 
-        // DURATĂ
-        ctx.font = '500 40px "Inter", sans-serif';
-        ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
-        ctx.fillText('DURATĂ', 540, 650);
-        
-        ctx.font = '400 220px "Bebas Neue", Impact, sans-serif';
+        // Label ACTIVITATE
+        ctx.font = '600 28px "Inter", sans-serif';
+        ctx.fillStyle = '#00FFFF';
+        // @ts-ignore
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
+        ctx.fillText('ACTIVITATE', 540, 960);
+
+        // Valoare ACTIVITATE
+        ctx.font = '400 90px "Bebas Neue", Impact, sans-serif';
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(`${log.duration} MIN`, 540, 850);
-
-        // CALORII
-        ctx.font = '500 40px "Inter", sans-serif';
-        ctx.fillStyle = 'rgba(255, 120, 0, 0.8)';
-        ctx.fillText('CALORII ARSE', 540, 1000);
-        
-        ctx.font = '400 220px "Bebas Neue", Impact, sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(`${log.calories || 0} KCAL`, 540, 1200);
-
-        // DATA (Mărită)
-        ctx.font = '400 52px "Inter", sans-serif';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
-        ctx.fillText(dateStr.charAt(0).toUpperCase() + dateStr.slice(1), 540, 1450);
-
+        // @ts-ignore
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+        ctx.fillText(log.activityType?.toUpperCase() || 'FITNESS', 540, 1050);
       } else {
-        // Stil detaliat - Nume Antrenament + Exerciții
-        ctx.font = '400 110px "Bebas Neue", Impact, sans-serif';
+        // Label VOLUM
+        ctx.font = '600 28px "Inter", sans-serif';
+        ctx.fillStyle = '#00FFFF';
+        // @ts-ignore
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
+        ctx.fillText('VOLUM', 540, 740);
+
+        // Valoare VOLUM
+        ctx.font = '400 90px "Bebas Neue", Impact, sans-serif';
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(log.name.toUpperCase(), 540, 520);
+        // @ts-ignore
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+        ctx.fillText(volStr, 540, 830);
 
-        // Linie separatoare subtilă
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(440, 580);
-        ctx.lineTo(640, 580);
-        ctx.stroke();
+        // Label EXERCIȚII
+        ctx.font = '600 28px "Inter", sans-serif';
+        ctx.fillStyle = '#00FFFF';
+        // @ts-ignore
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
+        ctx.fillText('EXERCIȚII', 540, 960);
 
-        // Data
-        ctx.font = '400 32px "Inter", sans-serif';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
-        ctx.fillText(dateStr.charAt(0).toUpperCase() + dateStr.slice(1), 540, 640);
-
-        // LISTA EXERCITII (Doar ultimul set)
-        let currentY = 820;
-        const exercisesToShow = log.exercises?.slice(0, 7) || [];
-
-        exercisesToShow.forEach((ex) => {
-            ctx.font = '600 42px "Inter", sans-serif';
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillText(ex.name, 540, currentY);
-            
-            const lastSet = ex.sets && ex.sets.length > 0 ? ex.sets[ex.sets.length - 1] : null;
-            const setsStr = lastSet ? `${lastSet.weight}kg × ${lastSet.reps}` : '';
-            
-            ctx.font = '500 28px "Inter", sans-serif';
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.9)';
-            ctx.fillText(setsStr, 540, currentY + 55);
-            
-            currentY += 140;
-        });
-
-        if ((log.exercises?.length || 0) > 7) {
-            ctx.font = 'italic 26px "Inter", sans-serif';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.fillText(`+ încă ${log.exercises.length - 7} exerciții`, 540, currentY);
-        }
+        // Valoare EXERCIȚII
+        ctx.font = '400 90px "Bebas Neue", Impact, sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        // @ts-ignore
+        if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+        ctx.fillText(`${log.exercises?.length || 0}`, 540, 1050);
       }
 
-      // 5. BRANDING JOS CU LOGO IMAGINE
-      const logoSize = 100;
-      const logoY = 1750;
-      
-      ctx.drawImage(logoImg, 540 - logoSize / 2, logoY - 120, logoSize, logoSize);
-      
-      ctx.font = '400 48px "Bebas Neue", Impact, sans-serif';
-      const bottomTextY = logoY + 20;
-      
-      const bTechnoW = ctx.measureText('TECHNO').width;
-      const bGymW = ctx.measureText(' GYM').width;
-      const totalBottomW = bTechnoW + bGymW;
+      // 6. SEPARATOR SUBTIL
+      // Y = 1150
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(440, 1150);
+      ctx.lineTo(640, 1150);
+      ctx.stroke();
+
+      // 7. BEST EXERCISE (Optional)
+      // Y = 1220
+      if (!log.isQuickLog && log.exercises && log.exercises.length > 0) {
+        let bestEx = log.exercises[0];
+        let maxLoad = 0;
+        log.exercises.forEach(ex => {
+          ex.sets.forEach(s => {
+            if (s.weight > maxLoad) {
+              maxLoad = s.weight;
+              bestEx = ex;
+            }
+          });
+        });
+        const lastSet = bestEx.sets[bestEx.sets.length - 1];
+        const bestStr = `${bestEx.name} · ${lastSet.weight}kg × ${lastSet.reps}`;
+        
+        ctx.font = '400 24px "Inter", sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.fillText(bestStr, 540, 1220);
+      }
+
+      // 8. WATERMARK LOGO (Jos)
+      // Y = 1650 -> Icon
+      const logoIconSize = 120;
+      ctx.drawImage(logoImg, 540 - logoIconSize / 2, 1650 - logoIconSize / 2, logoIconSize, logoIconSize);
+
+      // Y = 1720 -> Brand Text (44px)
+      ctx.font = '400 44px "Bebas Neue", Impact, sans-serif';
+      const techText = 'TECHNO';
+      const gymText = ' GYM';
+      const totalLogoW = ctx.measureText(techText + gymText).width;
       
       ctx.textAlign = 'left';
+      const logoStartX = 540 - totalLogoW / 2;
       ctx.fillStyle = '#00FFFF';
-      ctx.fillText('TECHNO', 540 - totalBottomW / 2, bottomTextY);
+      ctx.fillText(techText, logoStartX, 1720);
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(' GYM', 540 - totalBottomW / 2 + bTechnoW, bottomTextY);
+      ctx.fillText(gymText, logoStartX + ctx.measureText(techText).width, 1720);
 
       setImageUri(canvas.toDataURL('image/png'));
     };
   }, [log]);
 
   useEffect(() => {
-    const timer = setTimeout(generateImage, 500);
+    // Delay pentru a asigura încărcarea fonturilor
+    const timer = setTimeout(generateImage, 800);
     return () => clearTimeout(timer);
   }, [generateImage]);
 
@@ -215,7 +249,8 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
 
         <div className="p-6 pt-2 space-y-6">
             <div className="relative aspect-[9/16] w-full rounded-3xl overflow-hidden group shadow-inner">
-                <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
+                {/* Simulated photo background for preview */}
+                <div className="absolute inset-0 bg-gradient-to-br from-zinc-700 via-zinc-800 to-black" />
                 <div className="absolute inset-0 flex items-center justify-center">
                     <p className="text-white/5 font-headline text-4xl uppercase tracking-tighter text-center px-10 leading-none">
                         Textul va pluti direct peste poza ta
@@ -232,16 +267,16 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-                <Button 
+                <button 
                     onClick={handleShare}
-                    className="h-14 rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] hover:opacity-90 text-white font-bold uppercase tracking-widest text-xs gap-2 shadow-lg"
+                    className="flex items-center justify-center h-14 rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] hover:opacity-90 text-white font-bold uppercase tracking-widest text-[10px] gap-2 shadow-lg"
                 >
                     <Instagram className="w-5 h-5" /> Partajează
-                </Button>
+                </button>
                 <Button 
                     variant="outline"
                     onClick={handleDownload}
-                    className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 font-bold uppercase tracking-widest text-xs gap-2"
+                    className="h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 font-bold uppercase tracking-widest text-[10px] gap-2"
                 >
                     <Download className="w-5 h-5" /> Download
                 </Button>
