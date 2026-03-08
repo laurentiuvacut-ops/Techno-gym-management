@@ -27,7 +27,7 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
     const W = 1080;
     const H = 1920;
 
-    // Încărcăm logo-ul pentru watermark-ul de jos
+    // Încărcăm logo-ul pentru watermark
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
     logoImg.src = "https://i.imgur.com/9W1ye1w.png";
@@ -166,12 +166,12 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         ctx.fillText(bestStr, 540, 1220);
       }
 
-      // 8. WATERMARK LOGO (Jos)
-      // Y = 1650 -> Icon
+      // 8. WATERMARK LOGO (Mutat mai sus, mai aproape de text)
+      // Y = 1450 -> Icon (Mutat de la 1650)
       const logoIconSize = 120;
-      ctx.drawImage(logoImg, 540 - logoIconSize / 2, 1650 - logoIconSize / 2, logoIconSize, logoIconSize);
+      ctx.drawImage(logoImg, 540 - logoIconSize / 2, 1450 - logoIconSize / 2, logoIconSize, logoIconSize);
 
-      // Y = 1720 -> Brand Text (44px)
+      // Y = 1520 -> Brand Text (Mutat de la 1720)
       ctx.font = '400 44px "Bebas Neue", Impact, sans-serif';
       const techText = 'TECHNO';
       const gymText = ' GYM';
@@ -180,9 +180,9 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
       ctx.textAlign = 'left';
       const logoStartX = 540 - totalLogoW / 2;
       ctx.fillStyle = '#00FFFF';
-      ctx.fillText(techText, logoStartX, 1720);
+      ctx.fillText(techText, logoStartX, 1520);
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(gymText, logoStartX + ctx.measureText(techText).width, 1720);
+      ctx.fillText(gymText, logoStartX + ctx.measureText(techText).width, 1520);
 
       setImageUri(canvas.toDataURL('image/png'));
     };
