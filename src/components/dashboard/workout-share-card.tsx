@@ -4,8 +4,6 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Instagram, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { format } from 'date-fns';
-import { ro } from 'date-fns/locale';
 import type { WorkoutLog } from '@/types/workout';
 
 interface WorkoutShareCardProps {
@@ -50,23 +48,14 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
       const volStr = totalVolume >= 1000 
         ? `${(totalVolume / 1000).toFixed(1)}K KG` 
         : `${totalVolume} KG`;
-      
-      const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
-      const formattedDate = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
-      // 4. HEADER: Data (Mutată mai sus și făcută mult mai vizibilă)
-      // Y = 300 -> Data (36px, Alb Pur, Semi-Bold)
-      ctx.font = '600 36px "Inter", sans-serif';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(formattedDate, 540, 300);
-
-      // 5. STATISTICI (Zona Centrală)
+      // 4. STATISTICI (Zona Centrală)
       
       // --- STAT 1: DURATĂ ---
       // Y = 520 -> Label (28px, cyan)
       ctx.font = '600 28px "Inter", sans-serif';
       ctx.fillStyle = '#00FFFF';
-      // @ts-ignore - letterSpacing is supported in modern canvas but TS might complain
+      // @ts-ignore
       if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
       ctx.fillText('DURATĂ', 540, 520);
 
@@ -136,7 +125,7 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         ctx.fillText(`${log.exercises?.length || 0}`, 540, 1050);
       }
 
-      // 6. SEPARATOR SUBTIL
+      // 5. SEPARATOR SUBTIL
       // Y = 1150
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
       ctx.lineWidth = 1;
@@ -145,7 +134,7 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
       ctx.lineTo(640, 1150);
       ctx.stroke();
 
-      // 7. BEST EXERCISE (Optional)
+      // 6. BEST EXERCISE (Optional)
       // Y = 1220
       if (!log.isQuickLog && log.exercises && log.exercises.length > 0) {
         let bestEx = log.exercises[0];
@@ -166,23 +155,23 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         ctx.fillText(bestStr, 540, 1220);
       }
 
-      // 8. WATERMARK LOGO (Mutat mai sus, mai aproape de text)
-      // Y = 1450 -> Icon (Mutat de la 1650)
+      // 7. WATERMARK LOGO (Mutat și mai sus, mult mai aproape de conținut)
+      // Y = 1350 -> Icon (Mutat de la 1450)
       const logoIconSize = 120;
-      ctx.drawImage(logoImg, 540 - logoIconSize / 2, 1450 - logoIconSize / 2, logoIconSize, logoIconSize);
+      ctx.drawImage(logoImg, 540 - logoIconSize / 2, 1350 - logoIconSize / 2, logoIconSize, logoIconSize);
 
-      // Y = 1520 -> Brand Text (Mutat de la 1720)
+      // Y = 1420 -> Brand Text (Mutat de la 1520)
       ctx.font = '400 44px "Bebas Neue", Impact, sans-serif';
       const techText = 'TECHNO';
       const gymText = ' GYM';
       const totalLogoW = ctx.measureText(techText + gymText).width;
       
       ctx.textAlign = 'left';
-      const logoStartX = 540 - totalLogoW / 2;
+      const logoStartX = (W - totalLogoW) / 2;
       ctx.fillStyle = '#00FFFF';
-      ctx.fillText(techText, logoStartX, 1520);
+      ctx.fillText(techText, logoStartX, 1420);
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(gymText, logoStartX + ctx.measureText(techText).width, 1520);
+      ctx.fillText(gymText, logoStartX + ctx.measureText(techText).width, 1420);
 
       setImageUri(canvas.toDataURL('image/png'));
     };
