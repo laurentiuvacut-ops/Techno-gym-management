@@ -54,16 +54,11 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
       const dateStr = format(new Date(log.date), 'EEEE, dd MMMM yyyy', { locale: ro });
       const formattedDate = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
-      // 4. HEADER: Nume Antrenament & Dată (Sus)
-      // Y = 280 -> Nume (80px)
-      ctx.font = '400 80px "Bebas Neue", Impact, sans-serif';
+      // 4. HEADER: Data (Mutată mai sus și făcută mult mai vizibilă)
+      // Y = 300 -> Data (36px, Alb Pur, Semi-Bold)
+      ctx.font = '600 36px "Inter", sans-serif';
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillText(log.name.toUpperCase(), 540, 280);
-
-      // Y = 340 -> Data (26px)
-      ctx.font = '400 26px "Inter", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-      ctx.fillText(formattedDate, 540, 340);
+      ctx.fillText(formattedDate, 540, 300);
 
       // 5. STATISTICI (Zona Centrală)
       
@@ -194,7 +189,6 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
   }, [log]);
 
   useEffect(() => {
-    // Delay pentru a asigura încărcarea fonturilor
     const timer = setTimeout(generateImage, 800);
     return () => clearTimeout(timer);
   }, [generateImage]);
@@ -249,7 +243,6 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
 
         <div className="p-6 pt-2 space-y-6">
             <div className="relative aspect-[9/16] w-full rounded-3xl overflow-hidden group shadow-inner">
-                {/* Simulated photo background for preview */}
                 <div className="absolute inset-0 bg-gradient-to-br from-zinc-700 via-zinc-800 to-black" />
                 <div className="absolute inset-0 flex items-center justify-center">
                     <p className="text-white/5 font-headline text-4xl uppercase tracking-tighter text-center px-10 leading-none">
