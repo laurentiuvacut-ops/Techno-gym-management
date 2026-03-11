@@ -11,7 +11,6 @@ import { Clock, Star, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useIsNativeApp } from '@/hooks/use-native-app';
 
 const Header = dynamic(() => import('@/components/layout/header'), { 
   ssr: false,
@@ -45,7 +44,6 @@ const TransformationsSection = dynamic(
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
   const [currentYear, setCurrentYear] = useState('2024');
-  const isNativeApp = useIsNativeApp();
 
   useEffect(() => {
     setMounted(true);
@@ -80,7 +78,7 @@ export default function LandingPage() {
 
                 <Button asChild className="h-12 px-8 text-base sm:text-lg rounded-xl glow-primary bg-gradient-primary font-headline uppercase tracking-[0.15em] hover:scale-105 active:scale-95 shadow-2xl transition-all border-none mb-10">
                     <Link href="/login">
-                        {isNativeApp ? 'Intră în Cont' : 'Alătură-te Acum'} <ArrowRight className="ml-2 h-5 w-5" />
+                        Intră în Cont <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                 </Button>
 
@@ -103,7 +101,7 @@ export default function LandingPage() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl uppercase font-headline">Cunoaște-ne Antrenorii</h2>
               <p className="max-w-[700px] text-muted-foreground md:text-xl italic">
-                Experții noștri certificați sunt dedicați să te ajute să îți atingi obiectivele.
+                Experții noștri certificați sunt dedicați să te ajute să îți atingi obiecule.
               </p>
             </div>
             <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
@@ -186,7 +184,7 @@ export default function LandingPage() {
                             
                             <div className="pt-4 mt-auto">
                                 <Button asChild className={cn("w-full h-12 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg", isPopular ? "bg-white text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")} variant="default">
-                                   <Link href="/login">{isNativeApp ? 'Detalii' : plan.cta}</Link>
+                                   <Link href="/login">Detalii</Link>
                                 </Button>
                             </div>
                         </div>

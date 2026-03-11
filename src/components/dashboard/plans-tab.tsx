@@ -2,73 +2,15 @@
 import { subscriptions } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, LinkIcon, ArrowLeft, Loader2 } from "lucide-react";
+import { Check, Star, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser } from '@/firebase';
 import { useMember } from '@/contexts/member-context';
-import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { useToast } from "@/hooks/use-toast";
-import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
-import { useIsNativeApp } from '@/hooks/use-native-app';
 
 export default function PlansTab() {
-  const { user } = useUser();
   const { memberData } = useMember();
   const { setActiveTab } = useDashboardNav();
-  const searchParams = useSearchParams();
-  const { toast } = useToast();
-  const isNativeApp = useIsNativeApp();
-  
-  const [isUpdating, setIsUpdating] = useState<string | null>(null);
-  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
-
-  const paymentSuccess = searchParams.get('payment_success') === 'true';
-
-  const handlePurchase = async (plan: any) => {
-    setCheckoutUrl(null);
-    if (!user?.phoneNumber) {
-      toast({
-        variant: "destructive",
-        title: "Eroare",
-        description: "Trebuie să fii autentificat pentru a efectua o plată.",
-      });
-      return;
-    }
-
-    setIsUpdating(plan.id);
-
-    try {
-        const baseUrl = window.location.origin;
-        const { url, error: stripeError } = await createCheckoutSession({
-            userId: user.uid,
-            baseUrl: baseUrl,
-            planId: plan.id,
-            planTitle: plan.title,
-            planPrice: plan.price,
-        });
-
-        if (url) {
-            setCheckoutUrl(url);
-        } else {
-            toast({
-                variant: "destructive",
-                title: "Eroare",
-                description: stripeError || "Nu s-a putut crea sesiunea de plată.",
-            });
-            setIsUpdating(null);
-        }
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Eroare",
-        description: error.message || 'Eroare necunoscută.',
-      });
-      setIsUpdating(null);
-    }
-  };
   
   const currentSubscription = memberData?.subscriptionType ? subscriptions.find(sub => sub.title === memberData.subscriptionType) : null;
   const currentPlanId = currentSubscription?.id;
@@ -93,27 +35,15 @@ export default function PlansTab() {
       <div className="flex flex-col gap-6">
         <div className="space-y-1 text-center">
             <h1 className="text-4xl font-headline tracking-wider">Abonamente</h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">Alege planul care ți se potrivește.</p>
+            <p className="text-muted-foreground max-w-2xl mx-auto">Toate abonamentele se achiziționează direct la recepția sălii.</p>
         </div>
       </div>
-
-      {paymentSuccess && (
-          <div className="flex items-center justify-center p-6 glass rounded-3xl gap-3 border-primary/30 bg-primary/5 animate-in fade-in duration-500">
-              <Loader2 className="w-5 h-5 text-primary animate-spin" />
-              <div className="text-center">
-                <p className="text-sm font-bold text-primary">Plata se procesează...</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Abonamentul se va activa automat în câteva secunde.</p>
-              </div>
-          </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {subscriptions.map((plan) => {
           const isCurrent = plan.id === currentPlanId;
           const isPopular = (plan as any).popular;
           const isFeatured = isCurrent || isPopular;
-          const isProcessingThisPlan = isUpdating === plan.id;
-          const isOfflinePlan = ['nonstop', 'student'].includes(plan.id);
 
           return (
             <div
@@ -154,38 +84,10 @@ export default function PlansTab() {
               </div>
 
               <div className="mt-8">
-                {isNativeApp ? (
-                  <div className="text-center p-4 rounded-2xl bg-black/20 border border-white/10">
-                    <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Se cumpără în locație</p>
-                    <p className="text-[10px] text-muted-foreground italic leading-tight">Vizitează recepția sălii pentru activarea acestui plan.</p>
-                  </div>
-                ) : isOfflinePlan ? (
-                    <Button 
-                        disabled
-                        className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary" : "bg-primary/20 text-primary")}
-                    >
-                        {plan.cta}
-                    </Button>
-                 ) : isProcessingThisPlan && checkoutUrl ? (
-                  <Button asChild className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "")}>
-                    <a href={checkoutUrl}>
-                      <LinkIcon className="mr-2 h-4 w-4" />
-                      Finalizează Plata
-                    </a>
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={() => handlePurchase(plan)}
-                    disabled={isProcessingThisPlan}
-                    className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")}
-                  >
-                    {isProcessingThisPlan 
-                      ? 'Se procesează...' 
-                      : isCurrent 
-                        ? 'Reînnoiește' 
-                        : plan.cta}
-                  </Button>
-                )}
+                <div className="text-center p-4 rounded-2xl bg-black/20 border border-white/10">
+                  <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Se cumpără în locație</p>
+                  <p className="text-[10px] text-muted-foreground italic leading-tight">Vizitează recepția sălii pentru activarea acestui plan.</p>
+                </div>
               </div>
             </div>
           );

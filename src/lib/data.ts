@@ -28,7 +28,7 @@ export const subscriptions = [
       "Acces la aparate și greutăți",
       "Vestiar cu dușuri inclus",
     ],
-    cta: "Cumpără Acum",
+    cta: "Se cumpără în locație",
   },
   {
     id: "pro",
@@ -41,7 +41,7 @@ export const subscriptions = [
       "Acces în intervalul 08:00 - 22:00",
       "Toate beneficiile Classic",
     ],
-    cta: "Cumpără Acum",
+    cta: "Se cumpără în locație",
     popular: true,
   },
   {
