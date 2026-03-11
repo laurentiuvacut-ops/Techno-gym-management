@@ -156,7 +156,7 @@ export default function PlansTab() {
               <div className="mt-8">
                 {isNativeApp ? (
                   <div className="text-center p-4 rounded-2xl bg-black/20 border border-white/10">
-                    <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Achiziție în Locație</p>
+                    <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Se cumpără în locație</p>
                     <p className="text-[10px] text-muted-foreground italic leading-tight">Vizitează recepția sălii pentru activarea acestui plan.</p>
                   </div>
                 ) : isOfflinePlan ? (
