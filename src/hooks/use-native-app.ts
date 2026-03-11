@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 /**
- * Hook care detectează dacă aplicația rulează într-un mediu nativ (Capacitor).
+ * Hook care detectează dacă aplicația rulează într-un mediu nativ (Capacitor/Native Bridge).
  * Utilizat pentru a ascunde funcționalități interzise de App Store (ex: plăți externe).
  */
 export function useIsNativeApp(): boolean {
@@ -13,9 +13,7 @@ export function useIsNativeApp(): boolean {
     // Verificăm prezența obiectului Capacitor pus la dispoziție de bridge-ul nativ
     const native = !!(
       typeof window !== 'undefined' &&
-      (window as any).Capacitor &&
-      (window as any).Capacitor.isNativePlatform &&
-      (window as any).Capacitor.isNativePlatform()
+      ((window as any).Capacitor?.isNativePlatform?.() || (window as any).webkit?.messageHandlers)
     );
     setIsNative(native);
   }, []);

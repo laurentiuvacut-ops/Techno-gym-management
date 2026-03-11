@@ -182,7 +182,7 @@ export default function LandingPage() {
                                     <li key={i} className="flex items-center gap-3">
                                         <div className={cn("h-5 w-5 rounded-full flex items-center justify-center shrink-0", isPopular ? "bg-white/20" : "bg-primary/20")}>
                                           <div className={cn("flex items-center justify-center")}>
-                                            <Check className={cn("w-3.5 h-3.5", isPopular ? "text-primary-foreground" : "text-primary")} />
+                                            <div className={cn("h-1.5 w-1.5 rounded-full", isPopular ? "bg-primary-foreground" : "bg-primary")} />
                                           </div>
                                         </div>
                                         <span className="text-sm font-medium">{benefit}</span>
@@ -222,6 +222,7 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-6">
              <Link href="/login" className="text-xs font-bold uppercase tracking-widest hover:text-primary transition-colors">Acces Membri</Link>
+             <Link href="/privacy" className="text-xs font-bold uppercase tracking-widest hover:text-primary transition-colors">Confidențialitate</Link>
              <a href="https://www.instagram.com/technogymcraiova/" target="_blank" className="text-xs font-bold uppercase tracking-widest hover:text-primary transition-colors">Instagram</a>
           </div>
         </div>
