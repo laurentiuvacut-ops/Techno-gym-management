@@ -235,7 +235,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, isQuick =
                 value={workoutName} 
                 onChange={e => setWorkoutName(e.target.value)} 
                 placeholder="ex: Push Day..." 
-                className="bg-background/50 border-white/10 text-base text-white placeholder:text-white/70 h-12 rounded-xl" 
+                className="bg-background/50 border-white/10 text-base text-white placeholder:text-white/70 h-12 rounded-xl font-medium" 
                 required 
               />
             </div>
@@ -246,7 +246,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, isQuick =
                 value={duration} 
                 onChange={e => setDuration(e.target.value)} 
                 placeholder="60" 
-                className="bg-background/50 border-white/10 text-base text-white placeholder:text-white/70 h-12 rounded-xl" 
+                className="bg-background/50 border-white/10 text-base text-white placeholder:text-white/70 h-12 rounded-xl font-medium" 
               />
             </div>
           </div>
@@ -339,14 +339,14 @@ export default function WorkoutForm({ logsRef, initialData, editingId, isQuick =
                             defaultValue={set.weight} 
                             onBlur={e => updateSet(ex.id, setIdx, 'weight', e.target.value)} 
                             placeholder="kg" 
-                            className="h-12 bg-background/50 border-white/5 text-base text-center text-white placeholder:text-white/70" 
+                            className="h-12 bg-background/50 border-white/5 text-base text-center text-white placeholder:text-white/70 font-medium" 
                           />
                           <Input 
                             type="number" 
                             defaultValue={set.reps} 
                             onBlur={e => updateSet(ex.id, setIdx, 'reps', e.target.value)} 
                             placeholder="reps" 
-                            className="h-12 bg-background/50 border-white/5 text-base text-center text-white placeholder:text-white/70" 
+                            className="h-12 bg-background/50 border-white/5 text-base text-center text-white placeholder:text-white/70 font-medium" 
                           />
                         </div>
                         <Button type="button" variant="ghost" size="icon" onClick={() => removeSet(ex.id, setIdx)} className="h-10 w-10 opacity-30 hover:opacity-100 hover:text-destructive">
@@ -375,7 +375,7 @@ export default function WorkoutForm({ logsRef, initialData, editingId, isQuick =
           <Textarea 
             value={notes} 
             onChange={e => setNotes(e.target.value)} 
-            className="bg-background/50 border-white/10 h-24 text-base text-white placeholder:text-white/70" 
+            className="bg-background/50 border-white/10 h-24 text-base text-white placeholder:text-white/70 font-medium" 
             placeholder="Cum a fost antrenamentul azi?" 
           />
         </div>

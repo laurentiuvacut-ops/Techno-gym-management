@@ -155,12 +155,11 @@ export default function WorkoutShareCard({ log, onClose }: WorkoutShareCardProps
         ctx.fillText(bestStr, 540, 1220);
       }
 
-      // 7. WATERMARK LOGO (Mutat și mai sus, mult mai aproape de conținut)
-      // Y = 1350 -> Icon (Mutat de la 1450)
+      // 7. WATERMARK LOGO (Repositioned High)
+      // Y = 1350
       const logoIconSize = 120;
       ctx.drawImage(logoImg, 540 - logoIconSize / 2, 1350 - logoIconSize / 2, logoIconSize, logoIconSize);
 
-      // Y = 1420 -> Brand Text (Mutat de la 1520)
       ctx.font = '400 44px "Bebas Neue", Impact, sans-serif';
       const techText = 'TECHNO';
       const gymText = ' GYM';
