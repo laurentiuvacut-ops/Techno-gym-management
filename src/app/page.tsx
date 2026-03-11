@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Check, Clock, Star, ArrowRight } from "lucide-react";
+import { Clock, Star, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
