@@ -5,10 +5,6 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCcw, Home } from 'lucide-react';
 import Link from 'next/link';
 
-/**
- * Root Error Component pentru a preveni eroarea "missing required error components".
- * Gestionează erorile care apar în orice pagină a aplicației.
- */
 export default function RootError({
   error,
   reset,
