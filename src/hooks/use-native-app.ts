@@ -13,7 +13,9 @@ export function useIsNativeApp(): boolean {
     // Verificăm prezența obiectului Capacitor pus la dispoziție de bridge-ul nativ
     const native = !!(
       typeof window !== 'undefined' &&
-      ((window as any).Capacitor?.isNativePlatform?.() || (window as any).webkit?.messageHandlers)
+      (window as any).Capacitor &&
+      (window as any).Capacitor.isNativePlatform &&
+      (window as any).Capacitor.isNativePlatform()
     );
     setIsNative(native);
   }, []);

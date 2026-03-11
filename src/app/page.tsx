@@ -70,24 +70,20 @@ export default function LandingPage() {
             <div className="absolute inset-0 bg-black/75 z-10" />
             
             <div className="relative z-20 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
-                {/* Titlu h1 */}
                 <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold uppercase tracking-tight leading-[0.9] text-gradient font-headline mb-4">
                     Transformă-ți <br/> Corpul
                 </h1>
 
-                {/* Subtitlu p */}
                 <p className="max-w-md text-sm md:text-base italic text-muted-foreground/70 mb-10">
                     Eliberează-ți potențialul la Techno Gym Craiova.
                 </p>
 
-                {/* Buton CTA */}
                 <Button asChild className="h-12 px-8 text-base sm:text-lg rounded-xl glow-primary bg-gradient-primary font-headline uppercase tracking-[0.15em] hover:scale-105 active:scale-95 shadow-2xl transition-all border-none mb-10">
                     <Link href="/login">
                         {isNativeApp ? 'Intră în Cont' : 'Alătură-te Acum'} <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                 </Button>
 
-                {/* Badge 24/7 */}
                 <div className="inline-flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary/10 backdrop-blur-sm px-5 py-3 shadow-[0_0_20px_rgba(20,184,166,0.15)]">
                     <div className="bg-primary/20 p-2 rounded-full shadow-[0_0_10px_rgba(20,184,166,0.3)] flex items-center justify-center shrink-0">
                         <Clock className="w-5 h-5 text-primary" />
@@ -100,10 +96,8 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* Secțiunea Transformări */}
         <TransformationsSection />
 
-        {/* Antrenori */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-background">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
@@ -134,7 +128,6 @@ export default function LandingPage() {
           </div>
         </section>
         
-        {/* Abonamente */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card/30">
             <div className="container px-4 md:px-6 mx-auto">
                 <div className="text-center space-y-3 mb-16">
