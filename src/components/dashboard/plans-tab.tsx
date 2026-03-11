@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { createCheckoutSession } from "@/ai/flows/create-checkout-session";
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
+import { useIsNativeApp } from '@/hooks/use-native-app';
 
 export default function PlansTab() {
   const { user } = useUser();
@@ -19,6 +20,7 @@ export default function PlansTab() {
   const { setActiveTab } = useDashboardNav();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const isNativeApp = useIsNativeApp();
   
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
@@ -152,7 +154,12 @@ export default function PlansTab() {
               </div>
 
               <div className="mt-8">
-                {isOfflinePlan ? (
+                {isNativeApp ? (
+                  <div className="text-center p-4 rounded-2xl bg-black/20 border border-white/10">
+                    <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Achiziție în Locație</p>
+                    <p className="text-[10px] text-muted-foreground italic leading-tight">Vizitează recepția sălii pentru activarea acestui plan.</p>
+                  </div>
+                ) : isOfflinePlan ? (
                     <Button 
                         disabled
                         className={cn("w-full", isFeatured ? "bg-primary-foreground text-primary" : "bg-primary/20 text-primary")}

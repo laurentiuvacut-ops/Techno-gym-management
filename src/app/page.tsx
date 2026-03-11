@@ -11,6 +11,7 @@ import { Check, Clock, Star, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsNativeApp } from '@/hooks/use-native-app';
 
 const Header = dynamic(() => import('@/components/layout/header'), { 
   ssr: false,
@@ -44,6 +45,7 @@ const TransformationsSection = dynamic(
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
   const [currentYear, setCurrentYear] = useState('2024');
+  const isNativeApp = useIsNativeApp();
 
   useEffect(() => {
     setMounted(true);
@@ -81,7 +83,7 @@ export default function LandingPage() {
                 {/* Buton CTA */}
                 <Button asChild className="h-12 px-8 text-base sm:text-lg rounded-xl glow-primary bg-gradient-primary font-headline uppercase tracking-[0.15em] hover:scale-105 active:scale-95 shadow-2xl transition-all border-none mb-10">
                     <Link href="/login">
-                        Alătură-te Acum <ArrowRight className="ml-2 h-5 w-5" />
+                        {isNativeApp ? 'Intră în Cont' : 'Alătură-te Acum'} <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                 </Button>
 
@@ -179,7 +181,9 @@ export default function LandingPage() {
                                     {plan.benefits.map((benefit, i) => (
                                     <li key={i} className="flex items-center gap-3">
                                         <div className={cn("h-5 w-5 rounded-full flex items-center justify-center shrink-0", isPopular ? "bg-white/20" : "bg-primary/20")}>
-                                          <Check className={cn("w-3.5 h-3.5", isPopular ? "text-primary-foreground" : "text-primary")} />
+                                          <div className={cn("flex items-center justify-center")}>
+                                            <Check className={cn("w-3.5 h-3.5", isPopular ? "text-primary-foreground" : "text-primary")} />
+                                          </div>
                                         </div>
                                         <span className="text-sm font-medium">{benefit}</span>
                                     </li>
@@ -189,7 +193,7 @@ export default function LandingPage() {
                             
                             <div className="pt-4 mt-auto">
                                 <Button asChild className={cn("w-full h-12 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg", isPopular ? "bg-white text-primary hover:bg-white/90" : "bg-primary/20 text-primary hover:bg-primary/30")} variant="default">
-                                   <Link href="/login">{plan.cta}</Link>
+                                   <Link href="/login">{isNativeApp ? 'Detalii' : plan.cta}</Link>
                                 </Button>
                             </div>
                         </div>
