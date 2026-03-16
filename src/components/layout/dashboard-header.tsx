@@ -21,7 +21,7 @@ export default function DashboardHeader() {
   useEffect(() => {
     setMounted(true);
     const mainContent = document.querySelector('main');
-    
+
     const handleScroll = () => {
       if (mainContent) {
         setScrolled(mainContent.scrollTop > 10);
@@ -31,7 +31,7 @@ export default function DashboardHeader() {
     if (mainContent) {
       mainContent.addEventListener('scroll', handleScroll);
     }
-    
+
     return () => {
       if (mainContent) {
         mainContent.removeEventListener('scroll', handleScroll);
@@ -44,13 +44,13 @@ export default function DashboardHeader() {
 
   return (
     <header className={cn(
-        "sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 px-4 md:px-6 transition-all duration-300",
-        scrolled ? "glass" : "bg-transparent"
+        "sticky top-0 z-30 flex h-16 shrink-0 items-center gap-4 px-4 md:px-6 transition-colors duration-200",
+        scrolled ? "bg-background/80 backdrop-blur-lg border-b border-border/30" : "bg-transparent"
     )}>
       <div className="md:hidden">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={toggleSidebar}
           className="gap-2 h-10 px-4 border border-white/10 bg-white/5 hover:bg-white/10 rounded-xl transition-all font-headline tracking-widest uppercase text-xs"
         >

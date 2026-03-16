@@ -1,11 +1,9 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import { useMember } from '@/contexts/member-context';
 import { Button } from '@/components/ui/button';
-import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
@@ -57,9 +55,9 @@ class TabErrorBoundary extends React.Component<{ children: React.ReactNode, acti
           <AlertCircle className="w-12 h-12 text-destructive opacity-50" />
           <h2 className="text-xl font-headline tracking-wide uppercase">Secțiune Indisponibilă</h2>
           <p className="text-xs text-muted-foreground italic">Momentan nu putem încărca aceste date.</p>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => window.location.reload()}
             className="text-[10px] uppercase font-bold tracking-widest gap-2"
           >
@@ -75,8 +73,6 @@ class TabErrorBoundary extends React.Component<{ children: React.ReactNode, acti
 export default function DashboardMaster() {
   const { activeTab } = useDashboardNav();
   const { memberData, isLoading } = useMember();
-  const reduced = useReducedMotion();
-  
   const ActiveComponent = tabs[activeTab];
 
   if (!isLoading && !memberData) {
@@ -92,20 +88,12 @@ export default function DashboardMaster() {
   }
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={activeTab}
-        initial={{ opacity: reduced ? 1 : 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: reduced ? 1 : 0 }}
-        transition={{ duration: reduced ? 0 : 0.15 }}
-      >
-        <TabErrorBoundary activeTab={activeTab}>
-          <Suspense fallback={<div className="space-y-4"><Skeleton className="h-12 w-1/2" /><Skeleton className="h-64 w-full" /></div>}>
-            <ActiveComponent />
-          </Suspense>
-        </TabErrorBoundary>
-      </motion.div>
-    </AnimatePresence>
+    <div key={activeTab} className="animate-in fade-in duration-150">
+      <TabErrorBoundary activeTab={activeTab}>
+        <Suspense fallback={<div className="space-y-4"><Skeleton className="h-12 w-1/2" /><Skeleton className="h-64 w-full" /></div>}>
+          <ActiveComponent />
+        </Suspense>
+      </TabErrorBoundary>
+    </div>
   );
 }

@@ -39,7 +39,7 @@
     --glow-primary: 174 72% 50%;
     --gradient-start: 174 72% 55%;
     --gradient-end: 186 80% 42%;
-    
+
     --sidebar-background: 220 10% 10% / 0.95;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 174 72% 50%;
@@ -66,6 +66,22 @@
     overscroll-behavior-y: none;
     -webkit-user-select: none;
     user-select: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Optimizare performanță scroll pe iOS */
+  main {
+    -webkit-overflow-scrolling: touch;
+    will-change: scroll-position;
+    touch-action: pan-y;
+  }
+
+  /* GPU acceleration pentru elementele animate */
+  .glass, .glass-strong, header {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
 
   /* Permitem selecția textului doar în input-uri și zone de conținut */
@@ -95,12 +111,21 @@
   }
 
   .glass {
-    background: hsl(var(--card) / 0.6);
-    @apply backdrop-blur-md border border-border/50;
+    background: hsl(var(--card) / 0.8);
+    @apply backdrop-blur-sm border border-border/50;
   }
 
   .glass-strong {
-    background: hsl(var(--card) / 0.85);
-    @apply backdrop-blur-2xl border border-border/30;
+    background: hsl(var(--card) / 0.92);
+    @apply backdrop-blur-md border border-border/30;
+  }
+
+  /* Safe area padding for iPhone notch/home indicator */
+  .pb-safe {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
   }
 }

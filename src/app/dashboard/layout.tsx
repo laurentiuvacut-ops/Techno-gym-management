@@ -42,12 +42,12 @@ export default function DashboardLayout({
     <DashboardNavProvider>
       <SidebarProvider defaultOpen={true}>
         <MemberProvider>
-          <div className="flex min-h-dvh w-full bg-background">
+          <div className="flex min-h-dvh w-full bg-background" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
             <DashboardSidebar />
             <div className="flex flex-1 flex-col h-dvh overflow-hidden">
               <DashboardHeader />
-              <main className="flex-1 overflow-y-auto relative outline-none overscroll-contain scroll-smooth">
-                <div className="w-full px-4 md:px-8 py-4 md:py-6 mx-auto selectable-text">
+              <main className="flex-1 overflow-y-auto outline-none overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className="w-full px-4 md:px-8 py-4 md:py-6 mx-auto selectable-text pb-safe">
                   {children}
                 </div>
               </main>

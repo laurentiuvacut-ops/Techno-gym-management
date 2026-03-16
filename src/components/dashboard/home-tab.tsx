@@ -5,7 +5,6 @@ import { useMember } from '@/contexts/member-context';
 import { useDashboardNav } from '@/contexts/dashboard-nav-context';
 import { useEffect, useState } from 'react';
 import { ArrowRight, Clock } from 'lucide-react';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { format, differenceInCalendarDays, isValid } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -54,7 +53,7 @@ export default function HomeTab() {
     if (expDate && isValid(expDate)) {
         const today = new Date();
         const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-        
+
         const diff = differenceInCalendarDays(expDate, todayUtc);
 
         setSubscriptionInfo({
@@ -76,19 +75,14 @@ export default function HomeTab() {
   }, [memberData]);
 
   if (!user) return null;
-  
+
   const displayName = memberData?.name?.split(' ')[0] || 'Membru';
   const subscriptionTitle = memberData?.subscriptionType || 'Fără Abonament';
   const isActive = subscriptionInfo.status === "Activ";
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(user.phoneNumber || '')}`;
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-4 md:space-y-6 pb-6"
-    >
+    <div className="space-y-4 md:space-y-6 pb-6 animate-in fade-in duration-200">
       <div className="flex justify-between items-center flex-wrap gap-2">
         <h1 className="text-3xl md:text-5xl font-headline tracking-wider">Salut, {displayName}!</h1>
       </div>
@@ -96,7 +90,7 @@ export default function HomeTab() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="relative lg:col-span-2 p-6 md:p-8 overflow-hidden glass rounded-3xl flex flex-col justify-between min-h-[240px] md:min-h-[280px]">
           <div className="absolute -top-1/4 -right-1/4 w-3/4 h-3/4 bg-primary/25 rounded-full blur-[120px] -z-10" />
-          
+
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
               <Clock className="w-5 h-5 text-primary" />
@@ -111,7 +105,7 @@ export default function HomeTab() {
               </p>
             </div>
           </div>
-          
+
           <div className="text-center my-2 md:my-4">
             {!subscriptionInfo.isSet || memberLoading ? (
               <div className="flex flex-col items-center gap-2">
@@ -194,6 +188,4 @@ export default function HomeTab() {
           </div>
         </button>
       </div>
-    </motion.div>
-  );
-}
+    </div>
